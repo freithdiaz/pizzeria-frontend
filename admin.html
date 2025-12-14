@@ -647,7 +647,7 @@
                          <label class="block font-medium mb-2 text-sm">Municipio *</label>
                          <input type="text" id="zona-municipio" required 
                                 class="w-full px-4 py-2 bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none" 
-                                placeholder="Ej: Medellin, Envigado, ItagÃ©Â¼i">
+                                placeholder="Ej: Medellin, Envigado, Itagui">
                          <p class="text-xs text-gray-400 mt-1">Nombre del municipio o ciudad</p>
                      </div>
 
@@ -711,7 +711,7 @@
                 <input type="hidden" id="categoria-id">
                 
                 <div class="mb-4">
-                    <label class="block font-medium mb-1 text-sm">Ã©Âcono</label>
+                    <label class="block font-medium mb-1 text-sm">Ícono</label>
                     <div class="flex items-center gap-2">
                         <select id="categoria-icono" class="w-full px-3 py-1 text-sm bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none">
                             <!-- Opciones comunes de Font Awesome (valor = clase) -->
@@ -1152,24 +1152,24 @@
                 });
                 const data = await resp.json();
                 if (resp.ok) {
-                    mostrarNotificacion('Ã¢Å“â€¦ Caja abierta exitosamente', 'success');
+                    mostrarNotificacion('✅ Caja abierta exitosamente', 'success');
                     cerrarModalAbrirCaja();
                     verificarEstadoCaja();
                     cargarVentasDia();
                 } else {
-                    mostrarNotificacion('Ã¢ÂÅ’ Error: ' + (data.error || 'No se pudo abrir la caja'), 'error');
+                    mostrarNotificacion('❌ Error: ' + (data.error || 'No se pudo abrir la caja'), 'error');
                 }
             } catch (e) {
-                mostrarNotificacion('Ã¢ÂÅ’ Error de conexion al abrir caja', 'error');
+                mostrarNotificacion('❌ Error de conexion al abrir caja', 'error');
             }
         }
 
         async function cerrarCaja() {
-            if (!confirm('Â¿Deseas cerrar la caja? Esto finalizara la sesion actual.')) return;
+            if (!confirm('¿Deseas cerrar la caja? Esto finalizara la sesion actual.')) return;
             try {
                 const sesionId = window.sesionCajaActual;
                 if (!sesionId) {
-                    mostrarNotificacion('Ã¢ÂÅ’ No hay sesion de caja abierta', 'error');
+                    mostrarNotificacion('❌ No hay sesion de caja abierta', 'error');
                     return;
                 }
                 const resp = await fetch(API_BASE_URL + '/api/caja/cerrar', {
@@ -1179,15 +1179,15 @@
                 });
                 const data = await resp.json();
                 if (resp.ok) {
-                    mostrarNotificacion('Ã¢Å“â€¦ Caja cerrada exitosamente', 'success');
+                    mostrarNotificacion('✅ Caja cerrada exitosamente', 'success');
                     verificarEstadoCaja();
                     cargarHistorialCaja();
                     cargarVentasDia();
                 } else {
-                    mostrarNotificacion('Ã¢ÂÅ’ Error: ' + (data.error || 'No se pudo cerrar la caja'), 'error');
+                    mostrarNotificacion('❌ Error: ' + (data.error || 'No se pudo cerrar la caja'), 'error');
                 }
             } catch (e) {
-                mostrarNotificacion('Ã¢ÂÅ’ Error de conexion al cerrar caja', 'error');
+                mostrarNotificacion('❌ Error de conexion al cerrar caja', 'error');
             }
         }
 
@@ -1284,9 +1284,9 @@
                     <div class="mb-4 text-sm text-gray-400">
                         <p><strong>Campos requeridos:</strong></p>
                         <div class="flex flex-wrap gap-2 mt-2">
-                            ${cat.campos_requeridos.ingredientes ? '<span class="bg-slate-700 px-2 py-1 rounded text-xs">Ã°Å¸â€œÂ Ingredientes</span>' : ''}
-                            ${cat.campos_requeridos.tamanos ? '<span class="bg-slate-700 px-2 py-1 rounded text-xs">Ã°Å¸â€œÂ Tamanios</span>' : ''}
-                            ${cat.campos_requeridos.mililitros ? '<span class="bg-slate-700 px-2 py-1 rounded text-xs">Ã°Å¸Â¥Â¤ Mililitros</span>' : ''}
+                            ${cat.campos_requeridos.ingredientes ? '<span class="bg-slate-700 px-2 py-1 rounded text-xs">🍕 Ingredientes</span>' : ''}
+                            ${cat.campos_requeridos.tamanos ? '<span class="bg-slate-700 px-2 py-1 rounded text-xs">Tamaños</span>' : ''}
+                            ${cat.campos_requeridos.mililitros ? '<span class="bg-slate-700 px-2 py-1 rounded text-xs"> Mililitros</span>' : ''}
                             ${!cat.campos_requeridos.ingredientes && !cat.campos_requeridos.tamanos && !cat.campos_requeridos.mililitros ? '<span class="text-xs">Ninguno</span>' : ''}
                         </div>
                     </div>
@@ -2327,8 +2327,8 @@
                         <td class="py-3 px-4 text-center text-gray-400" data-label="Stock Minimo">${stockMinimo}</td>
                         <td class="py-3 px-4 text-center" data-label="Estado">
                             ${estado 
-                                ? '<span class="bg-red-900 text-red-200 px-3 py-1 rounded-full text-xs">Ã¢Å¡Â Ã¯Â¸Â Stock Bajo</span>' 
-                                : '<span class="bg-green-900 text-green-200 px-3 py-1 rounded-full text-xs">Ã¢Å“â€œ OK</span>'}
+                                ? '<span class="bg-red-900 text-red-200 px-3 py-1 rounded-full text-xs">⚠️ Stock Bajo</span>' 
+                                : '<span class="bg-green-900 text-green-200 px-3 py-1 rounded-full text-xs">✔ OK</span>'}
                         </td>
                         <td class="py-3 px-4 text-center" data-label="Acciones">
                             <button onclick="abrirModalStock(${prod.id}, '${prod.nombre}', ${stockActual}, ${stockMinimo})" class="bg-blue-600 hover:bg-blue-700 px-4 py-1 rounded text-sm">
@@ -2636,13 +2636,13 @@
         async function cargarPrecioDomicilio() {
             // Esta funcion ahora es manejada por el sistema de precios por zona
             // Ver precios-zona.js: cargarConfiguracion() y cargarZonasPrecios()
-            console.log('Ã¢Å¡â„¢Ã¯Â¸Â Sistema de precios por zona cargado');
+            console.log('✅ Sistema de precios por zona cargado');
         }
 
         async function actualizarPrecioDomicilio() {
             // Funcion legacy - el sistema ahora usa precios por zona
             // Ver precios-zona.js: guardarConfiguracion()
-            console.warn('Ã¢Å¡Â Ã¯Â¸Â Esta funcion es obsoleta. Usar el nuevo sistema de precios por zona.');
+            console.warn('⚠️ Esta funcion es obsoleta. Usar el nuevo sistema de precios por zona.');
             showNotification('Por favor usa la nueva seccion de Configuracion de Domicilios', 'info');
         }
 

@@ -178,20 +178,20 @@ async function toggleCategory(categoryId) {
 // Cargar todas las categorÃ©Â­as al inicio
 async function loadAllCategories() {
     try {
-        // Obtener categorÃ©Â­as activas desde la API
+        // Obtener categorías activas desde la API
         const response = await fetch(API_BASE_URL + '/api/categorias-activas');
-        if (!response.ok) throw new Error('Error al cargar categorÃ©Â­as');
+        if (!response.ok) throw new Error('Error al cargar categorías');
 
         const result = await response.json();
-        if (!result.success) throw new Error('Error en respuesta de categorÃ©Â­as');
+        if (!result.success) throw new Error('Error en respuesta de categorías');
 
         const categorias = result.data;
 
-        // Limpiar contenedor de categorÃ©Â­as
+        // Limpiar contenedor de categorías
         const menuContainer = document.getElementById('main-menu-view');
         if (!menuContainer) return;
 
-        // Encontrar el contenedor específico donde se renderizan las categorÃ©Â­as
+        // Encontrar el contenedor específico donde se renderizan las categorías
         // (en la plantilla existe un <div class="space-y-6"> para esto)
         const categoriesWrapper = menuContainer.querySelector('.space-y-6');
         if (!categoriesWrapper) return;
@@ -209,7 +209,7 @@ async function loadAllCategories() {
 
             categoryDiv.innerHTML = `
                 <div class="category-header p-6 flex items-center space-x-6 cursor-pointer" onclick="toggleCategory('${tipoCategoria}')">
-                    <!-- Mostrar icono definido en la categorÃ©Â­a; si no hay, usar emoji como fallback -->
+                    <!-- Mostrar icono definido en la categoría; si no hay, usar emoji como fallback -->
                     <div class="w-24 h-24 rounded-full shadow-lg flex items-center justify-center text-white text-3xl" style="background:#FF4500">
                         <i class="${categoria.icono || 'fas fa-pizza-slice'}"></i>
                     </div>
@@ -231,16 +231,16 @@ async function loadAllCategories() {
             categoriesWrapper.appendChild(categoryDiv);
         });
 
-        console.log(`CategorÃ©Â­as cargadas dinÃ¡micamente: ${categorias.length}`);
+        console.log(`Categorías cargadas dinámicamente: ${categorias.length}`);
 
     } catch (error) {
-        console.error('Error cargando categorÃ©Â­as:', error);
+        console.error('Error cargando categorías:', error);
         // Fallback: mostrar mensaje de error
         const menuContainer = document.getElementById('main-menu-view');
         if (menuContainer) {
             const errorDiv = document.createElement('div');
             errorDiv.className = 'bg-red-900 bg-opacity-50 border border-red-500 rounded-lg p-4 m-4';
-            errorDiv.innerHTML = '<p class="text-red-300">Error al cargar categorÃ©Â­as. Intente recargar la pÃ¡gina.</p>';
+            errorDiv.innerHTML = '<p class="text-red-300">Error al cargar categorías. Intente recargar la página.</p>';
             menuContainer.appendChild(errorDiv);
         }
     }
@@ -333,22 +333,22 @@ async function loadCategoryProducts(categoryId) {
     // Para categorÃ©Â­as dinÃ¡micas, cargar productos directamente desde la API de productos pÃ©Âºblicos
     // filtrando por categorÃ©Â­a
     try {
-        // Primero necesitamos obtener el ID numÃ©Â©rico de la categorÃ©Â­a desde el nombre
+        // Primero necesitamos obtener el ID numérico de la categoría desde el nombre
         const categoriasResponse = await fetch(API_BASE_URL + '/api/categorias-activas');
-        if (!categoriasResponse.ok) throw new Error('Error al obtener categorÃ©Â­as');
+        if (!categoriasResponse.ok) throw new Error('Error al obtener categorías');
 
         const categoriasResult = await categoriasResponse.json();
-        if (!categoriasResult.success) throw new Error('Error en respuesta de categorÃ©Â­as');
+        if (!categoriasResult.success) throw new Error('Error en respuesta de categorías');
 
-        // Encontrar la categorÃ©Â­a por nombre
+        // Encontrar la categoría por nombre
         const categoria = categoriasResult.data.find(cat => cat.nombre.toLowerCase() === categoryId.toLowerCase());
         if (!categoria) {
-            console.warn(`CategorÃ©Â­a ${categoryId} no encontrada`);
+            console.warn(`Categoría ${categoryId} no encontrada`);
             return;
         }
 
         const response = await fetch(`${API_BASE_URL}/api/productos-publicos?categoria_id=${categoria.id}`);
-        if (!response.ok) throw new Error('Error al cargar productos de categorÃ©Â­a');
+        if (!response.ok) throw new Error('Error al cargar productos de categoría');
 
         const result = await response.json();
         if (!result.success) throw new Error('Error en respuesta de productos');
@@ -392,22 +392,22 @@ async function loadCategoryProducts(categoryId) {
         });
 
         renderPizzaCategory(recipes, gridId);
-        console.log(`Productos cargados para categorÃ©Â­a ${categoryId} (ID: ${categoria.id}): ${recipes.length}`);
+        console.log(`Productos cargados para categoría ${categoryId} (ID: ${categoria.id}): ${recipes.length}`);
 
     } catch (error) {
-        console.error(`Error cargando productos para categorÃ©Â­a ${categoryId}:`, error);
-        // Fallback: intentar con el mÃ©Â©todo anterior
+        console.error(`Error cargando productos para categoría ${categoryId}:`, error);
+        // Fallback: intentar con el método anterior
         await loadPizzasByType(tipoPizza, gridId);
     }
 }
 
-// Renderizar categorÃ©Â­a de pizzas (agrupadas por sabor)
+// Renderizar categoría de pizzas (agrupadas por sabor)
 function renderPizzaCategory(recipes, gridId) {
     const grid = document.getElementById(gridId);
     grid.innerHTML = '';
     
     // Solo las bebidas usan renderizado simple (botón directo)
-    // Verificar si la categorÃ©Â­a es especÃ©Â­ficamente "bebidas"
+    // Verificar si la categoría es específicamente "bebidas"
     const esCategoriaBebidasDedicada = gridId === 'bebidas-grid';
     if (esCategoriaBebidasDedicada && recipes.length > 0 && recipes[0].es_bebida) {
         renderBebidasCategory(recipes, gridId);
@@ -418,7 +418,7 @@ function renderPizzaCategory(recipes, gridId) {
     const groupedRecipes = {};
     recipes.forEach(recipe => {
         // Para agrupar correctamente, usar el nombre completo como clave
-        // porque ya viene sin el tamaÃ©Â±o incluido en el nombre
+        // porque ya viene sin el tamaño incluido en el nombre
         const baseName = recipe.name.trim();
         if (!groupedRecipes[baseName]) {
             groupedRecipes[baseName] = [];
@@ -431,7 +431,7 @@ function renderPizzaCategory(recipes, gridId) {
         const card = document.createElement('div');
         card.className = 'bg-gray-600 rounded-xl p-4 border border-gray-500';
         
-        // Ordenar por tamaÃ©Â±o
+        // Ordenar por tamaño
         const sizeOrder = ['personal', 'ejecutiva', 'mediana', 'grande', 'familiar', 'extra familiar'];
         recipeGroup.sort((a, b) => {
             return sizeOrder.indexOf(a.size.toLowerCase()) - sizeOrder.indexOf(b.size.toLowerCase());
@@ -612,7 +612,7 @@ function updateCartDisplay() {
         checkoutBtn.classList.remove('pulse-active');
         checkoutBtn.innerHTML = `
             <i class="fas fa-shopping-cart mr-2"></i>
-            Carrito VacÃ©Â­o
+            Carrito Vacío
         `;
     }
 }
@@ -620,7 +620,7 @@ function updateCartDisplay() {
 // Mostrar carrito
 function showCart() {
     if (currentCart.length === 0) {
-        showNotification('Tu carrito estÃ¡ vacÃ©Â­o. ¡AÃ©Â±ade algunos productos!', 'error');
+        showNotification('Tu carrito está vacío. ¡Añade algunos productos!', 'error');
         return;
     }
     
@@ -808,7 +808,7 @@ function removeFromCart(index) {
         } else {
             showView('main-menu-view');
         }
-        showNotification('Carrito vacÃ©Â­o. ContinÃ©Âºa agregando productos.', 'info');
+        showNotification('Carrito vacío. Continúa agregando productos.', 'info');
     } else {
         // Re-render based on mode
         const cartModal = document.getElementById('cart-modal');
@@ -867,9 +867,9 @@ async function submitOrderToAPI() {
                 }
             }
             
-            // Validar que tengamos un product_id vÃ¡lido
+            // Validar que tengamos un product_id válido
             if (!product_id) {
-                console.error(`Item sin product_id vÃ¡lido despuÃ©Â©s de todos los intentos:`, item);
+                console.error(`Item sin product_id válido después de todos los intentos:`, item);
                 // En lugar de tirar error, usar un producto por defecto o saltar
                 product_id = 1; // ID de producto por defecto
                 size_id = null;
@@ -1405,7 +1405,7 @@ async function printOrder(orderId) {
                 </head>
                 <body>
                     <div class="header">
-                        <h3>Ã°Å¸Ââ€¢ PIZZERÃ©ÂA NISS</h3>
+                        <h3>🍕 PIZZERÍA NISSI</h3>
                         <p>FACTURA #${order.id}</p>
                         <p>${new Date(order.created_at).toLocaleString('es-CO')}</p>
                     </div>
@@ -1566,7 +1566,7 @@ function printAlternative(order) {
         </style>
         <div class="print-content">
             <div class="print-header">
-                <h3>Ã°Å¸Ââ€¢ PIZZERÃ©ÂA NISS</h3>
+                <h3>🍕 PIZZERÍA NISSI</h3>
                 <p>FACTURA #${order.id}</p>
                 <p>${new Date(order.created_at).toLocaleString('es-CO')}</p>
             </div>
@@ -1637,7 +1637,7 @@ function printAlternative(order) {
     // Restaurar contenido original
     document.body.innerHTML = originalContent;
     
-    console.log(`Pedido #${order.id} enviado a impresión (mÃ©Â©todo alternativo)`);
+    console.log(`Pedido #${order.id} enviado a impresión (método alternativo)`);
     showNotification('Pedido enviado a impresión', 'success');
 }
 
@@ -1979,7 +1979,7 @@ let subtotalAmount = 0;
 
 function showDiscountModal() {
     if (currentCart.length === 0) {
-        showNotification('Tu carrito estÃ¡ vacÃ©Â­o. ¡AÃ©Â±ade algunos productos!', 'error');
+        showNotification('Tu carrito está vacío. ¡Añade algunos productos!', 'error');
         return;
     }
     
@@ -2039,7 +2039,7 @@ function updateDiscountDisplay() {
 
 async function confirmOrderWithDiscount() {
     if (currentCart.length === 0) {
-        showNotification('Tu carrito estÃ¡ vacÃ©Â­o. ¡AÃ©Â±ade algunos productos!', 'error');
+        showNotification('Tu carrito está vacío. ¡Añade algunos productos!', 'error');
         return;
     }
     
@@ -2077,11 +2077,11 @@ async function confirmOrderWithDiscount() {
         // Recargar la gestión de pedidos si estÃ¡ abierta
         reloadOrderManagement();
 
-        // Imprimir factura automÃ¡ticamente despuÃ©Â©s de un breve delay
+        // Imprimir factura automáticamente después de un breve delay
         setTimeout(async () => {
-            console.log(`Imprimiendo factura automÃ¡ticamente para pedido #${displayOrderNumber}`);
+            console.log(`Imprimiendo factura automáticamente para pedido #${displayOrderNumber}`);
             try {
-                // printOrder espera el ID interno; usar orderResponse.id si estÃ¡ disponible
+                // printOrder espera el ID interno; usar orderResponse.id si está disponible
                 await printOrder(orderResponse.id || orderResponse.pedido_id);
             } catch (printError) {
                 console.error('Error al imprimir factura:', printError);
@@ -2121,7 +2121,7 @@ async function submitOrderWithDiscount(totalWithDiscount, discountPercentage) {
         }
         
         if (!product_id) {
-            console.error('Item sin product_id vÃ¡lido:', cartItem);
+            console.error('Item sin product_id válido:', cartItem);
             continue; // Saltar este item
         }
         
@@ -2142,7 +2142,7 @@ async function submitOrderWithDiscount(totalWithDiscount, discountPercentage) {
     console.log('Items array:', items);
     
     if (items.length === 0) {
-        throw new Error('No hay items vÃ¡lidos para enviar');
+        throw new Error('No hay items válidos para enviar');
     }
     
     const orderData = {
