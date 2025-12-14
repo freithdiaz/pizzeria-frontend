@@ -175,7 +175,7 @@
                     <i class="fas fa-cog mr-2"></i>Configuracion
                 </button>
             </nav>
-        <!-- SECCIÃ“N: DASHBOARD -->
+        <!-- SECCIÃ©â€œN: DASHBOARD -->
         <div id="seccion-dashboard" class="seccion hidden">
             <h2 class="text-3xl font-bold mb-6">Dashboard de Ventas</h2>
             
@@ -266,7 +266,7 @@
     <!-- Main Content -->
     <main class="container mx-auto px-4 py-8">
         
-        <!-- SECCIÃ“N: CATEGORÃAS -->
+        <!-- SECCIÃ©â€œN: CATEGORÃ©ÂAS -->
         <div id="seccion-categorias" class="seccion hidden">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-3xl font-bold">Gestion de Categorias</h2>
@@ -293,7 +293,7 @@
             </div>
         </div>
 
-        <!-- SECCIÃ“N: PRODUCTOS -->
+        <!-- SECCIÃ©â€œN: PRODUCTOS -->
         <div id="seccion-productos" class="seccion hidden">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-3xl font-bold">Gestion de Productos</h2>
@@ -315,7 +315,7 @@
             </div>
         </div>
 
-        <!-- SECCIÃ“N: VINCULACIONES -->
+        <!-- SECCIÃ©â€œN: VINCULACIONES -->
         <div id="seccion-vinculaciones" class="seccion hidden">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-3xl font-bold">Vinculaciones de Productos</h2>
@@ -476,7 +476,7 @@
         </div>
 
 
-        <!-- SECCIÃ“N: INVENTARIO -->
+        <!-- SECCIÃ©â€œN: INVENTARIO -->
          <div id="seccion-inventario" class="seccion hidden">
               <h2 class="text-3xl font-bold mb-6">Gestion de Inventario</h2>
 
@@ -507,7 +507,7 @@
           </div>
 
 
-         <!-- SECCIÃ“N: CONFIGURACIÃ“N -->
+         <!-- SECCIÃ©â€œN: CONFIGURACIÃ©â€œN -->
          <div id="seccion-configuracion" class="seccion hidden">
              <div class="flex justify-between items-center mb-6">
                  <h2 class="text-3xl font-bold">Configuracion de Domicilios</h2>
@@ -647,7 +647,7 @@
                          <label class="block font-medium mb-2 text-sm">Municipio *</label>
                          <input type="text" id="zona-municipio" required 
                                 class="w-full px-4 py-2 bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none" 
-                                placeholder="Ej: Medellin, Envigado, ItagÃ¼i">
+                                placeholder="Ej: Medellin, Envigado, ItagÃ©Â¼i">
                          <p class="text-xs text-gray-400 mt-1">Nombre del municipio o ciudad</p>
                      </div>
 
@@ -711,7 +711,7 @@
                 <input type="hidden" id="categoria-id">
                 
                 <div class="mb-4">
-                    <label class="block font-medium mb-1 text-sm">Ãcono</label>
+                    <label class="block font-medium mb-1 text-sm">Ã©Âcono</label>
                     <div class="flex items-center gap-2">
                         <select id="categoria-icono" class="w-full px-3 py-1 text-sm bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none">
                             <!-- Opciones comunes de Font Awesome (valor = clase) -->
@@ -1015,12 +1015,20 @@
                     'cancelado': 'bg-red-600'
                 }[pedido.estado] || 'bg-gray-600';
                 
-                const itemsHtml = pedido.items.map(item => `
-                    <div class="flex justify-between text-sm py-1 border-b border-slate-600">
-                        <span>${item.cantidad}x ${item.producto}${item.segundo_sabor ? ` (mitad ${item.segundo_sabor})` : ''}${item.tamano ? ` (${item.tamano})` : ''}</span>
-                        <span class="text-green-300">$${parseFloat(item.subtotal).toFixed(2)}</span>
-                    </div>
-                `).join('');
+                const itemsHtml = pedido.items.map(item => {
+                    let detalles = [];
+                    if (item.tamano) detalles.push(`<span class="text-blue-300">${item.tamano}</span>`);
+                    if (item.segundo_sabor) detalles.push(`<span class="text-orange-300">mitad ${item.segundo_sabor}</span>`);
+                    const detallesStr = detalles.length > 0 ? `<div class="text-xs ml-4 text-gray-400">${detalles.join(' | ')}</div>` : '';
+                    return `
+                    <div class="py-2 border-b border-slate-600">
+                        <div class="flex justify-between text-sm">
+                            <span class="font-medium">${item.cantidad}x ${item.producto}</span>
+                            <span class="text-green-300 font-semibold">${parseFloat(item.subtotal || 0).toLocaleString('es-CO')}</span>
+                        </div>
+                        ${detallesStr}
+                    </div>`;
+                }).join('');
                 
                 // Formatear fecha y hora para Colombia
                 const formatearFecha = (fechaStr) => {
@@ -1053,6 +1061,9 @@
                                 <p class="text-sm text-gray-400"><i class="fas fa-clock mr-1"></i>${formatearFecha(pedido.fecha_pedido)}</p>
                                 ${pedido.nombre_cliente ? `<p class="text-sm"><i class="fas fa-user mr-1"></i>${pedido.nombre_cliente}</p>` : ''}
                                 ${pedido.telefono_cliente ? `<p class="text-sm"><i class="fas fa-phone mr-1"></i>${pedido.telefono_cliente}</p>` : ''}
+                                ${pedido.tipo_pedido === 'domicilio' && pedido.direccion_entrega ? `<p class="text-sm text-yellow-300"><i class="fas fa-map-marker-alt mr-1"></i>${pedido.direccion_entrega}</p>` : ''}
+                                ${pedido.tipo_pedido === 'domicilio' && pedido.direccion_entrega ? `<p class="text-sm text-yellow-300"><i class="fas fa-map-marker-alt mr-1"></i>${pedido.direccion_entrega}</p>` : ''}
+                                ${pedido.tipo_pedido === 'domicilio' && pedido.direccion_entrega ? `<p class="text-sm text-yellow-300"><i class="fas fa-map-marker-alt mr-1"></i>${pedido.direccion_entrega}</p>` : ''}
                             </div>
                             <div class="text-right">
                                 <span class="${estadoColor} text-xs px-3 py-1 rounded-full">${pedido.estado}</span>
@@ -1141,15 +1152,15 @@
                 });
                 const data = await resp.json();
                 if (resp.ok) {
-                    mostrarNotificacion('âœ… Caja abierta exitosamente', 'success');
+                    mostrarNotificacion('Ã¢Å“â€¦ Caja abierta exitosamente', 'success');
                     cerrarModalAbrirCaja();
                     verificarEstadoCaja();
                     cargarVentasDia();
                 } else {
-                    mostrarNotificacion('âŒ Error: ' + (data.error || 'No se pudo abrir la caja'), 'error');
+                    mostrarNotificacion('Ã¢ÂÅ’ Error: ' + (data.error || 'No se pudo abrir la caja'), 'error');
                 }
             } catch (e) {
-                mostrarNotificacion('âŒ Error de conexion al abrir caja', 'error');
+                mostrarNotificacion('Ã¢ÂÅ’ Error de conexion al abrir caja', 'error');
             }
         }
 
@@ -1158,7 +1169,7 @@
             try {
                 const sesionId = window.sesionCajaActual;
                 if (!sesionId) {
-                    mostrarNotificacion('âŒ No hay sesion de caja abierta', 'error');
+                    mostrarNotificacion('Ã¢ÂÅ’ No hay sesion de caja abierta', 'error');
                     return;
                 }
                 const resp = await fetch(API_BASE_URL + '/api/caja/cerrar', {
@@ -1168,25 +1179,25 @@
                 });
                 const data = await resp.json();
                 if (resp.ok) {
-                    mostrarNotificacion('âœ… Caja cerrada exitosamente', 'success');
+                    mostrarNotificacion('Ã¢Å“â€¦ Caja cerrada exitosamente', 'success');
                     verificarEstadoCaja();
                     cargarHistorialCaja();
                     cargarVentasDia();
                 } else {
-                    mostrarNotificacion('âŒ Error: ' + (data.error || 'No se pudo cerrar la caja'), 'error');
+                    mostrarNotificacion('Ã¢ÂÅ’ Error: ' + (data.error || 'No se pudo cerrar la caja'), 'error');
                 }
             } catch (e) {
-                mostrarNotificacion('âŒ Error de conexion al cerrar caja', 'error');
+                mostrarNotificacion('Ã¢ÂÅ’ Error de conexion al cerrar caja', 'error');
             }
         }
 
-        // ==================== INICIALIZACIÃ“N ====================
+        // ==================== INICIALIZACIÃ©â€œN ====================
         document.addEventListener('DOMContentLoaded', function() {
             mostrarSeccion('dashboard');
             verificarEstadoCaja();
         });
 
-        // ==================== NAVEGACIÃ“N ====================
+        // ==================== NAVEGACIÃ©â€œN ====================
         function mostrarSeccion(seccion) {
             // Ocultar todas las secciones
             document.querySelectorAll('.seccion').forEach(s => s.classList.add('hidden'));
@@ -1226,7 +1237,7 @@
             }
         }
 
-        // ==================== CATEGORÃAS ====================
+        // ==================== CATEGORÃ©ÂAS ====================
         async function cargarCategorias() {
             try {
                 const response = await fetch(API_BASE_URL + '/api/categorias-config');
@@ -1273,9 +1284,9 @@
                     <div class="mb-4 text-sm text-gray-400">
                         <p><strong>Campos requeridos:</strong></p>
                         <div class="flex flex-wrap gap-2 mt-2">
-                            ${cat.campos_requeridos.ingredientes ? '<span class="bg-slate-700 px-2 py-1 rounded text-xs">ðŸ“ Ingredientes</span>' : ''}
-                            ${cat.campos_requeridos.tamanos ? '<span class="bg-slate-700 px-2 py-1 rounded text-xs">ðŸ“ Tamanios</span>' : ''}
-                            ${cat.campos_requeridos.mililitros ? '<span class="bg-slate-700 px-2 py-1 rounded text-xs">ðŸ¥¤ Mililitros</span>' : ''}
+                            ${cat.campos_requeridos.ingredientes ? '<span class="bg-slate-700 px-2 py-1 rounded text-xs">Ã°Å¸â€œÂ Ingredientes</span>' : ''}
+                            ${cat.campos_requeridos.tamanos ? '<span class="bg-slate-700 px-2 py-1 rounded text-xs">Ã°Å¸â€œÂ Tamanios</span>' : ''}
+                            ${cat.campos_requeridos.mililitros ? '<span class="bg-slate-700 px-2 py-1 rounded text-xs">Ã°Å¸Â¥Â¤ Mililitros</span>' : ''}
                             ${!cat.campos_requeridos.ingredientes && !cat.campos_requeridos.tamanos && !cat.campos_requeridos.mililitros ? '<span class="text-xs">Ninguno</span>' : ''}
                         </div>
                     </div>
@@ -2261,7 +2272,7 @@
         async function eliminarSaborProducto(saborId) {
             if (!productoDosSaboresSeleccionado) return;
             
-            if (!confirm('¿Eliminar este sabor?')) return;
+            if (!confirm('Â¿Eliminar este sabor?')) return;
             
             try {
                 const response = await fetch(API_BASE_URL + `/api/productos/${productoDosSaboresSeleccionado.id}/sabores/${saborId}`, {
@@ -2316,8 +2327,8 @@
                         <td class="py-3 px-4 text-center text-gray-400" data-label="Stock Minimo">${stockMinimo}</td>
                         <td class="py-3 px-4 text-center" data-label="Estado">
                             ${estado 
-                                ? '<span class="bg-red-900 text-red-200 px-3 py-1 rounded-full text-xs">âš ï¸ Stock Bajo</span>' 
-                                : '<span class="bg-green-900 text-green-200 px-3 py-1 rounded-full text-xs">âœ“ OK</span>'}
+                                ? '<span class="bg-red-900 text-red-200 px-3 py-1 rounded-full text-xs">Ã¢Å¡Â Ã¯Â¸Â Stock Bajo</span>' 
+                                : '<span class="bg-green-900 text-green-200 px-3 py-1 rounded-full text-xs">Ã¢Å“â€œ OK</span>'}
                         </td>
                         <td class="py-3 px-4 text-center" data-label="Acciones">
                             <button onclick="abrirModalStock(${prod.id}, '${prod.nombre}', ${stockActual}, ${stockMinimo})" class="bg-blue-600 hover:bg-blue-700 px-4 py-1 rounded text-sm">
@@ -2619,19 +2630,19 @@
             mostrarNotificacion('Usa el formulario de creacion rapida para agregar vinculaciones', 'info');
         }
 
-        // ==================== CONFIGURACIÃ“N ====================
+        // ==================== CONFIGURACIÃ©â€œN ====================
         // Las funciones de gestion de precios por zona estan en precios-zona.js
         
         async function cargarPrecioDomicilio() {
             // Esta funcion ahora es manejada por el sistema de precios por zona
             // Ver precios-zona.js: cargarConfiguracion() y cargarZonasPrecios()
-            console.log('âš™ï¸ Sistema de precios por zona cargado');
+            console.log('Ã¢Å¡â„¢Ã¯Â¸Â Sistema de precios por zona cargado');
         }
 
         async function actualizarPrecioDomicilio() {
             // Funcion legacy - el sistema ahora usa precios por zona
             // Ver precios-zona.js: guardarConfiguracion()
-            console.warn('âš ï¸ Esta funcion es obsoleta. Usar el nuevo sistema de precios por zona.');
+            console.warn('Ã¢Å¡Â Ã¯Â¸Â Esta funcion es obsoleta. Usar el nuevo sistema de precios por zona.');
             showNotification('Por favor usa la nueva seccion de Configuracion de Domicilios', 'info');
         }
 
@@ -2699,6 +2710,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
