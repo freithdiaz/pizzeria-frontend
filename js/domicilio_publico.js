@@ -310,7 +310,7 @@ async function abrirModalProducto(productoId) {
 // Nueva función para cargar grupos de bebidas dinámicos
 async function cargarGruposBebidas(productoId) {
     try {
-        const response = await fetch(API_BASE_URL + `/api/productos/${productoId}/grupos-bebidas`);
+        const response = await fetch(`${API_BASE_URL}/api/productos/${productoId}/grupos-bebidas`);
         const data = await response.json();
         return data.grupos || [];
     } catch (error) {
@@ -322,7 +322,7 @@ async function cargarGruposBebidas(productoId) {
 async function cargarGruposAdiciones(productoId) {
     try {
         // Cargar grupos normales de adiciones
-        const response = await fetch(API_BASE_URL + `/api/productos/${productoId}/grupos-adiciones`);
+        const response = await fetch(`${API_BASE_URL}/api/productos/${productoId}/grupos-adiciones`);
         let gruposNormales = [];
 
         if (response.ok) {
@@ -342,7 +342,7 @@ async function cargarGruposAdiciones(productoId) {
         const gruposBebidas = await cargarGruposBebidas(productoId);
 
         // Cargar vinculaciones del producto
-        const vinculacionesResponse = await fetch(API_BASE_URL + `/api/productos/${productoId}/vinculaciones`);
+        const vinculacionesResponse = await fetch(`${API_BASE_URL}/api/productos/${productoId}/vinculaciones`);
         let vinculaciones = { como_principal: [], como_vinculado: [] };
 
         if (vinculacionesResponse.ok) {
@@ -1053,7 +1053,7 @@ async function buscarClientePorTelefonoInline() {
         btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Buscando...';
         btn.disabled = true;
 
-        const response = await fetch(API_BASE_URL + `/api/delivery/usuario/por-telefono?telefono=${encodeURIComponent(telefono)}`);
+        const response = await fetch(`${API_BASE_URL}/api/delivery/usuario/por-telefono?telefono=${encodeURIComponent(telefono)}`);
         const data = await response.json();
 
         btn.innerHTML = textoOriginal;
@@ -1241,7 +1241,7 @@ async function buscarDireccionAutocompletado(query) {
 
     sugerenciasDireccionTimeout = setTimeout(async () => {
         try {
-            const response = await fetch(API_BASE_URL + `/api/delivery/suggestions?q=${encodeURIComponent(query)}`);
+            const response = await fetch(`${API_BASE_URL}/api/delivery/suggestions?q=${encodeURIComponent(query)}`);
             const data = await response.json();
 
             if (data.success && data.data && data.data.length > 0) {
@@ -1345,7 +1345,7 @@ async function calcularPrecioDomicilio(municipio, barrio) {
             params.append('barrio', barrio);
         }
         
-        const response = await fetch(API_BASE_URL + `/api/delivery/calcular-precio?${params}`);
+        const response = await fetch(`${API_BASE_URL}/api/delivery/calcular-precio?${params}`);
         const resultado = await response.json();
         
         if (resultado.success) {
@@ -1845,7 +1845,7 @@ function mostrarNotificacionRapida(mensaje, tipo) {
 // Función para cargar productos vinculados
 async function cargarProductosVinculados(productoId) {
     try {
-        const response = await fetch(API_BASE_URL + `/api/productos/${productoId}/productos-vinculados`);
+        const response = await fetch(`${API_BASE_URL}/api/productos/${productoId}/productos-vinculados`);
         const productosVinculados = await response.json();
 
         console.log('Productos vinculados cargados:', productosVinculados);
