@@ -597,7 +597,7 @@ function calcularTotalModal() {
             console.log('🔍 calcularTotalModal - Precio encontrado:', precioEncontrado);
             
             if (precioEncontrado) {
-                precioBase = precioEncontrado.precio || 0;
+                precioBase = parseFloat(precioEncontrado.precio) || 0;
                 console.log('🔍 calcularTotalModal - Precio base establecido:', precioBase);
             }
         }
@@ -768,7 +768,7 @@ function agregarAlCarrito() {
             console.log('  - Precio encontrado:', precioEncontrado);
             
             if (precioEncontrado) {
-                precioBase = precioEncontrado.precio || 0;
+                precioBase = parseFloat(precioEncontrado.precio) || 0;
                 console.log('  - Precio base establecido:', precioBase);
             }
         }
