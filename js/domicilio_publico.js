@@ -654,9 +654,9 @@ function calcularTotalModal() {
 
                     if (productoActual && productoActual.precios) {
                         const precioDinamico = productoActual.precios.find(p => String(p.id) === String(opcionId));
-                        if (precioDinamico && precioDinamico.precio > 0) {
+                        if (precioDinamico && parseFloat(precioDinamico.precio) > 0) {
                             console.log(`  - Precio encontrado en precios dinámicos: ${precioDinamico.precio}`);
-                            precioAdicionales += precioDinamico.precio;
+                            precioAdicionales += parseFloat(precioDinamico.precio) || 0;
                             console.log(`  - Precio adicional acumulado desde precios dinámicos: ${precioAdicionales}`);
                         } else {
                             console.log(`  - No se encontró precio dinámico para ID ${opcionId}`);
@@ -818,8 +818,8 @@ function agregarAlCarrito() {
 
             if (productoActual && productoActual.precios) {
                 const precioDinamico = productoActual.precios.find(p => String(p.id) === String(opcionId));
-                if (precioDinamico && precioDinamico.precio > 0) {
-                    precio = precioDinamico.precio;
+                if (precioDinamico && parseFloat(precioDinamico.precio) > 0) {
+                    precio = parseFloat(precioDinamico.precio) || 0;
                     nombre = precioDinamico.tamano_nombre || precioDinamico.nombre || `Opción ${opcionId}`;
                     console.log(`  - Precio encontrado en precios dinámicos: ${precio} para ${nombre}`);
                 }
