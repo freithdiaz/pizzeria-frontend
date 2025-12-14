@@ -165,7 +165,7 @@ function mostrarModalNuevaZona() {
 
 async function editarZona(zonaId) {
     try {
-        const response = await fetch(API_BASE_URL + '/api/delivery/precios-zona/${zonaId}`);
+        const response = await fetch(API_BASE_URL + `/api/delivery/precios-zona/${zonaId}`);
         const resultado = await response.json();
         
         if (resultado.success) {
@@ -226,7 +226,7 @@ async function guardarZona() {
         
         if (zonaId) {
             // Actualizar
-            response = await fetch(API_BASE_URL + '/api/delivery/precios-zona/${zonaId}`, {
+            response = await fetch(API_BASE_URL + `/api/delivery/precios-zona/${zonaId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(datos)
@@ -261,7 +261,7 @@ async function eliminarZona(zonaId) {
     }
     
     try {
-        const response = await fetch(API_BASE_URL + '/api/delivery/precios-zona/${zonaId}`, {
+        const response = await fetch(API_BASE_URL + `/api/delivery/precios-zona/${zonaId}`, {
             method: 'DELETE'
         });
         
@@ -330,4 +330,5 @@ function mostrarNotificacion(mensaje, tipo = 'info') {
         alert(mensaje);
     }
 }
+
 

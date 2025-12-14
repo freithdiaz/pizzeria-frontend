@@ -229,3 +229,4 @@ function showNotification(title, message, type = 'info') {
         notificationSystem.showCustomNotification(title, message, type);
     }
 }
+

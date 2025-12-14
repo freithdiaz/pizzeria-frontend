@@ -837,7 +837,7 @@ function editRecipe(recipeId) {
         sale_price: newPrice
     };
     
-    fetch(API_BASE_URL + '/api/recipes/${recipeId}`, {
+    fetch(API_BASE_URL + `/api/recipes/${recipeId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(recipeData)
@@ -864,7 +864,7 @@ function deleteRecipe(recipeId) {
     
     console.log('deleteRecipe called with ID:', recipeId);
     
-    fetch(API_BASE_URL + '/api/recipes/${recipeId}`, {
+    fetch(API_BASE_URL + `/api/recipes/${recipeId}`, {
         method: 'DELETE'
     })
     .then(response => response.json())
@@ -948,7 +948,7 @@ async function generateSalesReport() {
             end_date: endDate
         });
         
-        const response = await fetch(API_BASE_URL + '/api/reports/sales?${params}`);
+        const response = await fetch(API_BASE_URL + `/api/reports/sales?${params}`);
         const data = await response.json();
         
         renderSalesReport(data);
@@ -1138,7 +1138,7 @@ function editDough(doughId) {
         const data = Object.fromEntries(formData);
         
         try {
-            const response = await fetch(API_BASE_URL + '/api/pizza-dough-inventory/${doughId}`, {
+            const response = await fetch(API_BASE_URL + `/api/pizza-dough-inventory/${doughId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
@@ -1183,7 +1183,7 @@ function editBeverage(beverageId) {
         const data = Object.fromEntries(formData);
         
         try {
-            const response = await fetch(API_BASE_URL + '/api/beverage-inventory/${beverageId}`, {
+            const response = await fetch(API_BASE_URL + `/api/beverage-inventory/${beverageId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
@@ -1230,3 +1230,4 @@ window.addEventListener('beforeunload', function() {
         clearInterval(updateInterval);
     }
 });
+

@@ -250,7 +250,7 @@ async function loadAllCategories() {
 async function loadPizzasByType(tipoPizza, gridId) {
     try {
         console.log(`Cargando pizzas tipo: ${tipoPizza}`);
-        const response = await fetch(API_BASE_URL + '/api/productos/tipo/${tipoPizza}`);
+        const response = await fetch(API_BASE_URL + `/api/productos/tipo/${tipoPizza}`);
         if (!response.ok) throw new Error(`Error al cargar pizzas ${tipoPizza}`);
         
         const productos = await response.json();
@@ -347,7 +347,7 @@ async function loadCategoryProducts(categoryId) {
             return;
         }
 
-        const response = await fetch(API_BASE_URL + '/api/productos-publicos?categoria_id=${categoria.id}`);
+        const response = await fetch(API_BASE_URL + `/api/productos-publicos?categoria_id=${categoria.id}`);
         if (!response.ok) throw new Error('Error al cargar productos de categoría');
 
         const result = await response.json();
@@ -1219,7 +1219,7 @@ async function updateOrderStatus(orderId, newStatus) {
     console.log('Enviando estado al backend:', newStatus);
 
     try {
-        const response = await fetch(API_BASE_URL + '/api/orders/${orderId}/status`, {
+        const response = await fetch(API_BASE_URL + `/api/orders/${orderId}/status`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -1288,7 +1288,7 @@ async function printOrder(orderId) {
         console.log(`Iniciando impresión para pedido #${orderId}`);
         
         // Obtener los detalles del pedido para impresión
-        const response = await fetch(API_BASE_URL + '/api/orders/${orderId}`);
+        const response = await fetch(API_BASE_URL + `/api/orders/${orderId}`);
         if (!response.ok) {
             throw new Error('Error al obtener detalles del pedido');
         }
@@ -1661,7 +1661,7 @@ async function loadAdicionales() {
 // Cargar productos vinculados para mostrarlos como adicionales en el modal de mesa
 async function loadVinculadosForProduct(productId) {
     try {
-        const response = await fetch(API_BASE_URL + '/api/productos/${productId}/productos-vinculados`);
+        const response = await fetch(API_BASE_URL + `/api/productos/${productId}/productos-vinculados`);
         if (!response.ok) {
             console.warn('No se encontraron productos vinculados o error en la petición', response.status);
             return;
@@ -2118,3 +2118,4 @@ async function submitOrderWithDiscount(totalWithDiscount, discountPercentage) {
     
     return await response.json();
 }
+

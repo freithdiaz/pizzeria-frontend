@@ -130,8 +130,7 @@
             }
         }
     </style>
-<script src="./js/config.js"></script>
-</head>
+<script src="./js/config.js"></script></head>
 <body class="bg-slate-900 text-white min-h-screen">
     <!-- Header -->
     <header class="bg-slate-800 shadow-lg sticky top-0 z-40">
@@ -902,12 +901,12 @@
             
             try {
                 // Cargar total de ventas
-                const resp = await fetch(API_BASE_URL + '/api/caja/ventas-dia?fecha=${fecha}`);
+                const resp = await fetch(API_BASE_URL + `/api/caja/ventas-dia?fecha=${fecha}`);
                 const data = await resp.json();
                 document.getElementById('dashboard-ventas-dia').textContent = `$${data.total_ventas?.toFixed(2) || 0}`;
                 
                 // Cargar detalles de pedidos
-                const respPedidos = await fetch(API_BASE_URL + '/api/caja/pedidos-dia?fecha=${fecha}`);
+                const respPedidos = await fetch(API_BASE_URL + `/api/caja/pedidos-dia?fecha=${fecha}`);
                 const dataPedidos = await respPedidos.json();
                 
                 document.getElementById('dashboard-pedidos-count').textContent = `${dataPedidos.total_pedidos || 0} pedidos`;
@@ -1377,7 +1376,7 @@
             }
 
             try {
-                const response = await fetch(API_BASE_URL + '/api/categorias-config/${id}`, {
+                const response = await fetch(API_BASE_URL + `/api/categorias-config/${id}`, {
                     method: 'DELETE'
                 });
 
@@ -1399,7 +1398,7 @@
             // Alterna la visibilidad pública de una categoría (1 visible, 0 oculta)
             try {
                 const nuevo = current && current != 0 ? 0 : 1;
-                const resp = await fetch(API_BASE_URL + '/api/categorias-config/${catId}`, {
+                const resp = await fetch(API_BASE_URL + `/api/categorias-config/${catId}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ visible_en_publico: nuevo })
@@ -1456,7 +1455,7 @@
                 // Cargar productos de todas las categorías
                 productosData = [];
                 for (const cat of categoriasData) {
-                    const resp = await fetch(API_BASE_URL + '/api/productos-categoria/${cat.id}`);
+                    const resp = await fetch(API_BASE_URL + `/api/productos-categoria/${cat.id}`);
                     const prods = await resp.json();
                     productosData = productosData.concat(prods);
                 }
@@ -1832,7 +1831,7 @@
 
         async function editarProducto(id) {
             try {
-                const response = await fetch(API_BASE_URL + '/api/productos-dinamico/${id}`);
+                const response = await fetch(API_BASE_URL + `/api/productos-dinamico/${id}`);
                 const producto = await response.json();
                 
                 productoActual = producto;
@@ -1953,7 +1952,7 @@
             }
 
             try {
-                const response = await fetch(API_BASE_URL + '/api/productos-dinamico/${id}`, {
+                const response = await fetch(API_BASE_URL + `/api/productos-dinamico/${id}`, {
                     method: 'DELETE'
                 });
 
@@ -2033,7 +2032,7 @@
             const stockActual = parseFloat(document.getElementById('stock-actual').value);
 
             try {
-                const response = await fetch(API_BASE_URL + '/api/inventario-producto/${productoId}`, {
+                const response = await fetch(API_BASE_URL + `/api/inventario-producto/${productoId}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ stock_actual: stockActual })
@@ -2237,7 +2236,7 @@
                 // Crear vinculaciones en paralelo
                 const promesas = productosVinculados.map(async (productoVinculado) => {
                     try {
-                        const response = await fetch(API_BASE_URL + '/api/productos/${productoPrincipal}/vinculaciones`, {
+                        const response = await fetch(API_BASE_URL + `/api/productos/${productoPrincipal}/vinculaciones`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -2286,7 +2285,7 @@
             }
 
             try {
-                const deleteResponse = await fetch(API_BASE_URL + '/api/productos/vinculaciones/${vinculacionId}`, {
+                const deleteResponse = await fetch(API_BASE_URL + `/api/productos/vinculaciones/${vinculacionId}`, {
                     method: 'DELETE'
                 });
 
@@ -2389,5 +2388,4 @@
     </script>
 </body>
 </html>
-
 
