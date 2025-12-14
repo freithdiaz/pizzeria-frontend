@@ -1916,7 +1916,11 @@ function crearGruposDesdeVinculaciones(vinculaciones) {
 }
 
 function formatPrice(price) {
-    const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+    let numPrice = price;
+    if (typeof price === 'string') {
+        numPrice = parseFloat(price.replace(/[^0-9.-]/g, ''));
+    }
+    if (isNaN(numPrice)) numPrice = 0;
     return Math.round(numPrice).toLocaleString('es-CO');
 }
 
