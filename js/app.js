@@ -1116,7 +1116,7 @@ function renderOrderManagement() {
                 </div>
             </div>
             
-            \${clienteInfo}
+            ${clienteInfo}
             
             <div class="mb-4 bg-gray-800 rounded-lg p-4">
                 <h5 class="text-white font-semibold mb-3 flex items-center">
