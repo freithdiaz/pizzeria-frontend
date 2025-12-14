@@ -706,7 +706,7 @@ function calcularTotalModal() {
     const totalEl = document.getElementById('modal-total');
     const precioUnitarioEl = document.getElementById('modal-producto-precio');
 
-    if (totalEl) totalEl.textContent = `$${formatPrice(total)}`;
+    console.log('DEBUG TOTAL:', {precioBase, precioAdicionales, cantidad, total}); if (totalEl) totalEl.textContent = `${formatPrice(total)}`;
     if (precioUnitarioEl) precioUnitarioEl.textContent = `$${formatPrice(precioUnitario)}`;
 }
 
