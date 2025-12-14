@@ -2182,9 +2182,9 @@ async function mostrarSeccionDosSaboresMesa(recipeId) {
     
     // Renderizar sabores
     container.innerHTML = sabores.map(sabor => `
-        <button onclick="seleccionarSegundoSaborMesa(${sabor.sabor_producto_id}, '${sabor.sabor_nombre.replace(/'/g, "\\'")}')"
+        <button onclick="seleccionarSegundoSaborMesa(${sabor.sabor_producto_id}, '${sabor.nombre.replace(/'/g, "\\'")}')"
                 class="bg-gray-700 hover:bg-orange-600 text-white py-2 px-4 rounded-lg transition-colors text-sm text-left">
-            ${sabor.sabor_nombre}
+            ${sabor.nombre}
         </button>
     `).join('');
     
@@ -2233,6 +2233,7 @@ function quitarSegundoSaborMesa() {
         });
     }
 }
+
 
 
 
