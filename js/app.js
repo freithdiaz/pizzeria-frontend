@@ -1891,7 +1891,8 @@ function confirmarPizzaConAdicionales() {
         currentPizzaData.recipeId,
         itemName,
         totalPrice,
-        selectedAdicionales
+        selectedAdicionales,
+          segundoSaborMesa
     );
     
     closeAdicionalesModal();
