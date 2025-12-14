@@ -165,6 +165,9 @@
                 <button onclick="mostrarSeccion('vinculaciones')" id="tab-vinculaciones" class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
                     <i class="fas fa-link mr-2"></i>Vinculaciones
                 </button>
+                <button onclick="mostrarSeccion('dos-sabores')" id="tab-dos-sabores" class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
+                    <i class="fas fa-pizza-slice mr-2"></i>Dos Sabores
+                </button>
                 <button onclick="mostrarSeccion('inventario')" id="tab-inventario" class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
                     <i class="fas fa-warehouse mr-2"></i>Inventario
                 </button>
@@ -398,6 +401,80 @@
                 </div>
             </div>
         </div>
+
+
+        <!-- SECCION: DOS SABORES -->
+        <div id="seccion-dos-sabores" class="seccion hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold">Configuracion de Dos Sabores</h2>
+            </div>
+            
+            <div class="bg-slate-800 rounded-lg p-6 mb-6">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-info-circle text-blue-400 mr-3 text-xl"></i>
+                    <div>
+                        <h3 class="font-bold text-blue-300">Sistema de Dos Sabores</h3>
+                        <p class="text-gray-400 text-sm">Configura productos que pueden tener dos sabores (ej: pizza mitad y mitad). Selecciona los sabores disponibles para cada producto.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Lista de productos con dos sabores -->
+                <div class="bg-slate-800 rounded-lg p-6">
+                    <h3 class="text-xl font-bold mb-4">
+                        <i class="fas fa-list mr-2"></i>Productos con Dos Sabores
+                    </h3>
+                    <div class="mb-4">
+                        <select id="filtro-categoria-dos-sabores" onchange="cargarProductosDosSabores()" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2">
+                            <option value="">Todas las categorias</option>
+                        </select>
+                    </div>
+                    <div id="lista-productos-dos-sabores" class="space-y-3 max-h-96 overflow-y-auto">
+                        <!-- Los productos se cargaran aqui -->
+                        <p class="text-gray-400 text-center py-4">Cargando productos...</p>
+                    </div>
+                </div>
+
+                <!-- Configuracion de sabores para producto seleccionado -->
+                <div class="bg-slate-800 rounded-lg p-6">
+                    <h3 class="text-xl font-bold mb-4">
+                        <i class="fas fa-cog mr-2"></i>Configurar Sabores
+                    </h3>
+                    <div id="config-sabores-producto" class="hidden">
+                        <div class="mb-4 p-4 bg-slate-700 rounded-lg">
+                            <h4 id="nombre-producto-sabores" class="font-bold text-lg mb-2">Producto</h4>
+                            <label class="flex items-center gap-3 cursor-pointer">
+                                <input type="checkbox" id="toggle-permite-dos-sabores" onchange="togglePermiteDosSabores()" class="w-5 h-5 rounded">
+                                <span>Permitir dos sabores</span>
+                            </label>
+                        </div>
+                        
+                        <div id="seccion-agregar-sabores" class="hidden">
+                            <h4 class="font-semibold mb-3">Sabores disponibles:</h4>
+                            <div id="lista-sabores-configurados" class="space-y-2 mb-4 max-h-40 overflow-y-auto">
+                                <!-- Sabores configurados -->
+                            </div>
+                            
+                            <div class="border-t border-slate-600 pt-4 mt-4">
+                                <h4 class="font-semibold mb-3">Agregar sabor:</h4>
+                                <select id="select-nuevo-sabor" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 mb-3">
+                                    <option value="">Selecciona un producto como sabor</option>
+                                </select>
+                                <button onclick="agregarSaborProducto()" class="w-full bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-semibold transition">
+                                    <i class="fas fa-plus mr-2"></i>Agregar Sabor
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="placeholder-config-sabores" class="text-center py-8 text-gray-400">
+                        <i class="fas fa-hand-pointer text-4xl mb-3"></i>
+                        <p>Selecciona un producto de la lista para configurar sus sabores</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <!-- SECCIÃ“N: INVENTARIO -->
          <div id="seccion-inventario" class="seccion hidden">
@@ -1133,6 +1210,9 @@
                 cargarCategoriasEnSelect();
             } else if (seccion === 'vinculaciones') {
                 cargarVinculaciones();
+            } else if (seccion === 'dos-sabores') {
+                cargarProductosDosSabores();
+                cargarCategoriasEnSelectDosSabores();
             } else if (seccion === 'inventario') {
                 cargarInventario();
             } else if (seccion === 'configuracion') {
@@ -1969,6 +2049,466 @@
                 mostrarNotificacion('Error al eliminar producto', 'error');
             }
         }
+
+        
+        // ==================== DOS SABORES ====================
+        let productoDosSaboresSeleccionado = null;
+        let saboresConfigurados = [];
+
+        async function cargarCategoriasEnSelectDosSabores() {
+            try {
+                const response = await fetch(API_BASE_URL + '/api/categorias-config');
+                const categorias = await response.json();
+                
+                const select = document.getElementById('filtro-categoria-dos-sabores');
+                select.innerHTML = '<option value="">Todas las categorias</option>';
+                
+                categorias.forEach(cat => {
+                    select.innerHTML += `<option value="${cat.id}">${cat.nombre}</option>`;
+                });
+            } catch (error) {
+                console.error('Error cargando categorias:', error);
+            }
+        }
+
+        async function cargarProductosDosSabores() {
+            const categoriaId = document.getElementById('filtro-categoria-dos-sabores')?.value || '';
+            
+            try {
+                let url = API_BASE_URL + '/api/productos';
+                if (categoriaId) {
+                    url += `?categoria_id=${categoriaId}`;
+                }
+                
+                const response = await fetch(url);
+                const productos = await response.json();
+                
+                const container = document.getElementById('lista-productos-dos-sabores');
+                
+                if (productos.length === 0) {
+                    container.innerHTML = '<p class="text-gray-400 text-center py-4">No hay productos</p>';
+                    return;
+                }
+                
+                container.innerHTML = productos.map(p => `
+                    <div class="flex items-center justify-between p-3 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition ${productoDosSaboresSeleccionado?.id === p.id ? 'ring-2 ring-blue-500' : ''}"
+                         onclick="seleccionarProductoDosSabores(${p.id}, '${p.nombre.replace(/'/g, "\\'")}', ${p.permite_dos_sabores || 0})">
+                        <div class="flex items-center gap-3">
+                            ${p.imagen_url ? 
+                                `<img src="${p.imagen_url}" class="w-10 h-10 rounded object-cover">` : 
+                                `<div class="w-10 h-10 rounded bg-slate-600 flex items-center justify-center"><i class="fas fa-image text-gray-500"></i></div>`
+                            }
+                            <div>
+                                <p class="font-semibold">${p.nombre}</p>
+                                <p class="text-xs text-gray-400">${p.categoria_nombre || 'Sin categoria'}</p>
+                            </div>
+                        </div>
+                        <div>
+                            ${p.permite_dos_sabores ? 
+                                '<span class="bg-green-600 text-xs px-2 py-1 rounded-full"><i class="fas fa-check mr-1"></i>2 Sabores</span>' : 
+                                '<span class="bg-slate-600 text-xs px-2 py-1 rounded-full">Normal</span>'
+                            }
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error cargando productos:', error);
+                document.getElementById('lista-productos-dos-sabores').innerHTML = 
+                    '<p class="text-red-400 text-center py-4">Error al cargar productos</p>';
+            }
+        }
+
+        async function seleccionarProductoDosSabores(productoId, nombre, permiteDosSabores) {
+            productoDosSaboresSeleccionado = { id: productoId, nombre: nombre };
+            
+            // Mostrar config y ocultar placeholder
+            document.getElementById('config-sabores-producto').classList.remove('hidden');
+            document.getElementById('placeholder-config-sabores').classList.add('hidden');
+            
+            // Actualizar nombre
+            document.getElementById('nombre-producto-sabores').textContent = nombre;
+            
+            // Actualizar checkbox
+            document.getElementById('toggle-permite-dos-sabores').checked = permiteDosSabores;
+            
+            // Mostrar/ocultar seccion de sabores
+            if (permiteDosSabores) {
+                document.getElementById('seccion-agregar-sabores').classList.remove('hidden');
+                await cargarSaboresProducto(productoId);
+                await cargarProductosParaSabores();
+            } else {
+                document.getElementById('seccion-agregar-sabores').classList.add('hidden');
+            }
+            
+            // Actualizar visual en lista
+            cargarProductosDosSabores();
+        }
+
+        async function togglePermiteDosSabores() {
+            if (!productoDosSaboresSeleccionado) return;
+            
+            const permite = document.getElementById('toggle-permite-dos-sabores').checked;
+            
+            try {
+                const response = await fetch(API_BASE_URL + `/api/productos/${productoDosSaboresSeleccionado.id}/toggle-dos-sabores`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ permite_dos_sabores: permite })
+                });
+                
+                if (response.ok) {
+                    if (permite) {
+                        document.getElementById('seccion-agregar-sabores').classList.remove('hidden');
+                        await cargarSaboresProducto(productoDosSaboresSeleccionado.id);
+                        await cargarProductosParaSabores();
+                    } else {
+                        document.getElementById('seccion-agregar-sabores').classList.add('hidden');
+                    }
+                    cargarProductosDosSabores();
+                    mostrarNotificacion(permite ? 'Dos sabores activado' : 'Dos sabores desactivado', 'success');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error al actualizar', 'error');
+            }
+        }
+
+        async function cargarSaboresProducto(productoId) {
+            try {
+                const response = await fetch(API_BASE_URL + `/api/productos/${productoId}/sabores`);
+                saboresConfigurados = await response.json();
+                
+                const container = document.getElementById('lista-sabores-configurados');
+                
+                if (saboresConfigurados.length === 0) {
+                    container.innerHTML = '<p class="text-gray-400 text-sm">No hay sabores configurados</p>';
+                    return;
+                }
+                
+                container.innerHTML = saboresConfigurados.map(s => `
+                    <div class="flex items-center justify-between p-2 bg-slate-600 rounded">
+                        <div class="flex items-center gap-2">
+                            ${s.imagen_url ? 
+                                `<img src="${s.imagen_url}" class="w-8 h-8 rounded object-cover">` : 
+                                `<div class="w-8 h-8 rounded bg-slate-500 flex items-center justify-center"><i class="fas fa-pizza-slice text-xs"></i></div>`
+                            }
+                            <span>${s.nombre}</span>
+                        </div>
+                        <button onclick="eliminarSaborProducto(${s.id})" class="text-red-400 hover:text-red-300">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error cargando sabores:', error);
+            }
+        }
+
+        async function cargarProductosParaSabores() {
+            try {
+                const response = await fetch(API_BASE_URL + '/api/productos');
+                const productos = await response.json();
+                
+                const select = document.getElementById('select-nuevo-sabor');
+                select.innerHTML = '<option value="">Selecciona un producto como sabor</option>';
+                
+                // Filtrar productos que ya estan agregados
+                const idsAgregados = saboresConfigurados.map(s => s.sabor_producto_id);
+                
+                productos
+                    .filter(p => p.id !== productoDosSaboresSeleccionado?.id && !idsAgregados.includes(p.id))
+                    .forEach(p => {
+                        select.innerHTML += `<option value="${p.id}">${p.nombre} (${p.categoria_nombre || 'Sin cat.'})</option>`;
+                    });
+                    
+            } catch (error) {
+                console.error('Error cargando productos para sabores:', error);
+            }
+        }
+
+        async function agregarSaborProducto() {
+            if (!productoDosSaboresSeleccionado) return;
+            
+            const saborId = document.getElementById('select-nuevo-sabor').value;
+            if (!saborId) {
+                mostrarNotificacion('Selecciona un sabor', 'warning');
+                return;
+            }
+            
+            try {
+                const response = await fetch(API_BASE_URL + `/api/productos/${productoDosSaboresSeleccionado.id}/sabores`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sabor_producto_id: parseInt(saborId) })
+                });
+                
+                if (response.ok) {
+                    mostrarNotificacion('Sabor agregado', 'success');
+                    await cargarSaboresProducto(productoDosSaboresSeleccionado.id);
+                    await cargarProductosParaSabores();
+                } else {
+                    const data = await response.json();
+                    mostrarNotificacion(data.error || 'Error al agregar', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error al agregar sabor', 'error');
+            }
+        }
+
+        async function eliminarSaborProducto(saborId) {
+            if (!productoDosSaboresSeleccionado) return;
+            
+            if (!confirm('¿Eliminar este sabor?')) return;
+            
+            try {
+                const response = await fetch(API_BASE_URL + `/api/productos/${productoDosSaboresSeleccionado.id}/sabores/${saborId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    mostrarNotificacion('Sabor eliminado', 'success');
+                    await cargarSaboresProducto(productoDosSaboresSeleccionado.id);
+                    await cargarProductosParaSabores();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error al eliminar', 'error');
+            }
+        }
+
+
+        
+        // ==================== DOS SABORES ====================
+        let productoDosSaboresSeleccionado = null;
+        let saboresConfigurados = [];
+
+        async function cargarCategoriasEnSelectDosSabores() {
+            try {
+                const response = await fetch(API_BASE_URL + '/api/categorias-config');
+                const categorias = await response.json();
+                
+                const select = document.getElementById('filtro-categoria-dos-sabores');
+                select.innerHTML = '<option value="">Todas las categorias</option>';
+                
+                categorias.forEach(cat => {
+                    select.innerHTML += `<option value="${cat.id}">${cat.nombre}</option>`;
+                });
+            } catch (error) {
+                console.error('Error cargando categorias:', error);
+            }
+        }
+
+        async function cargarProductosDosSabores() {
+            const categoriaId = document.getElementById('filtro-categoria-dos-sabores')?.value || '';
+            
+            try {
+                let url = API_BASE_URL + '/api/productos';
+                if (categoriaId) {
+                    url += `?categoria_id=${categoriaId}`;
+                }
+                
+                const response = await fetch(url);
+                const productos = await response.json();
+                
+                const container = document.getElementById('lista-productos-dos-sabores');
+                
+                if (productos.length === 0) {
+                    container.innerHTML = '<p class="text-gray-400 text-center py-4">No hay productos</p>';
+                    return;
+                }
+                
+                container.innerHTML = productos.map(p => `
+                    <div class="flex items-center justify-between p-3 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition ${productoDosSaboresSeleccionado?.id === p.id ? 'ring-2 ring-blue-500' : ''}"
+                         onclick="seleccionarProductoDosSabores(${p.id}, '${p.nombre.replace(/'/g, "\\'")}', ${p.permite_dos_sabores || 0})">
+                        <div class="flex items-center gap-3">
+                            ${p.imagen_url ? 
+                                `<img src="${p.imagen_url}" class="w-10 h-10 rounded object-cover">` : 
+                                `<div class="w-10 h-10 rounded bg-slate-600 flex items-center justify-center"><i class="fas fa-image text-gray-500"></i></div>`
+                            }
+                            <div>
+                                <p class="font-semibold">${p.nombre}</p>
+                                <p class="text-xs text-gray-400">${p.categoria_nombre || 'Sin categoria'}</p>
+                            </div>
+                        </div>
+                        <div>
+                            ${p.permite_dos_sabores ? 
+                                '<span class="bg-green-600 text-xs px-2 py-1 rounded-full"><i class="fas fa-check mr-1"></i>2 Sabores</span>' : 
+                                '<span class="bg-slate-600 text-xs px-2 py-1 rounded-full">Normal</span>'
+                            }
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error cargando productos:', error);
+                document.getElementById('lista-productos-dos-sabores').innerHTML = 
+                    '<p class="text-red-400 text-center py-4">Error al cargar productos</p>';
+            }
+        }
+
+        async function seleccionarProductoDosSabores(productoId, nombre, permiteDosSabores) {
+            productoDosSaboresSeleccionado = { id: productoId, nombre: nombre };
+            
+            // Mostrar config y ocultar placeholder
+            document.getElementById('config-sabores-producto').classList.remove('hidden');
+            document.getElementById('placeholder-config-sabores').classList.add('hidden');
+            
+            // Actualizar nombre
+            document.getElementById('nombre-producto-sabores').textContent = nombre;
+            
+            // Actualizar checkbox
+            document.getElementById('toggle-permite-dos-sabores').checked = permiteDosSabores;
+            
+            // Mostrar/ocultar seccion de sabores
+            if (permiteDosSabores) {
+                document.getElementById('seccion-agregar-sabores').classList.remove('hidden');
+                await cargarSaboresProducto(productoId);
+                await cargarProductosParaSabores();
+            } else {
+                document.getElementById('seccion-agregar-sabores').classList.add('hidden');
+            }
+            
+            // Actualizar visual en lista
+            cargarProductosDosSabores();
+        }
+
+        async function togglePermiteDosSabores() {
+            if (!productoDosSaboresSeleccionado) return;
+            
+            const permite = document.getElementById('toggle-permite-dos-sabores').checked;
+            
+            try {
+                const response = await fetch(API_BASE_URL + `/api/productos/${productoDosSaboresSeleccionado.id}/toggle-dos-sabores`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ permite_dos_sabores: permite })
+                });
+                
+                if (response.ok) {
+                    if (permite) {
+                        document.getElementById('seccion-agregar-sabores').classList.remove('hidden');
+                        await cargarSaboresProducto(productoDosSaboresSeleccionado.id);
+                        await cargarProductosParaSabores();
+                    } else {
+                        document.getElementById('seccion-agregar-sabores').classList.add('hidden');
+                    }
+                    cargarProductosDosSabores();
+                    mostrarNotificacion(permite ? 'Dos sabores activado' : 'Dos sabores desactivado', 'success');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error al actualizar', 'error');
+            }
+        }
+
+        async function cargarSaboresProducto(productoId) {
+            try {
+                const response = await fetch(API_BASE_URL + `/api/productos/${productoId}/sabores`);
+                saboresConfigurados = await response.json();
+                
+                const container = document.getElementById('lista-sabores-configurados');
+                
+                if (saboresConfigurados.length === 0) {
+                    container.innerHTML = '<p class="text-gray-400 text-sm">No hay sabores configurados</p>';
+                    return;
+                }
+                
+                container.innerHTML = saboresConfigurados.map(s => `
+                    <div class="flex items-center justify-between p-2 bg-slate-600 rounded">
+                        <div class="flex items-center gap-2">
+                            ${s.imagen_url ? 
+                                `<img src="${s.imagen_url}" class="w-8 h-8 rounded object-cover">` : 
+                                `<div class="w-8 h-8 rounded bg-slate-500 flex items-center justify-center"><i class="fas fa-pizza-slice text-xs"></i></div>`
+                            }
+                            <span>${s.nombre}</span>
+                        </div>
+                        <button onclick="eliminarSaborProducto(${s.id})" class="text-red-400 hover:text-red-300">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error cargando sabores:', error);
+            }
+        }
+
+        async function cargarProductosParaSabores() {
+            try {
+                const response = await fetch(API_BASE_URL + '/api/productos');
+                const productos = await response.json();
+                
+                const select = document.getElementById('select-nuevo-sabor');
+                select.innerHTML = '<option value="">Selecciona un producto como sabor</option>';
+                
+                // Filtrar productos que ya estan agregados
+                const idsAgregados = saboresConfigurados.map(s => s.sabor_producto_id);
+                
+                productos
+                    .filter(p => p.id !== productoDosSaboresSeleccionado?.id && !idsAgregados.includes(p.id))
+                    .forEach(p => {
+                        select.innerHTML += `<option value="${p.id}">${p.nombre} (${p.categoria_nombre || 'Sin cat.'})</option>`;
+                    });
+                    
+            } catch (error) {
+                console.error('Error cargando productos para sabores:', error);
+            }
+        }
+
+        async function agregarSaborProducto() {
+            if (!productoDosSaboresSeleccionado) return;
+            
+            const saborId = document.getElementById('select-nuevo-sabor').value;
+            if (!saborId) {
+                mostrarNotificacion('Selecciona un sabor', 'warning');
+                return;
+            }
+            
+            try {
+                const response = await fetch(API_BASE_URL + `/api/productos/${productoDosSaboresSeleccionado.id}/sabores`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sabor_producto_id: parseInt(saborId) })
+                });
+                
+                if (response.ok) {
+                    mostrarNotificacion('Sabor agregado', 'success');
+                    await cargarSaboresProducto(productoDosSaboresSeleccionado.id);
+                    await cargarProductosParaSabores();
+                } else {
+                    const data = await response.json();
+                    mostrarNotificacion(data.error || 'Error al agregar', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error al agregar sabor', 'error');
+            }
+        }
+
+        async function eliminarSaborProducto(saborId) {
+            if (!productoDosSaboresSeleccionado) return;
+            
+            if (!confirm('¿Eliminar este sabor?')) return;
+            
+            try {
+                const response = await fetch(API_BASE_URL + `/api/productos/${productoDosSaboresSeleccionado.id}/sabores/${saborId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    mostrarNotificacion('Sabor eliminado', 'success');
+                    await cargarSaboresProducto(productoDosSaboresSeleccionado.id);
+                    await cargarProductosParaSabores();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error al eliminar', 'error');
+            }
+        }
+
 
         // ==================== INVENTARIO ====================
         async function cargarInventario() {
