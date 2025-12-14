@@ -621,12 +621,21 @@ function calcularTotalModal() {
 
     // Si no hay tamaño seleccionado pero el producto tiene precios dinámicos, usar el más bajo
     if (precioBase === 0 && productoActual.precios && productoActual.precios.length > 0) {
+        console.log('DEBUG L624 - precios antes de Math.min:', productoActual.precios.map(p => ({id: p.id, precio: p.precio, parsed: parseFloat(p.precio)})));
         precioBase = Math.min(...productoActual.precios.map(p => parseFloat(p.precio) || 0));
+        console.log('DEBUG L624 - precioBase después:', precioBase, typeof precioBase);
     }
 
     // Si aún no hay precio base, usar precio_base del producto
     if (precioBase === 0) {
+        console.log('DEBUG FALLBACK:', {
+            precio_base: productoActual.precio_base,
+            precio_venta: productoActual.precio_venta,
+            precios: productoActual.precios,
+            preciosLength: productoActual.precios?.length
+        });
         precioBase = parseFloat(productoActual.precio_base) || parseFloat(productoActual.precio_venta) || 0;
+        console.log('DEBUG precioBase después de parseFloat:', precioBase, typeof precioBase);
     }
 
     let precioAdicionales = 0;
