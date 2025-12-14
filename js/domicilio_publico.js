@@ -621,12 +621,12 @@ function calcularTotalModal() {
 
     // Si no hay tamaño seleccionado pero el producto tiene precios dinámicos, usar el más bajo
     if (precioBase === 0 && productoActual.precios && productoActual.precios.length > 0) {
-        precioBase = Math.min(...productoActual.precios.map(p => p.precio || 0));
+        precioBase = Math.min(...productoActual.precios.map(p => parseFloat(p.precio) || 0));
     }
 
     // Si aún no hay precio base, usar precio_base del producto
     if (precioBase === 0) {
-        precioBase = productoActual.precio_base || productoActual.precio_venta || 0;
+        precioBase = parseFloat(productoActual.precio_base) || parseFloat(productoActual.precio_venta) || 0;
     }
 
     let precioAdicionales = 0;
@@ -792,10 +792,10 @@ function agregarAlCarrito() {
 
     // Fallback si no hay tamaño seleccionado
     if (precioBase === 0 && productoActual.precios && productoActual.precios.length > 0) {
-        precioBase = Math.min(...productoActual.precios.map(p => p.precio || 0));
+        precioBase = Math.min(...productoActual.precios.map(p => parseFloat(p.precio) || 0));
     }
     if (precioBase === 0) {
-        precioBase = productoActual.precio_base || productoActual.precio_venta || 0;
+        precioBase = parseFloat(productoActual.precio_base) || parseFloat(productoActual.precio_venta) || 0;
     }
 
     let precioAdicionales = 0;
