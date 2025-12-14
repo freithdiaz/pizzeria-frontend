@@ -1,0 +1,286 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #1a202c; /* Fondo oscuro */
+}
+
+/* Estilos base para transiciones y efectos */
+.pizza-card, .size-item, .flavor-item, .addition-item, .beverage-item, button, .nav-item {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Efecto de resplandor en hover */
+.pizza-card:hover, .beverage-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 20px rgba(0, 0, 0, 0.3), 0 0 10px rgba(255, 127, 80, 0.5); /* Sombra naranja */
+}
+
+/* Contenedor del "abanico" */
+.step-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.6s ease-in-out, opacity 0.6s ease-in-out;
+    opacity: 0;
+}
+.step-container.expanded {
+    max-height: 2000px; /* Valor alto para permitir la expansión total */
+    opacity: 1;
+}
+
+/* Efecto de resplandor para elementos seleccionados */
+.flavor-item.selected, .size-item.selected, .addition-item.selected, .beverage-item.selected, .beverage-size-item.selected {
+    border-color: #f97316; /* Borde naranja */
+    transform: scale(1.05);
+    background-color: #2d3748; /* Fondo más oscuro */
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.7); /* Sombra naranja */
+}
+
+/* Estilos para las opciones seleccionadas en los grupos de adiciones */
+.option-card.selected,
+label:has(input[type="radio"]:checked),
+label:has(input[type="checkbox"]:checked) {
+    border-color: #10b981 !important; /* Verde */
+    background-color: #f0fdf4 !important; /* Verde muy claro */
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+/* Hover mejorado para las opciones */
+.option-card:hover,
+label.cursor-pointer:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para los botones de mesa tipo pizza */
+.table-pizza {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%; /* Círculo perfecto */
+    background-color: #f97316; /* Color de la base de la pizza */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    border: 4px solid #f87171; /* Borde para el efecto de masa */
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.table-pizza:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 20px rgba(0, 0, 0, 0.4);
+}
+.table-pizza:active {
+    transform: scale(0.95);
+}
+.pizza-text {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+}
+
+/* Animación de pulso para el botón del carrito */
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3), 0 0 0 0 rgba(74, 222, 128, 0.7);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3), 0 0 0 10px rgba(74, 222, 128, 0);
+    }
+}
+#checkout-btn.pulse-active {
+    animation: pulse 2s infinite;
+}
+
+/* Efecto de aparición para la pantalla de carga */
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+.splash-screen {
+    animation: fadeOut 1s ease-in-out 2s forwards;
+}
+
+.view-section {
+    display: none;
+}
+
+.logo {
+    width: 150px;
+    height: auto;
+    margin: 0 auto;
+    margin-bottom: 1rem;
+    border-radius: 50%;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 
+                0 4px 16px rgba(255, 107, 53, 0.4);
+    background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.1) 0%, 
+                rgba(255, 255, 255, 0.05) 100%);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 
+                0 6px 20px rgba(255, 107, 53, 0.6);
+}
+
+/* Estilos para las adiciones en los pedidos */
+.item-additions {
+    font-size: 0.8em;
+    color: #fbbf24; /* amarillo */
+    font-style: italic;
+    margin-top: 2px;
+    padding-left: 10px;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - MOBILE FIRST
+   ============================================ */
+
+/* Mobile Phones (320px - 480px) */
+@media (max-width: 480px) {
+    .table-pizza {
+        width: 100px;
+        height: 100px;
+        border-width: 3px;
+    }
+    
+    .pizza-text {
+        font-size: 1rem;
+    }
+    
+    .logo {
+        width: 100px;
+    }
+    
+    /* Ajustar tamaño de fuente del header */
+    h1 {
+        font-size: 1.75rem !important;
+    }
+    
+    h2, h3 {
+        font-size: 1.5rem !important;
+    }
+    
+    h4, h5 {
+        font-size: 1.25rem !important;
+    }
+    
+    /* Botones más pequeños en móvil */
+    button, .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    /* Carrito flotante más pequeño */
+    #checkout-btn {
+        bottom: 1rem !important;
+        right: 1rem !important;
+        padding: 0.75rem 1.5rem !important;
+        font-size: 0.875rem !important;
+    }
+    
+    /* Cards de productos más compactas */
+    .pizza-card, .beverage-card {
+        padding: 1rem;
+    }
+    
+    /* Reducir espaciado en contenedores */
+    .container, .mx-auto {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+}
+
+/* Tablets Portrait (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+    .table-pizza {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .pizza-text {
+        font-size: 1.25rem;
+    }
+    
+    .logo {
+        width: 120px;
+    }
+    
+    /* Ajustar grid de productos */
+    .grid {
+        gap: 1rem;
+    }
+}
+
+/* Tablets Landscape y Desktop pequeño (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .table-pizza {
+        width: 130px;
+        height: 130px;
+    }
+    
+    .logo {
+        width: 130px;
+    }
+}
+
+/* Desktop grande (1025px+) */
+@media (min-width: 1025px) {
+    .table-pizza {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .logo {
+        width: 150px;
+    }
+}
+
+/* Orientación horizontal en móviles */
+@media (max-height: 500px) and (orientation: landscape) {
+    .logo {
+        width: 80px;
+    }
+    
+    .splash-screen h1 {
+        font-size: 2rem !important;
+    }
+    
+    header {
+        margin-bottom: 1rem !important;
+    }
+}
+
+/* Touch devices - áreas táctiles más grandes */
+@media (hover: none) and (pointer: coarse) {
+    button, .btn, a {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    .table-pizza {
+        min-width: 100px;
+        min-height: 100px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    body {
+        background: white;
+        color: black;
+    }
+}

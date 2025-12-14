@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos Nissi Pizza</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Usar la misma versión de Font Awesome que el resto de plantillas para evitar inconsistencias -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./css/styles.css">
+<script src="./js/config.js"></script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen">
+
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="splash-screen fixed inset-0 bg-gray-900 z-50 flex items-center justify-center">
+        <div class="text-white text-center animate-bounce">
+            <img src="./niss.ico" alt="Nissi Pizza Logo" class="logo animate-pulse">
+            <h1 class="text-5xl lg:text-7xl font-extrabold drop-shadow-lg">
+                Nissi Pizza
+            </h1>
+            <p class="mt-4 text-xl font-semibold">
+                ¡Tu pedido, listo en un instante!
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div id="main-content" class="bg-gray-800 w-full min-h-screen p-4 lg:p-6 space-y-6 opacity-0 transition-opacity duration-1000">
+        <!-- Top Navigation Buttons -->
+        <div class="fixed top-2 sm:top-4 right-2 sm:right-4 z-40 flex gap-2">
+            <a href="domicilio.html" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg shadow-lg transition-colors duration-200 flex items-center space-x-1 sm:space-x-2 text-sm sm:text-base">
+                <i class="fas fa-motorcycle"></i>
+                <span class="hidden sm:inline">Domicilios</span>
+            </a>
+            <a href="admin.html" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg shadow-lg transition-colors duration-200 flex items-center space-x-1 sm:space-x-2 text-sm sm:text-base">
+                <i class="fas fa-cog"></i>
+                <span class="hidden sm:inline">Admin</span>
+            </a>
+        </div>
+
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <img src="./niss.ico" alt="Nissi Pizza Logo" class="logo">
+            <h1 class="text-4xl lg:text-5xl font-extrabold text-white">
+                Nissi Pizza
+            </h1>
+            <p class="text-lg text-gray-400 mt-2" id="header-text">
+                Selecciona tu mesa para comenzar.
+            </p>
+        </header>
+
+        <!-- Navigation Bar -->
+        <nav id="nav-bar" class="hidden w-full bg-gray-700 rounded-lg lg:rounded-full px-2 sm:px-4 py-2 flex flex-col sm:flex-row justify-around items-center mb-8 gap-2 sm:gap-0">
+            <button onclick="showTableView()" class="nav-item w-full sm:w-auto text-white font-semibold py-2 px-4 rounded-lg sm:rounded-full hover:bg-gray-600 transition-colors">
+                <i class="fas fa-table mr-2"></i>
+                <span class="hidden sm:inline">Mesas</span>
+                <span class="sm:hidden">🍽️ Mesas</span>
+            </button>
+            <button onclick="showOrderManagement()" class="nav-item w-full sm:w-auto text-white font-semibold py-2 px-4 rounded-lg sm:rounded-full hover:bg-gray-600 transition-colors">
+                <i class="fas fa-clipboard-list mr-2"></i>
+                <span class="hidden sm:inline">Gestión de Pedidos</span>
+                <span class="sm:hidden">📋 Pedidos</span>
+            </button>
+        </nav>
+
+        <!-- Step 1: Table Selection -->
+        <section id="table-view" class="view-section space-y-6 flex flex-col items-center justify-center">
+            <h3 class="text-2xl font-bold text-white">Selecciona tu mesa o tipo de servicio</h3>
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12 gap-4 sm:gap-5 lg:gap-6 w-full">
+                <!-- Buttons for 10 tables -->
+                <button onclick="startOrder(1)" class="table-pizza"><span class="pizza-text">Mesa 1</span></button>
+                <br>
+                <button onclick="startOrder(2)" class="table-pizza"><span class="pizza-text">Mesa 2</span></button>
+                <br>
+                <button onclick="startOrder(3)" class="table-pizza"><span class="pizza-text">Mesa 3</span></button>
+                <br>
+                <button onclick="startOrder(4)" class="table-pizza"><span class="pizza-text">Mesa 4</span></button>
+                <br>
+                <button onclick="startOrder(5)" class="table-pizza"><span class="pizza-text">Mesa 5</span></button>
+                <br>
+                <button onclick="startOrder(6)" class="table-pizza"><span class="pizza-text">Mesa 6</span></button>
+                <br>
+                <button onclick="startOrder(7)" class="table-pizza"><span class="pizza-text">Mesa 7</span></button>
+                <br>
+                <button onclick="startOrder(8)" class="table-pizza"><span class="pizza-text">Mesa 8</span></button>
+                <br>
+                <button onclick="startOrder(9)" class="table-pizza"><span class="pizza-text">Mesa 9</span></button>
+                <br>
+                <button onclick="startOrder(10)" class="table-pizza"><span class="pizza-text">Mesa 10</span></button>
+                <br>
+                 <!-- To-Go option -->
+                 <button onclick="startOrder('Para Llevar')" class="table-pizza bg-gray-600 border-2 border-gray-400">
+                    
+                    <span class="pizza-text">Para Llevar</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Step 2: Main Menu View (Initially hidden) -->
+        <section id="main-menu-view" class="view-section">
+            <h3 class="text-2xl font-bold text-white mb-6">Menú Completo</h3>
+            <div class="space-y-6">
+                <!-- Las categorías se cargarán dinámicamente aquí desde JavaScript -->
+            </div>
+            
+            <!-- Floating Cart/Checkout Button -->
+            <div id="checkout-btn" onclick="showCart()" class="fixed bottom-6 right-6 px-6 py-4 bg-green-500 text-white font-semibold rounded-full shadow-lg cursor-pointer" style="display: none;">
+                Ver mi pedido (<span id="current-table-display"></span>)
+            </div>
+        </section>
+
+
+
+        <!-- Cart View -->
+        <section id="cart-view" class="view-section">
+            <h3 class="text-2xl font-bold text-white mb-6 text-center">Tu Pedido</h3>
+            <div class="max-w-2xl mx-auto">
+                <div class="bg-gray-700 rounded-2xl p-6 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-lg font-semibold text-white">Mesa: <span id="cart-table-display"></span></h4>
+                        <button onclick="showView('main-menu-view')" class="text-blue-400 hover:text-blue-300">
+                            <i class="fas fa-edit"></i> Editar Pedido
+                        </button>
+                    </div>
+                    <div id="cart-items-list" class="space-y-3 mb-6">
+                        <!-- Los items del carrito se cargarán aquí -->
+                    </div>
+                    <div class="border-t border-gray-600 pt-4">
+                        <div class="flex justify-between items-center text-xl font-bold text-white">
+                            <span>Total:</span>
+                            <span id="cart-total-display">$0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex space-x-4">
+                    <button onclick="showView('main-menu-view')" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-xl">
+                        <i class="fas fa-arrow-left mr-2"></i>Seguir Comprando
+                    </button>
+                    <button onclick="showDiscountModal()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl">
+                        <i class="fas fa-paper-plane mr-2"></i>Enviar Pedido
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Order Management View -->
+        <section id="order-management-view" class="view-section">
+            <h3 class="text-2xl font-bold text-white mb-6 text-center">Gestión de Pedidos</h3>
+            <div class="mb-4 flex justify-center flex-wrap gap-2 px-2">
+                <button onclick="filterOrdersByStatus('all')" id="filter-all" class="filter-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm flex items-center">
+                    <i class="fas fa-list mr-1"></i>
+                    <span class="hidden xs:inline">Todos</span>
+                    <span class="xs:hidden">📋</span>
+                </button>
+                <button onclick="filterOrdersByStatus('pendiente')" id="filter-pendiente" class="filter-btn bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm flex items-center">
+                    <i class="fas fa-clock mr-1"></i>
+                    <span class="hidden xs:inline">Pendientes</span>
+                    <span class="xs:hidden">🕐</span>
+                </button>
+                <button onclick="filterOrdersByStatus('preparando')" id="filter-preparando" class="filter-btn bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm flex items-center">
+                    <i class="fas fa-fire mr-1"></i>
+                    <span class="hidden xs:inline">En Prep.</span>
+                    <span class="xs:hidden">🔥</span>
+                </button>
+                <button onclick="filterOrdersByStatus('listo')" id="filter-listo" class="filter-btn bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm flex items-center">
+                    <i class="fas fa-check-circle mr-1"></i>
+                    <span class="hidden xs:inline">Listos</span>
+                    <span class="xs:hidden">✅</span>
+                </button>
+                <button onclick="filterOrdersByStatus('entregado')" id="filter-entregado" class="filter-btn bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm flex items-center">
+                    <i class="fas fa-box-open mr-1"></i>
+                    <span class="hidden xs:inline">Entregados</span>
+                    <span class="xs:hidden">📦</span>
+                </button>
+            </div>
+            <div id="order-management-container" class="space-y-6">
+                <p class="text-center text-gray-400">Cargando pedidos...</p>
+            </div>
+        </section>
+
+        <!-- Admin Panel View -->
+        <section id="admin-panel-view" class="view-section">
+            <h3 class="text-2xl font-bold text-white mb-6 text-center">Panel Administrativo</h3>
+            
+            <!-- Formulario para agregar nuevos items -->
+            <div class="bg-gray-700 p-6 rounded-2xl shadow-md mb-6">
+                <h4 class="font-bold text-xl text-white mb-4">Agregar Nuevo Item</h4>
+                <form id="add-item-form" class="space-y-4">
+                    <div class="flex flex-col">
+                        <label for="item-type" class="text-sm font-semibold text-gray-300 mb-1">Tipo de Item</label>
+                        <select id="item-type" class="bg-gray-800 text-white rounded-lg p-2 border border-gray-600 focus:outline-none focus:border-orange-500">
+                            <option value="pizza-flavor">Sabor de Pizza</option>
+                            <option value="beverage">Bebida</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="item-name" class="text-sm font-semibold text-gray-300 mb-1">Nombre</label>
+                        <input type="text" id="item-name" required class="bg-gray-800 text-white rounded-lg p-2 border border-gray-600 focus:outline-none focus:border-orange-500">
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="item-price" class="text-sm font-semibold text-gray-300 mb-1">Precio (en pesos colombianos)</label>
+                        <input type="number" id="item-price" required class="bg-gray-800 text-white rounded-lg p-2 border border-gray-600 focus:outline-none focus:border-orange-500">
+                    </div>
+                    <button type="submit" class="w-full px-4 py-2 bg-green-500 text-white font-semibold rounded-full hover:bg-green-600 transition-colors">
+                        Agregar Item
+                    </button>
+                </form>
+            </div>
+
+
+        </section>
+
+        <!-- Custom Message Box -->
+        <div id="message-box" class="hidden fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50">
+            <div class="bg-gray-800 p-8 rounded-3xl shadow-2xl w-full max-w-sm mx-4 text-center">
+                <h4 class="text-xl font-bold text-white mb-2">¡Pedido enviado!</h4>
+                <p id="message-text" class="text-gray-400 text-sm"></p>
+                <div id="order-summary" class="mt-4 p-4 bg-gray-700 rounded-xl text-left text-sm text-gray-300"></div>
+                
+                <button onclick="printOrder()" class="mt-4 mr-2 px-4 py-2 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-print mr-2"></i>Imprimir
+                </button>
+                <button onclick="closeMessageBox()" class="mt-4 px-4 py-2 bg-red-500 text-white font-semibold rounded-full hover:bg-red-600 transition-colors">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal para actualizar estado de pedido -->
+    <div id="main-update-order-status-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Actualizar Estado del Pedido #<span id="main-order-id-display"></span></h3>
+                <button onclick="closeMainUpdateOrderStatusModal()" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="main-new-order-status">Estado del Pedido:</label>
+                    <select id="main-new-order-status" class="form-control">
+                        <option value="PENDIENTE">Pendiente</option>
+                        <option value="PREPARANDO">Preparando</option>
+                        <option value="LISTO">Listo</option>
+                        <option value="ENTREGADO">Entregado</option>
+                        <option value="CANCELADO">Cancelado</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="main-new-payment-status">Estado del Pago:</label>
+                    <select id="main-new-payment-status" class="form-control">
+                        <option value="PENDIENTE">Pendiente</option>
+                        <option value="PAGADO">Pagado</option>
+                        <option value="CANCELADO">Cancelado</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeMainUpdateOrderStatusModal()" class="btn btn-secondary">Cancelar</button>
+                <button onclick="confirmMainUpdateOrderStatus()" class="btn btn-primary">Actualizar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ver detalles del pedido -->
+    <div id="main-order-details-modal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3>Detalles del Pedido #<span id="main-order-details-id"></span></h3>
+                <button onclick="closeMainOrderDetailsModal()" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="main-order-details-content" class="space-y-4">
+                    <!-- El contenido se carga dinámicamente -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeMainOrderDetailsModal()" class="btn btn-secondary">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Estilos para los modales */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #1f2937;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .modal-content.large {
+            max-width: 800px;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #374151;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            color: white;
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: white;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #374151;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #d1d5db;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            background-color: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #f97316;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary {
+            background-color: #f97316;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #ea580c;
+        }
+
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+    </style>
+
+    <!-- Modal de Adicionales -->
+    <div id="adicionalesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-700">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-white">Adicionales para tu Pizza</h3>
+                    <button onclick="closeAdicionalesModal()" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <p id="pizzaSeleccionada" class="text-gray-300 mt-2"></p>
+            </div>
+            
+            <div class="p-6">
+                <div class="mb-4">
+                    <h4 class="text-lg font-semibold text-white mb-3">Selecciona adicionales (opcional)</h4>
+                    <div id="adicionalesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Los adicionales se cargarán aquí -->
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-700 pt-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-white font-semibold">Total:</span>
+                        <span id="totalPrecio" class="text-xl font-bold text-green-400"></span>
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <button onclick="closeAdicionalesModal()" 
+                                class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg transition-colors">
+                            Cancelar
+                        </button>
+                        <button onclick="confirmarPizzaConAdicionales()" 
+                                class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg transition-colors font-semibold">
+                            Agregar al Carrito
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Descuentos -->
+    <div id="discount-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-gray-800 rounded-2xl p-6 max-w-md w-full mx-4 border border-gray-600">
+            <div class="text-center mb-6">
+                <h3 class="text-2xl font-bold text-white mb-2">Aplicar Descuento</h3>
+                <p class="text-gray-400">¿Deseas aplicar algún descuento a este pedido?</p>
+            </div>
+
+            <div class="space-y-4 mb-6">
+                <!-- Subtotal -->
+                <div class="flex justify-between text-gray-300">
+                    <span>Subtotal:</span>
+                    <span id="modal-subtotal">$0</span>
+                </div>
+
+                <!-- Descuento -->
+                <div class="space-y-3">
+                    <label class="text-white font-semibold">Descuento (%)</label>
+                    <div class="flex space-x-3">
+                        <button onclick="applyDiscount(0)" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-3 rounded-lg">
+                            Sin Descuento
+                        </button>
+                        <button onclick="applyDiscount(5)" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg">
+                            5%
+                        </button>
+                        <button onclick="applyDiscount(10)" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg">
+                            10%
+                        </button>
+                        <button onclick="applyDiscount(15)" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg">
+                            15%
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <input type="number" id="custom-discount" 
+                               class="flex-1 bg-gray-700 text-white p-2 rounded-lg border border-gray-600"
+                               placeholder="Descuento personalizado %" 
+                               min="0" max="100"
+                               onchange="applyCustomDiscount()">
+                        <button onclick="applyCustomDiscount()" 
+                                class="bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg">
+                            Aplicar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Resumen de descuento -->
+                <div id="discount-summary" class="hidden space-y-2 p-3 bg-green-900 bg-opacity-50 rounded-lg border border-green-600">
+                    <div class="flex justify-between text-green-300">
+                        <span>Descuento (<span id="discount-percentage">0</span>%):</span>
+                        <span id="discount-amount">$0</span>
+                    </div>
+                </div>
+
+                <!-- Total final -->
+                <div class="flex justify-between text-xl font-bold text-green-400 pt-3 border-t border-gray-600">
+                    <span>Total Final:</span>
+                    <span id="modal-total">$0</span>
+                </div>
+            </div>
+
+            <div class="flex space-x-4">
+                <button onclick="closeDiscountModal()" 
+                        class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-xl">
+                    <i class="fas fa-times mr-2"></i>Cancelar
+                </button>
+                <button onclick="confirmOrderWithDiscount()" 
+                        class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl">
+                    <i class="fas fa-check mr-2"></i>Confirmar Pedido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/notifications.js"></script>
+    <script src="./js/app.js" defer></script>
+</body>
+</html>

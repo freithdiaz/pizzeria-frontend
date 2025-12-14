@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pedidos a Domicilio - Nissi Pizza</title>
+<link rel="icon" type="image/x-icon" href="./niss.ico">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="./css/domicilio-images.css">
+<style>
+        .cart-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #f97316; /* amber-500 */
+            color: #7f1d1d; /* red-900 for contrast */
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+        }
+        
+        .product-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .modal {
+            display: none;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .option-card {
+            transition: all 0.2s;
+        }
+        
+        .option-card.selected {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+        }
+
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Mejoras de responsividad para botones y textos */
+        @media (max-width: 640px) {
+            .product-card h3 {
+                font-size: 1rem;
+                line-height: 1.3;
+            }
+            
+            .product-card .text-lg {
+                font-size: 0.95rem;
+            }
+        }
+
+        /* Asegurar que los botones de categoría no se desborden */
+        #categorias-container button {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            -webkit-hyphens: auto;
+            hyphens: auto;
+        }
+
+        /* DESHABILITAR - Los estilos ahora están en domicilio-images.css */
+        /* Las clases .product-image-wrapper e img se manejan en el CSS externo con !important */
+
+        /* Ajustar modal en pantallas pequeñas */
+        @media (max-width: 640px) {
+            .modal > div {
+                max-height: 95vh;
+                margin: 0.5rem;
+            }
+        }
+
+        /* Asegurar que los textos largos no rompan el diseño */
+        .product-card h3,
+        .product-card p {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+    </style>
+<script src="./js/config.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Header con carrito -->
+    <header class="bg-gradient-to-r from-yellow-400 via-red-500 to-red-600 text-white sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <img src="./niss.ico" alt="Nissi Pizza Logo" class="w-12 h-12 mr-3 rounded-full bg-white p-1">
+                    <div>
+                        <h1 class="text-2xl font-bold">🍕 Nissi Pizza</h1>
+                        <p class="text-sm text-red-100">Pedidos a domicilio</p>
+                    </div>
+                </div>
+                <button onclick="toggleCart()" class="relative bg-white text-red-600 px-4 py-2 rounded-full font-semibold hover:bg-red-50 transition shadow-lg hidden" id="header-cart-btn">
+                    <i class="fas fa-shopping-cart mr-2"></i>
+                    Carrito
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Información de entrega y buscador -->
+    <div class="bg-gradient-to-r from-yellow-50 to-red-50 shadow-sm border-b border-yellow-200">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <!-- Información de entrega -->
+                <div class="flex items-center text-sm text-gray-600">
+                    <i class="fas fa-clock mr-2 text-red-500"></i>
+                    <span><strong>Tiempo de entrega:</strong> 45-60 minutos</span>
+                    <span class="mx-4 text-gray-300">|</span>
+                    <i class="fas fa-truck mr-2 text-red-500"></i>
+                    <span><strong>Cobertura:</strong> Zona urbana</span>
+                </div>
+
+                <!-- Buscador -->
+                <div class="relative max-w-md w-full">
+                    <input
+                        type="text"
+                        id="search-input"
+                        placeholder="Buscar productos..."
+                        class="w-full px-4 py-2 pl-10 pr-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        oninput="filtrarProductos()"
+                    >
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categorías -->
+    <div class="container mx-auto px-4 py-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-utensils mr-3 text-yellow-500"></i>
+            ¿Qué deseas ordenar?
+        </h2>
+        <div id="categorias-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+            <!-- Categorías se cargan aquí -->
+        </div>
+    </div>
+
+    <!-- Productos -->
+    <div class="container mx-auto px-4 pb-24">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 flex items-center" id="productos-titulo">
+                <i class="fas fa-pizza-slice mr-3 text-red-500"></i>
+                Nuestros Productos
+            </h2>
+            <div class="text-sm text-gray-600 bg-yellow-100 px-3 py-1 rounded-full" id="productos-contador">
+                <!-- Contador de productos -->
+            </div>
+        </div>
+        <div id="productos-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+            <!-- Productos se cargan aquí -->
+        </div>
+    </div>
+
+    <!-- Modal de personalización de producto -->
+    <div id="producto-modal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col">
+            <div class="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center rounded-t-2xl">
+                <div>
+                    <h3 id="modal-producto-nombre" class="text-2xl font-bold text-gray-800"></h3>
+                    <p class="text-sm text-gray-600 mt-1" id="modal-producto-descripcion-corta"></p>
+                </div>
+                <button onclick="cerrarModalProducto()" class="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors" title="Cerrar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-6">
+                <!-- Imagen del producto -->
+                <div id="modal-producto-imagen" class="mb-6"></div>
+
+                <!-- Descripción completa -->
+                <div class="mb-6">
+                    <p id="modal-producto-descripcion" class="text-gray-700 leading-relaxed"></p>
+                </div>
+
+                <!-- Información nutricional básica (opcional) -->
+                <div class="bg-gradient-to-r from-blue-50 to-yellow-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <h4 class="font-semibold text-blue-800 mb-2 flex items-center">
+                        <i class="fas fa-info-circle mr-2 text-yellow-500"></i>
+                        Información
+                    </h4>
+                    <p class="text-sm text-blue-700">Producto fresco preparado con ingredientes de calidad. Tiempo de preparación: 15-20 minutos.</p>
+                </div>
+
+                <!-- Botones rápidos para bordes y segundos sabores -->
+                <div id="botones-rapidos-adiciones" class="hidden bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4 mb-6">
+                    <h4 class="font-semibold text-green-800 mb-3 flex items-center">
+                        <i class="fas fa-plus-circle mr-2"></i>
+                        Agregar Adiciones Rápidas
+                    </h4>
+                    <p class="text-sm text-green-700 mb-4">Haz clic en los botones para agregar bordes o segundos sabores disponibles:</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <button onclick="mostrarGrupoAdicion('borde')" id="btn-agregar-borde" class="bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-md">
+                            <i class="fas fa-circle mr-2"></i>
+                            Agregar Borde de Queso
+                        </button>
+                        <button onclick="mostrarGrupoAdicion('segundo_sabor')" id="btn-agregar-segundo-sabor" class="bg-purple-500 hover:bg-purple-600 text-white py-3 px-4 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-md">
+                            <i class="fas fa-pizza-slice mr-2"></i>
+                            Agregar Segundo Sabor
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Selector rápido de pizza popular -->
+                <div id="selector-rapido-pizza" class="hidden bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg p-4 mb-6">
+                    <!-- <h4 class="font-semibold text-orange-800 mb-3 flex items-center">
+                        <i class="fas fa-star mr-2"></i>
+                        ¿Pizza Hawaiana? ¡Te ayudamos!
+                    </h4> -->
+                    <!-- <p class="text-sm text-orange-700 mb-4">Selecciona rápidamente las opciones más populares para pizza hawaiana:</p>
+                    <div class="grid grid-cols-1 gap-3">
+                        <button onclick="seleccionarConfiguracionRapida('hawaiana')" class="bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-md">
+                            <i class="fas fa-magic mr-2"></i>
+                            Configuración Rápida Hawaiana
+                        </button>
+                        <button onclick="personalizarManualmente()" class="bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-lg font-semibold transition-all">
+                            <i class="fas fa-cog mr-2"></i>
+                            Personalizar Manualmente
+                        </button>
+                    </div> -->
+                </div>
+                
+                <!-- Grupos de adiciones -->
+                <div id="modal-grupos-adiciones" class="space-y-6">
+                    <!-- Grupos se cargan aquí -->
+                </div>
+
+                <!-- Información de ayuda -->
+                <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-4 mt-6">
+                    <h5 class="font-semibold text-yellow-800 mb-2 flex items-center">
+                        <i class="fas fa-lightbulb mr-2 text-yellow-600"></i>
+                        ¿Cómo personalizar?
+                    </h5>
+                    <ul class="text-sm text-yellow-700 space-y-1">
+                        <li>• <strong>Tamaño:</strong> Selecciona el tamaño de tu pizza</li>
+                        <li>• <strong>Adiciones:</strong> Elige los ingredientes adicionales</li>
+                        <li>• <strong>Cantidad:</strong> Indica cuántas unidades deseas</li>
+                        <li>• <strong>Comentarios:</strong> Agrega notas especiales para tu pedido</li>
+                    </ul>
+                </div>
+
+                <!-- Selector rápido de pizza popular -->
+                <div id="selector-rapido-pizza" class="hidden bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg p-4 mb-6">
+                    <h4 class="font-semibold text-orange-800 mb-3 flex items-center">
+                        <i class="fas fa-star mr-2"></i>
+                        ¿Pizza Hawaiana? ¡Te ayudamos!
+                    </h4>
+                    <p class="text-sm text-orange-700 mb-4">Selecciona rápidamente las opciones más populares para pizza hawaiana:</p>
+                    <div class="grid grid-cols-1 gap-3">
+                        <button onclick="seleccionarConfiguracionRapida('hawaiana')" class="bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-md">
+                            <i class="fas fa-magic mr-2"></i>
+                            Configuración Rápida Hawaiana
+                        </button>
+                        <button onclick="personalizarManualmente()" class="bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-lg font-semibold transition-all">
+                            <i class="fas fa-cog mr-2"></i>
+                            Personalizar Manualmente
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Comentarios -->
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold mb-2">Comentarios especiales</label>
+                    <textarea 
+                        id="modal-comentarios"
+                        rows="3"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                        placeholder="Ej: Sin cebolla, bien cocida, etc."
+                    ></textarea>
+                </div>
+                
+                <!-- Cantidad -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label class="font-semibold text-gray-700 block mb-1">Cantidad:</label>
+                            <p class="text-sm text-gray-600">Selecciona la cantidad deseada</p>
+                        </div>
+                        <div class="flex items-center gap-3 bg-white rounded-lg p-2 border">
+                            <button onclick="cambiarCantidad(-1)" class="w-8 h-8 bg-red-500 text-white rounded-full hover:bg-red-600 flex items-center justify-center transition-colors" title="Disminuir">
+                                <i class="fas fa-minus text-xs"></i>
+                            </button>
+                            <span id="modal-cantidad" class="text-xl font-bold w-10 text-center text-gray-800">1</span>
+                            <button onclick="cambiarCantidad(1)" class="w-8 h-8 bg-green-500 text-white rounded-full hover:bg-green-600 flex items-center justify-center transition-colors" title="Aumentar">
+                                <i class="fas fa-plus text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comentarios -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <label class="font-semibold text-gray-700 block mb-2">Comentarios adicionales:</label>
+                    <textarea
+                        id="modal-comentarios"
+                        rows="2"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        placeholder="Ej: Sin cebolla, extra queso, etc."
+                    ></textarea>
+                </div>
+                
+                <!-- Total y botón agregar -->
+                <div class="sticky bottom-0 bg-white border-t pt-4 mt-6 px-6 pb-6">
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-lg font-semibold text-gray-700">Total estimado:</span>
+                                <p class="text-sm text-gray-600">Incluye IVA y domicilio</p>
+                            </div>
+                            <span id="modal-total" class="text-4xl font-bold text-red-600"></span>
+                        </div>
+                    </div>
+                    <button onclick="agregarAlCarrito()" class="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-4 rounded-lg font-bold text-lg hover:from-red-600 hover:to-red-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        <i class="fas fa-cart-plus mr-2"></i>
+                        Agregar al Carrito
+                    </button>
+                    <p class="text-xs text-gray-500 text-center mt-2">
+                        Continúa comprando o ve al carrito para finalizar
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal del carrito -->
+    <div id="carrito-modal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
+            <div class="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center rounded-t-2xl">
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-800">Tu Carrito</h3>
+                    <p class="text-sm text-gray-600" id="carrito-items-count">0 productos</p>
+                </div>
+                <button onclick="toggleCart()" class="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors" title="Cerrar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="carrito-items" class="flex-1 overflow-y-auto p-6">
+                <!-- Items del carrito -->
+            </div>
+
+            <div class="sticky bottom-0 bg-white border-t p-6 rounded-b-2xl">
+                <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                    <div class="flex justify-between text-lg mb-2">
+                        <span class="text-gray-700">Subtotal productos:</span>
+                        <span id="carrito-subtotal" class="font-semibold text-gray-800">$0</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <span>Domicilio:</span>
+                        <span id="carrito-domicilio">$3.000</span>
+                    </div>
+                    <div class="border-t pt-2 flex justify-between text-2xl font-bold">
+                        <span class="text-gray-800">Total a pagar:</span>
+                        <span id="carrito-total" class="text-red-600">$0</span>
+                    </div>
+                </div>
+                <button onclick="irAConfirmar()" class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-lg font-bold text-lg hover:from-green-600 hover:to-green-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                    <i class="fas fa-credit-card mr-2"></i>
+                    Continuar con el Pedido
+                </button>
+                <p class="text-xs text-gray-500 text-center mt-2">
+                    Tiempo estimado: 45-60 minutos
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación del pedido -->
+    <div id="confirmar-modal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col">
+            <div class="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center rounded-t-2xl">
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-800">Confirmar tu Pedido</h3>
+                    <p class="text-sm text-gray-600">Revisa los detalles y completa tu información</p>
+                </div>
+                <button onclick="cerrarModalConfirmar()" class="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors" title="Cerrar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-6">
+                <form id="form-confirmar" onsubmit="enviarPedido(event)">
+                    
+                    <!-- Sección de búsqueda de cliente -->
+                    <div id="seccion-busqueda-cliente" class="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-300 rounded-lg p-5">
+                        <div class="flex items-start mb-4">
+                            <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                <i class="fas fa-phone text-white text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-lg font-bold text-blue-900 mb-1">¿Ya has comprado aquí antes?</h4>
+                                <p class="text-sm text-blue-700">Ingresa tu número de celular para autocompletar tus datos</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input
+                                type="tel"
+                                id="buscar-telefono-inline"
+                                placeholder="Ej: 3001234567"
+                                class="flex-1 px-4 py-3 border-2 border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                            >
+                            <button 
+                                type="button"
+                                onclick="buscarClientePorTelefonoInline()"
+                                class="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition shadow-md hover:shadow-lg whitespace-nowrap flex items-center justify-center gap-2"
+                            >
+                                <i class="fas fa-search"></i>
+                                <span>Buscar</span>
+                            </button>
+                        </div>
+                        <p class="text-xs text-blue-600 mt-2">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Si es tu primera compra, simplemente completa los campos de abajo
+                        </p>
+                    </div>
+
+                    <!-- Información personal -->
+                    <div class="mb-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-user mr-2 text-red-500"></i>
+                            Información Personal
+                        </h4>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2 text-gray-700">Nombre completo *</label>
+                                <input
+                                    type="text"
+                                    id="cliente-nombre"
+                                    required
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                    placeholder="Juan Pérez"
+                                >
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold mb-2 text-gray-700">Teléfono/Celular *</label>
+                                <input
+                                    type="tel"
+                                    id="cliente-telefono"
+                                    required
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                    placeholder="3001234567"
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dirección de entrega -->
+                    <div class="mb-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-map-marker-alt mr-2 text-red-500"></i>
+                            Dirección de Entrega
+                        </h4>
+
+                        <!-- Opciones de búsqueda de dirección -->
+                        <div class="mb-4 flex gap-2">
+                            <button 
+                                type="button"
+                                onclick="obtenerUbicacionGPS()"
+                                class="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition shadow-md hover:shadow-lg"
+                            >
+                                <i class="fas fa-location-arrow mr-2"></i>
+                                Usar Ubicación Actual
+                            </button>
+                            <button 
+                                type="button"
+                                onclick="toggleBusquedaDireccion()"
+                                id="btn-toggle-busqueda"
+                                class="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-purple-600 hover:to-purple-700 transition shadow-md hover:shadow-lg"
+                            >
+                                <i class="fas fa-search mr-2"></i>
+                                Buscar Dirección
+                            </button>
+                        </div>
+
+                        <!-- Campo de autocompletado (oculto por defecto) -->
+                        <div id="autocompletado-direccion" class="mb-4 hidden">
+                            <label class="block text-sm font-semibold mb-2 text-gray-700">
+                                <i class="fas fa-search mr-1"></i>
+                                Buscar dirección
+                            </label>
+                            <div class="relative">
+                                <input
+                                    type="text"
+                                    id="buscar-direccion"
+                                    placeholder="Ej: Calle 10 #20-30, Medellín"
+                                    class="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                    oninput="buscarDireccionAutocompletado(this.value)"
+                                >
+                                <div id="sugerencias-direccion" class="absolute z-10 w-full mt-1 bg-white border-2 border-purple-200 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto">
+                                    <!-- Sugerencias de direcciones -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Datos de dirección estructurados (ocultos) -->
+                        <input type="hidden" id="direccion-lat">
+                        <input type="hidden" id="direccion-lng">
+                        <input type="hidden" id="direccion-barrio">
+                        <input type="hidden" id="direccion-municipio">
+                        <input type="hidden" id="direccion-ciudad">
+
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold mb-2 text-gray-700">Dirección completa *</label>
+                            <textarea
+                                id="cliente-direccion"
+                                required
+                                rows="3"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                placeholder="Calle 123 #45-67, Apto 101, Edificio XYZ"
+                            ></textarea>
+                            <p class="text-xs text-gray-500 mt-1">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Puedes editar manualmente después de usar GPS o búsqueda
+                            </p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold mb-2 text-gray-700">Notas adicionales</label>
+                            <textarea
+                                id="notas-entrega"
+                                rows="2"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                placeholder="Ej: Casa azul con portón negro, timbre 101, etc."
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Método de pago -->
+                    <div class="mb-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-credit-card mr-2 text-red-500"></i>
+                            Método de Pago
+                        </h4>
+
+                        <div class="space-y-3">
+                            <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-red-300 transition-colors">
+                                <input
+                                    type="radio"
+                                    name="medio-pago"
+                                    value="efectivo"
+                                    required
+                                    class="w-4 h-4 text-red-600 focus:ring-red-500"
+                                >
+                                <div class="ml-3">
+                                    <div class="font-semibold text-gray-800">💵 Efectivo</div>
+                                    <div class="text-sm text-gray-600">Paga cuando llegue tu pedido</div>
+                                </div>
+                            </label>
+
+                            <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-red-300 transition-colors">
+                                <input
+                                    type="radio"
+                                    name="medio-pago"
+                                    value="transferencia"
+                                    required
+                                    class="w-4 h-4 text-red-600 focus:ring-red-500"
+                                >
+                                <div class="ml-3">
+                                    <div class="font-semibold text-gray-800">🏦 Transferencia/Nequi</div>
+                                    <div class="text-sm text-gray-600">Paga ahora y recibe confirmación inmediata</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Resumen del pedido -->
+                    <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                        <h4 class="font-bold mb-4 text-gray-800 flex items-center">
+                            <i class="fas fa-shopping-cart mr-2 text-red-500"></i>
+                            Resumen del Pedido
+                        </h4>
+                        <div id="resumen-items" class="space-y-3 mb-4">
+                            <!-- Items del resumen -->
+                        </div>
+                        <div class="border-t pt-4 space-y-2">
+                            <div class="flex justify-between text-gray-600">
+                                <span>Subtotal productos:</span>
+                                <span id="resumen-subtotal">$0</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>Domicilio:</span>
+                                <span id="resumen-domicilio">$3.000</span>
+                            </div>
+                            <div class="flex justify-between text-xl font-bold text-gray-800 pt-2 border-t">
+                                <span>Total a pagar:</span>
+                                <span id="confirmar-total" class="text-red-600">$0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información adicional -->
+                    <div class="bg-gradient-to-r from-yellow-50 to-red-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                        <h5 class="font-semibold text-yellow-800 mb-2 flex items-center">
+                            <i class="fas fa-star mr-2 text-yellow-600"></i>
+                            Información Importante
+                        </h5>
+                        <ul class="text-sm text-yellow-700 space-y-1">
+                            <li>• Tiempo estimado de entrega: 45-60 minutos</li>
+                            <li>• Cobertura: Zona urbana de la ciudad</li>
+                            <li>• Recibirás confirmación por WhatsApp</li>
+                            <li>• Puedes hacer seguimiento de tu pedido</li>
+                        </ul>
+                    </div>
+
+                    <div class="sticky bottom-0 bg-white border-t pt-6 mt-6 -mx-6 px-6">
+                        <button type="submit" class="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-4 rounded-lg font-bold text-lg hover:from-yellow-600 hover:to-orange-600 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            Confirmar y Enviar Pedido
+                        </button>
+
+                        <p class="text-xs text-gray-500 text-center mt-3">
+                            Al confirmar, aceptas nuestros términos y condiciones
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/domicilio_publico.js"></script>
+    <!-- Floating cart button (resaltado y más grande) -->
+    <button id="floating-cart-btn" onclick="toggleCart()" class="fixed bottom-6 right-6 z-50 w-16 h-16 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-full shadow-2xl hover:scale-105 transform transition-all flex items-center justify-center" aria-label="Abrir carrito">
+        <i class="fas fa-shopping-cart text-2xl" aria-hidden="true"></i>
+        <span class="sr-only">Abrir carrito</span>
+        <span id="cart-count" class="cart-badge" style="display: none;">0</span>
+    </button>
+</body>
+</html>
+

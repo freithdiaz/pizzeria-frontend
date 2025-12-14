@@ -1,0 +1,2392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nissi Pizza - Administración Dinámica</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Unificar versión de Font Awesome con la página de domicilio para evitar inconsistencias en los iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Support both .show (used in JS) and .active */
+        .modal.show,
+        .modal.active {
+            display: flex !important;
+        }
+        .modal > div {
+            background-color: #1e293b;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            z-index: 1001;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3), 0 0 10px rgba(249, 115, 22, 0.3);
+            border: 1px solid #334155;
+            color: #f1f5f9;
+        }
+        /* Mejoras para móviles: modales ocupen casi todo el ancho y padding reducido */
+        @media (max-width: 640px) {
+            .modal > div {
+                max-width: 98%;
+                margin: 0.5rem;
+                padding: 1rem;
+                border-radius: 0.5rem;
+                max-height: 92vh;
+            }
+            /* Asegurar que los contenedores principales adaptan su padding */
+            .container {
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
+            }
+            header .flex {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+            .tab-btn {
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
+                white-space: nowrap;
+            }
+            nav {
+                overflow-x: auto;
+            }
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        /* Mejoras responsivas para tablas y acciones en pantallas pequeñas */
+        @media (max-width: 640px) {
+            /* Tabla de inventario: convertir rows en bloques apilados */
+            .overflow-x-auto table, .overflow-x-auto thead, .overflow-x-auto tbody, .overflow-x-auto th, .overflow-x-auto td, .overflow-x-auto tr {
+                display: block;
+            }
+            .overflow-x-auto thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            .overflow-x-auto tr {
+                margin: 0 0 1rem 0;
+                border: 1px solid rgba(148,163,184,0.06);
+                padding: 0.5rem;
+                border-radius: 0.5rem;
+                background: rgba(15,23,42,0.6);
+            }
+            .overflow-x-auto td {
+                /* Cada celda se muestra como fila flex con label y valor */
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.5rem 0.5rem;
+                text-align: left;
+                border: none;
+            }
+            .overflow-x-auto td::before {
+                /* usar el atributo data-label para mostrar el encabezado */
+                content: attr(data-label) ': ';
+                font-weight: 600;
+                color: #94a3b8;
+                margin-right: 0.5rem;
+            }
+            /* Reducir padding en tablas y botones dentro de tarjetas */
+            .overflow-x-auto th, .overflow-x-auto td {
+                padding-left: 0.5rem !important;
+                padding-right: 0.5rem !important;
+            }
+
+            /* Permitir que los botones de acción dentro de las tarjetas se apilen verticalmente */
+            .card-hover .space-x-2 {
+                display: flex;
+                gap: 0.5rem;
+                flex-direction: column;
+            }
+
+            /* Ajustes para modales y contenedores más estrechos */
+            .modal > div {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+<script src="./js/config.js"></script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen">
+    <!-- Header -->
+    <header class="bg-slate-800 shadow-lg sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-pizza-slice text-3xl text-yellow-400"></i>
+                    <h1 class="text-2xl font-bold">Nissi Pizza - Administración</h1>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="/" class="bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-arrow-left mr-2"></i>Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="bg-slate-800 border-b border-slate-700">
+        <div class="container mx-auto px-4">
+            <nav class="flex space-x-1">
+                <button onclick="mostrarSeccion('dashboard')" id="tab-dashboard" class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
+                    <i class="fas fa-chart-line mr-2"></i>Dashboard
+                </button>
+                <button onclick="mostrarSeccion('categorias')" id="tab-categorias" class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
+                    <i class="fas fa-folder mr-2"></i>Categorías
+                </button>
+                <button onclick="mostrarSeccion('productos')" id="tab-productos" class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
+                    <i class="fas fa-box mr-2"></i>Productos
+                </button>
+                <button onclick="mostrarSeccion('vinculaciones')" id="tab-vinculaciones" class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
+                    <i class="fas fa-link mr-2"></i>Vinculaciones
+                </button>
+                <button onclick="mostrarSeccion('inventario')" id="tab-inventario" class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
+                    <i class="fas fa-warehouse mr-2"></i>Inventario
+                </button>
+                <button onclick="mostrarSeccion('configuracion')" id="tab-configuracion" class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
+                    <i class="fas fa-cog mr-2"></i>Configuración
+                </button>
+            </nav>
+        <!-- SECCIÓN: DASHBOARD -->
+        <div id="seccion-dashboard" class="seccion hidden">
+            <h2 class="text-3xl font-bold mb-6">Dashboard de Ventas</h2>
+            
+            <!-- Control de Caja -->
+            <div class="bg-gradient-to-r from-blue-900 to-purple-900 rounded-lg p-6 mb-8">
+                <h3 class="text-2xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-cash-register mr-3 text-green-400"></i>
+                    Control de Caja
+                </h3>
+                <div id="caja-estado" class="flex items-center justify-between">
+                    <div>
+                        <div id="caja-info" class="text-lg mb-2">Verificando estado...</div>
+                        <div id="caja-monto-inicial" class="text-sm text-gray-300"></div>
+                    </div>
+                    <div class="flex gap-4">
+                        <button id="btn-abrir-caja" onclick="mostrarModalAbrirCaja()" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold hidden">
+                            <i class="fas fa-lock-open mr-2"></i>Abrir Caja
+                        </button>
+                        <button id="btn-cerrar-caja" onclick="cerrarCaja()" class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-semibold hidden">
+                            <i class="fas fa-lock mr-2"></i>Cerrar Caja
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div class="bg-slate-800 rounded-lg p-6">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-chart-line mr-2 text-green-400"></i>
+                        Ventas del Día
+                    </h3>
+                    <div class="mb-4">
+                        <label class="block text-sm mb-2">Fecha:</label>
+                        <input type="date" id="dashboard-fecha" class="bg-slate-700 px-4 py-2 rounded border border-slate-600 text-white" />
+                        <button onclick="cargarVentasDia()" class="ml-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Ver</button>
+                    </div>
+                    <div id="dashboard-ventas-dia" class="text-2xl font-bold text-green-300 mb-2">$0</div>
+                    <div id="dashboard-pedidos-count" class="text-sm text-gray-400">0 pedidos</div>
+                </div>
+                <div class="bg-slate-800 rounded-lg p-6">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-history mr-2 text-yellow-400"></i>
+                        Historial de Cierres de Caja
+                    </h3>
+                    <div id="dashboard-historial-caja" class="space-y-2 text-sm max-h-64 overflow-y-auto">
+                        Cargando historial...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detalle de Pedidos del Día -->
+            <div class="bg-slate-800 rounded-lg p-6">
+                <h3 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-receipt mr-2 text-blue-400"></i>
+                    Detalle de Pedidos
+                </h3>
+                <div id="dashboard-pedidos-detalle" class="space-y-4">
+                    <p class="text-gray-400">Selecciona una fecha para ver los pedidos</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Abrir Caja -->
+        <div id="modal-abrir-caja" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+            <div class="bg-slate-800 rounded-lg p-8 max-w-md w-full mx-4">
+                <h3 class="text-2xl font-bold mb-4">Abrir Caja</h3>
+                <div class="mb-4">
+                    <label class="block text-sm mb-2">Usuario que abre la caja:</label>
+                    <input type="text" id="usuario-apertura" placeholder="Nombre de usuario (sin contraseña)" class="w-full bg-slate-700 px-4 py-2 rounded border border-slate-600 mb-3">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm mb-2">Monto inicial en caja:</label>
+                    <input type="number" id="monto-inicial-caja" step="0.01" min="0" placeholder="0.00" class="w-full bg-slate-700 px-4 py-2 rounded border border-slate-600">
+                </div>
+                <div class="flex gap-4">
+                    <button onclick="abrirCaja()" class="flex-1 bg-green-600 hover:bg-green-700 px-6 py-3 rounded font-semibold">
+                        <i class="fas fa-check mr-2"></i>Abrir
+                    </button>
+                    <button onclick="cerrarModalAbrirCaja()" class="flex-1 bg-gray-600 hover:bg-gray-700 px-6 py-3 rounded font-semibold">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        
+        <!-- SECCIÓN: CATEGORÍAS -->
+        <div id="seccion-categorias" class="seccion hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold">Gestión de Categorías</h2>
+                <button onclick="abrirModalCategoria()" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition">
+                    <i class="fas fa-plus mr-2"></i>Nueva Categoría
+                </button>
+            </div>
+
+            <div class="bg-red-900 bg-opacity-30 border border-red-500 rounded-lg p-4 mb-6">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle text-red-400 text-2xl mr-3"></i>
+                    <div>
+                        <h3 class="font-bold text-red-300">Zona de Peligro</h3>
+                        <p class="text-sm text-red-200">Si deseas empezar desde cero, puedes eliminar todo el menú (categorías y productos).</p>
+                    </div>
+                    <button onclick="confirmarLimpiarMenu()" class="ml-auto bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-semibold whitespace-nowrap">
+                        Limpiar Todo
+                    </button>
+                </div>
+            </div>
+
+            <div id="lista-categorias" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Las categorías se cargarán aquí -->
+            </div>
+        </div>
+
+        <!-- SECCIÓN: PRODUCTOS -->
+        <div id="seccion-productos" class="seccion hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold">Gestión de Productos</h2>
+                <div class="flex space-x-3">
+                    <select id="filtro-categoria" onchange="actualizarFiltrosSubcategoria()" class="bg-slate-700 px-4 py-2 rounded-lg border border-slate-600">
+                        <option value="">Todas las categorías</option>
+                    </select>
+                    <select id="filtro-subcategoria" onchange="filtrarProductos()" class="bg-slate-700 px-4 py-2 rounded-lg border border-slate-600" style="display: none;">
+                        <option value="">Todas las subcategorías</option>
+                    </select>
+                    <button onclick="abrirModalProducto()" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition">
+                        <i class="fas fa-plus mr-2"></i>Nuevo Producto
+                    </button>
+                </div>
+            </div>
+
+            <div id="lista-productos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Los productos se cargarán aquí -->
+            </div>
+        </div>
+
+        <!-- SECCIÓN: VINCULACIONES -->
+        <div id="seccion-vinculaciones" class="seccion hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold">Vinculaciones de Productos</h2>
+                <button onclick="abrirModalVinculacion()" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition">
+                    <i class="fas fa-plus mr-2"></i>Nueva Vinculación
+                </button>
+            </div>
+
+            <div class="bg-blue-900 bg-opacity-30 border border-blue-500 rounded-lg p-4 mb-6">
+                <div class="flex items-center">
+                    <i class="fas fa-info-circle text-blue-400 text-2xl mr-3"></i>
+                    <div>
+                        <h3 class="font-bold text-blue-300">Sistema de Vinculaciones</h3>
+                        <p class="text-sm text-blue-200">Permite combinar productos automáticamente. Por ejemplo: Pizza Hawaiana + Coca Cola + Borde de Queso.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-slate-800 rounded-lg p-6">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-link mr-2 text-green-400"></i>
+                        Vinculaciones Activas
+                    </h3>
+                    <div id="vinculaciones-activas" class="space-y-3">
+                        <!-- Las vinculaciones se cargarán aquí -->
+                    </div>
+                </div>
+
+                <div class="bg-slate-800 rounded-lg p-6">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-plus-circle mr-2 text-blue-400"></i>
+                        Crear Nueva Vinculación
+                    </h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm mb-2">Producto Principal</label>
+                            <select id="vinculacion-producto-principal" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
+                                <option value="">Selecciona producto principal</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm mb-2">Tipo de Vinculación</label>
+                            <select id="vinculacion-tipo" onchange="filtrarProductosVinculados()" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
+                                <option value="bebida">Bebida</option>
+                                <option value="adicional">Adicional</option>
+                                <option value="complemento">Complemento</option>
+                            </select>
+                        </div>
+                        <div id="filtro-subcategoria-div" style="display:none;">
+                            <label class="block text-sm mb-2">Filtrar por Tipo de Bebida</label>
+                            <select id="vinculacion-filtro-subcategoria" onchange="filtrarProductosVinculados()" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
+                                <option value="">Todos los tipos</option>
+                                <option value="gaseosa">Gaseosas</option>
+                                <option value="limonada">Limonadas</option>
+                                <option value="jugo">Jugos Naturales</option>
+                                <option value="agua">Aguas</option>
+                                <option value="te">Tés</option>
+                                <option value="energizante">Energizantes</option>
+                                <option value="cerveza">Cervezas</option>
+                                <option value="vino">Vinos</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm mb-2">Productos a Vincular (selecciona varios)</label>
+                            <div id="vinculacion-productos-lista" class="max-h-64 overflow-y-auto bg-slate-700 rounded-lg border border-slate-600 p-3 space-y-2">
+                                <!-- Los checkboxes se cargarán aquí -->
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="vinculacion-obligatorio" class="mr-2 w-4 h-4">
+                            <label class="text-sm">Obligatorio</label>
+                        </div>
+                        <div>
+                            <label class="block text-sm mb-2">Precio Adicional ($)</label>
+                            <input type="number" id="vinculacion-precio" step="0.01" min="0" placeholder="0.00" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
+                            <p class="text-xs text-gray-400 mt-1">Se aplicará a todos los productos seleccionados</p>
+                        </div>
+                        <button onclick="crearVinculacionesMultiples()" class="w-full bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition">
+                            <i class="fas fa-plus mr-2"></i>Crear Vinculaciones
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN: INVENTARIO -->
+         <div id="seccion-inventario" class="seccion hidden">
+              <h2 class="text-3xl font-bold mb-6">Gestión de Inventario</h2>
+
+              <div class="bg-slate-800 rounded-lg p-6">
+                  <div class="flex items-center mb-4">
+                      <i class="fas fa-info-circle text-blue-400 mr-2"></i>
+                      <p class="text-gray-300">El inventario se crea automáticamente al agregar productos. Aquí puedes gestionar el stock.</p>
+                  </div>
+
+                  <div id="lista-inventario" class="overflow-x-auto">
+                      <table class="w-full">
+                          <thead>
+                              <tr class="border-b border-slate-700">
+                                  <th class="text-left py-3 px-4">Producto</th>
+                                  <th class="text-left py-3 px-4">Categoría</th>
+                                  <th class="text-center py-3 px-4">Stock Actual</th>
+                                  <th class="text-center py-3 px-4">Stock Mínimo</th>
+                                  <th class="text-center py-3 px-4">Estado</th>
+                                  <th class="text-center py-3 px-4">Acciones</th>
+                              </tr>
+                          </thead>
+                          <tbody id="tabla-inventario-body">
+                              <!-- Rows will be loaded here -->
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
+
+
+         <!-- SECCIÓN: CONFIGURACIÓN -->
+         <div id="seccion-configuracion" class="seccion hidden">
+             <div class="flex justify-between items-center mb-6">
+                 <h2 class="text-3xl font-bold">Configuración de Domicilios</h2>
+             </div>
+
+             <!-- Configuración General -->
+             <div class="bg-slate-800 rounded-lg p-6 mb-6">
+                 <div class="flex items-center justify-between mb-4">
+                     <div class="flex items-center">
+                         <i class="fas fa-cog text-blue-400 text-2xl mr-3"></i>
+                         <div>
+                             <h3 class="text-xl font-semibold">Configuración General</h3>
+                             <p class="text-gray-400 text-sm">Sistema de precios de domicilio</p>
+                         </div>
+                     </div>
+                     <div id="estado-sistema" class="text-lg font-semibold text-orange-400">
+                         Cargando...
+                     </div>
+                 </div>
+
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <div class="bg-slate-700 rounded-lg p-4">
+                         <h4 class="font-semibold mb-3 flex items-center">
+                             <i class="fas fa-dollar-sign mr-2 text-green-400"></i>
+                             Precio por Defecto
+                         </h4>
+                         <p class="text-sm text-gray-300 mb-3">
+                             Precio cuando no hay zona configurada o el sistema de zonas está desactivado
+                         </p>
+                         <input type="number" id="precio-default" step="100" min="0" placeholder="3000" 
+                                class="w-full px-4 py-2 bg-slate-600 rounded-lg border border-slate-500 focus:border-blue-500 focus:outline-none">
+                     </div>
+
+                     <div class="bg-slate-700 rounded-lg p-4">
+                         <h4 class="font-semibold mb-3 flex items-center">
+                             <i class="fas fa-map-marked-alt mr-2 text-purple-400"></i>
+                             Sistema de Precios por Zona
+                         </h4>
+                         <p class="text-sm text-gray-300 mb-3">
+                             Activar precios dinámicos según municipio y barrio
+                         </p>
+                         <label class="flex items-center cursor-pointer">
+                             <input type="checkbox" id="usar-precios-zona" 
+                                    class="w-6 h-6 rounded bg-slate-600 border-slate-500 text-blue-600 focus:ring-blue-500">
+                             <span class="ml-3 text-sm font-medium">Usar precios por zona</span>
+                         </label>
+                     </div>
+                 </div>
+
+                 <div class="mt-4">
+                     <button onclick="guardarConfiguracion()" 
+                             class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition">
+                         <i class="fas fa-save mr-2"></i>Guardar Configuración
+                     </button>
+                 </div>
+             </div>
+
+             <!-- Gestión de Zonas -->
+             <div class="bg-slate-800 rounded-lg p-6">
+                 <div class="flex items-center justify-between mb-4">
+                     <div class="flex items-center">
+                         <i class="fas fa-map-marked-alt text-purple-400 text-2xl mr-3"></i>
+                         <div>
+                             <h3 class="text-xl font-semibold">Zonas de Precio</h3>
+                             <p class="text-gray-400 text-sm">Configura precios según municipio y barrio</p>
+                         </div>
+                     </div>
+                     <button onclick="mostrarModalNuevaZona()" 
+                             class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold transition">
+                         <i class="fas fa-plus mr-2"></i>Agregar Zona
+                     </button>
+                 </div>
+
+                 <!-- Tabla de Zonas -->
+                 <div class="overflow-x-auto">
+                     <table class="min-w-full divide-y divide-slate-700">
+                         <thead class="bg-slate-700">
+                             <tr>
+                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                     Municipio
+                                 </th>
+                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                     Barrio
+                                 </th>
+                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                     Precio
+                                 </th>
+                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                     Observaciones
+                                 </th>
+                                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                     Acciones
+                                 </th>
+                             </tr>
+                         </thead>
+                         <tbody id="tabla-zonas-body" class="bg-slate-800 divide-y divide-slate-700">
+                             <tr>
+                                 <td colspan="5" class="px-6 py-8 text-center text-gray-400">
+                                     <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                                     <p>Cargando zonas...</p>
+                                 </td>
+                             </tr>
+                         </tbody>
+                     </table>
+                 </div>
+
+                 <!-- Ayuda -->
+                 <div class="mt-6 bg-blue-900 bg-opacity-20 border border-blue-500 rounded-lg p-4">
+                     <div class="flex">
+                         <i class="fas fa-info-circle text-blue-400 mr-3 mt-1"></i>
+                         <div class="text-sm text-gray-300">
+                             <p class="font-semibold mb-2">Cómo funciona el sistema de precios por zona:</p>
+                             <ul class="list-disc ml-5 space-y-1">
+                                 <li><strong>Barrio específico:</strong> Si defines un precio para un barrio concreto (ej: "Laureles, Medellín"), ese precio tendrá prioridad</li>
+                                 <li><strong>Municipio general:</strong> Si solo defines el municipio sin barrio (ej: "Medellín"), ese precio se aplica a todos los barrios no especificados</li>
+                                 <li><strong>Precio por defecto:</strong> Si no hay configuración para el municipio, se usa el precio por defecto</li>
+                                 <li><strong>Geocodificación automática:</strong> El sistema detecta automáticamente el municipio y barrio cuando el cliente ingresa su dirección</li>
+                             </ul>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+         </div>
+
+         <!-- MODAL: Crear/Editar Zona de Precio -->
+         <div id="modal-zona" class="modal hidden">
+             <div class="bg-slate-800 rounded-lg p-6 max-w-lg w-full">
+                 <div class="flex justify-between items-center mb-4">
+                     <h3 class="text-xl font-bold" id="modal-zona-titulo">Nueva Zona de Precio</h3>
+                     <button type="button" onclick="cerrarModalZona()" class="text-gray-400 hover:text-white">
+                         <i class="fas fa-times"></i>
+                     </button>
+                 </div>
+                 
+                 <form id="form-zona" class="space-y-4">
+                     <div>
+                         <label class="block font-medium mb-2 text-sm">Municipio *</label>
+                         <input type="text" id="zona-municipio" required 
+                                class="w-full px-4 py-2 bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none" 
+                                placeholder="Ej: Medellín, Envigado, Itagüí">
+                         <p class="text-xs text-gray-400 mt-1">Nombre del municipio o ciudad</p>
+                     </div>
+
+                     <div>
+                         <label class="block font-medium mb-2 text-sm">Barrio (opcional)</label>
+                         <input type="text" id="zona-barrio" 
+                                class="w-full px-4 py-2 bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none" 
+                                placeholder="Ej: Laureles, Poblado">
+                         <p class="text-xs text-gray-400 mt-1">Déjalo vacío para aplicar a todo el municipio</p>
+                     </div>
+
+                     <div>
+                         <label class="block font-medium mb-2 text-sm">Precio *</label>
+                         <input type="number" id="zona-precio" required step="100" min="0" 
+                                class="w-full px-4 py-2 bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none" 
+                                placeholder="5000">
+                         <p class="text-xs text-gray-400 mt-1">Precio del domicilio en pesos colombianos</p>
+                     </div>
+
+                     <div>
+                         <label class="block font-medium mb-2 text-sm">Observaciones</label>
+                         <textarea id="zona-observaciones" rows="2" 
+                                   class="w-full px-4 py-2 bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none" 
+                                   placeholder="Notas adicionales sobre esta zona"></textarea>
+                     </div>
+
+                     <div class="hidden" id="zona-activo-container">
+                         <label class="flex items-center cursor-pointer">
+                             <input type="checkbox" id="zona-activo" checked 
+                                    class="w-5 h-5 rounded bg-slate-600 border-slate-500 text-blue-600">
+                             <span class="ml-2 text-sm">Zona activa</span>
+                         </label>
+                     </div>
+
+                     <div class="flex gap-3 pt-4">
+                         <button type="button" onclick="guardarZona()" 
+                                 class="flex-1 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-semibold transition">
+                             <i class="fas fa-save mr-2"></i>Guardar
+                         </button>
+                         <button type="button" onclick="cerrarModalZona()" 
+                                 class="flex-1 bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg font-semibold transition">
+                             <i class="fas fa-times mr-2"></i>Cancelar
+                         </button>
+                     </div>
+                 </form>
+             </div>
+         </div>
+
+    </main>
+
+    <!-- MODAL: Crear/Editar Categoría -->
+    <div id="modal-categoria" class="modal">
+        <div class="bg-slate-800 rounded-lg p-4 max-w-md w-full">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-xl font-bold" id="titulo-modal-categoria">Nueva Categoría</h3>
+                <button type="button" onclick="cerrarModal('modal-categoria')" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="form-categoria" onsubmit="guardarCategoria(event)" class="space-y-2">
+                <input type="hidden" id="categoria-id">
+                
+                <div class="mb-4">
+                    <label class="block font-medium mb-1 text-sm">Ícono</label>
+                    <div class="flex items-center gap-2">
+                        <select id="categoria-icono" class="w-full px-3 py-1 text-sm bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none">
+                            <!-- Opciones comunes de Font Awesome (valor = clase) -->
+                            <option value="fas fa-tag">Tag</option>
+                            <option value="fas fa-pizza-slice">Pizza</option>
+                            <option value="fas fa-utensils">Utensilios</option>
+                            <option value="fas fa-box">Caja</option>
+                            <option value="fas fa-folder">Carpeta</option>
+                            <option value="fas fa-link">Vinculo</option>
+                            <option value="fas fa-warehouse">Inventario</option>
+                            <option value="fas fa-cash-register">Caja</option>
+                            <option value="fas fa-chart-line">Ventas</option>
+                            <option value="fas fa-history">Historial</option>
+                            <option value="fas fa-receipt">Recibo</option>
+                            <option value="fas fa-plus">Agregar</option>
+                            <option value="fas fa-edit">Editar</option>
+                            <option value="fas fa-trash">Eliminar</option>
+                            <option value="fas fa-truck">Reparto</option>
+                            <option value="fas fa-shopping-cart">Carrito</option>
+                            <option value="fas fa-beer">Bebidas</option>
+                            <option value="fas fa-wine-glass">Vinos</option>
+                            <option value="fas fa-mug-hot">Bebidas Calientes</option>
+                            <option value="fas fa-star">Favoritos</option>
+                        </select>
+                        <div id="categoria-icono-preview" class="w-10 h-10 rounded-full flex items-center justify-center text-white" style="background:#ff7a18">
+                            <i class="fas fa-tag"></i>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">Selecciona un ícono para la categoría. Ej: <code>fas fa-pizza-slice</code></p>
+                </div>
+
+                <div class="mb-2">
+                    <label class="block font-medium mb-1 text-sm">Nombre de la Categoría *</label>
+                    <input type="text" id="categoria-nombre" required class="w-full px-3 py-1 text-sm bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none" placeholder="Ej: Pizzas Premium">
+                </div>
+
+                <div class="mb-2">
+                    <label class="block font-medium mb-1 text-sm">Descripción</label>
+                    <textarea id="categoria-descripcion" rows="1" class="w-full px-3 py-1 text-sm bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none"></textarea>
+                </div>
+
+                <div class="mb-2">
+                    <label class="block font-medium mb-1 text-sm">Categoría Padre</label>
+                    <select id="categoria-padre" class="w-full px-3 py-1 text-sm bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none">
+                        <option value="">Ninguna (categoría principal)</option>
+                    </select>
+                    <p class="text-xs text-gray-400 mt-1">Si es una subcategoría, seleccione la categoría padre</p>
+                </div>
+
+                <div class="mb-2">
+                    <label class="block font-medium mb-1 text-sm">Categorías Compatibles</label>
+                    <div id="categorias-compatibles-container" class="bg-slate-700 p-2 rounded border border-slate-600 max-h-32 overflow-y-auto text-sm">
+                        <!-- Se llenará dinámicamente con JavaScript -->
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">Seleccione las categorías que pueden combinarse con esta</p>
+                </div>
+
+                <div class="mb-2">
+                    <label class="flex items-center text-sm">
+                        <input type="checkbox" id="es-adicion" class="mr-2 w-4 h-4">
+                        <span>Es una adición (puede agregarse a otros productos)</span>
+                    </label>
+                    <p class="text-xs text-gray-400 mt-1">Marque si esta categoría contiene productos que pueden ser adiciones</p>
+                </div>
+
+                <div class="mb-3">
+                    <label class="block font-medium mb-1 text-sm">Campos que requieren los productos:</label>
+                    <div class="space-y-1">
+                        <label class="flex items-center text-sm">
+                            <input type="checkbox" id="campo-ingredientes" class="mr-2 w-4 h-4">
+                            <span>Ingredientes (Para pizzas, pastas, etc.)</span>
+                        </label>
+                        <label class="flex items-center text-sm">
+                            <input type="checkbox" id="campo-tamanos" class="mr-2 w-4 h-4">
+                            <span>Tamaños con precios (Personal, Mediano, Grande)</span>
+                        </label>
+                        <label class="flex items-center text-sm">
+                            <input type="checkbox" id="campo-mililitros" class="mr-2 w-4 h-4">
+                            <span>Mililitros (Para bebidas: 250ml, 500ml, 1L)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <label class="flex items-center text-sm">
+                        <input type="checkbox" id="categoria-visible-publico" class="mr-2 w-4 h-4">
+                        <span>Visible en menú público</span>
+                    </label>
+                    <p class="text-xs text-gray-400 mt-1">Si está desmarcado, la categoría no aparecerá en el menú público aunque los productos sigan accesibles por vinculaciones.</p>
+                </div>
+
+                <div class="mb-2">
+                    <label class="flex items-center text-sm">
+                        <input type="checkbox" id="categoria-default-domicilio" class="mr-2 w-4 h-4">
+                        <span>Predeterminada en Domicilios</span>
+                    </label>
+                    <p class="text-xs text-gray-400 mt-1">Si marca esta opción, la categoría seleccionada será la categoría inicial que verán los clientes en el menú público (solo una categoría puede ser predeterminada).</p>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-1">
+                    <button type="button" onclick="cerrarModal('modal-categoria')" class="px-4 py-1 text-sm bg-gray-600 hover:bg-gray-700 rounded transition">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-4 py-1 text-sm bg-blue-600 hover:bg-blue-700 rounded transition">
+                        Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Crear/Editar Producto -->
+    <div id="modal-producto" class="modal fixed inset-0 bg-black bg-opacity-75 items-center justify-center z-50 overflow-y-auto">
+        <div class="bg-slate-800 rounded-lg p-8 max-w-2xl w-full mx-4 my-8">
+            <h3 class="text-2xl font-bold mb-6" id="titulo-modal-producto">Nuevo Producto</h3>
+            <form id="form-producto" onsubmit="guardarProducto(event)">
+                <input type="hidden" id="producto-id">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block font-medium mb-2">Nombre del Producto *</label>
+                        <input type="text" id="producto-nombre" required class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block font-medium mb-2">Descripción</label>
+                        <textarea id="producto-descripcion" rows="2" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none"></textarea>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block font-medium mb-2">Imagen del Producto</label>
+                        <input type="file" id="producto-imagen" accept="image/*" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
+                        <p class="text-sm text-gray-400 mt-1">Selecciona una imagen para el producto (opcional)</p>
+                    </div>
+
+                    <div>
+                        <label class="block font-medium mb-2">Categoría *</label>
+                        <select id="producto-categoria" required onchange="actualizarCamposProducto()" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
+                            <option value="">Selecciona una categoría</option>
+                        </select>
+                    </div>
+
+                    <div id="div-subcategoria" style="display: none;">
+                        <label class="block font-medium mb-2">Subcategoría</label>
+                        <select id="producto-subcategoria" onchange="actualizarCamposProducto()" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
+                            <option value="">Selecciona una subcategoría (opcional)</option>
+                        </select>
+                        <p class="text-sm text-gray-400 mt-1">Para bebidas: gaseosa, limonada, etc.</p>
+                    </div>
+
+                    <div>
+                        <label class="block font-medium mb-2">Stock Mínimo</label>
+                        <input type="number" id="producto-stock-minimo" value="10" min="0" step="1" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Campos dinámicos según categoría -->
+                <div id="campos-dinamicos-producto" class="mt-6">
+                    <!-- Se llenarán dinámicamente según la categoría -->
+                </div>
+
+                <!-- Sección de Precios -->
+                <div id="seccion-precios" class="mt-6">
+                    <div class="flex justify-between items-center mb-3">
+                        <label class="block font-medium">Precios *</label>
+                        <button type="button" onclick="agregarPrecio()" class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm">
+                            <i class="fas fa-plus mr-1"></i>Agregar Precio
+                        </button>
+                    </div>
+                    <div id="lista-precios" class="space-y-2">
+                        <!-- Los precios se agregarán aquí -->
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-4 mt-8">
+                    <button type="button" onclick="cerrarModal('modal-producto')" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-6 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition">
+                        Guardar Producto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Actualizar Stock -->
+    <div id="modal-stock" class="modal fixed inset-0 bg-black bg-opacity-75 items-center justify-center z-50">
+        <div class="bg-slate-800 rounded-lg p-8 max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold mb-6">Actualizar Stock</h3>
+            <form id="form-stock" onsubmit="actualizarStock(event)">
+                <input type="hidden" id="stock-producto-id">
+                
+                <div class="mb-4">
+                    <label class="block font-medium mb-2">Producto</label>
+                    <p id="stock-producto-nombre" class="px-4 py-2 bg-slate-700 rounded-lg text-gray-300"></p>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block font-medium mb-2">Stock Actual</label>
+                    <input type="number" id="stock-actual" required min="0" step="0.01" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
+                </div>
+
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="cerrarModal('modal-stock')" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-6 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition">
+                        Actualizar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Configurar Opciones/Adiciones -->
+     <div id="modalAsignarGrupos" class="modal fixed inset-0 bg-black bg-opacity-75 items-center justify-center z-50">
+         <div class="bg-slate-800 rounded-lg p-8 max-w-2xl w-full mx-4 text-white">
+             <h3 class="text-2xl font-bold mb-6" id="tituloModalAsignar">Configurar Opciones</h3>
+             <input type="hidden" id="productoIdAsignar">
+             <div id="listaGruposAsignar" class="text-gray-300 space-y-2 max-h-72 overflow-y-auto p-2 border border-slate-700 rounded-md"></div>
+             <div class="flex justify-end space-x-4 mt-8">
+                 <button type="button" onclick="cerrarModalAsignar()" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg text-white transition">
+                     Cancelar
+                 </button>
+                 <button id="btnGuardarAsignacion" type="button" onclick="guardarAsignacion()" class="px-6 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white transition">
+                     Guardar Configuración
+                 </button>
+             </div>
+         </div>
+     </div>
+
+
+    <!-- Notifications Container -->
+    <div id="notifications-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <script src="./js/notifications.js"></script>
+    <script src="./js/admin.js"></script>
+    <script src="./js/precios-zona.js"></script>
+    <script>
+        // ==================== VARIABLES GLOBALES ====================
+        let categoriasData = [];
+        let productosData = [];
+        let categoriaActual = null;
+        let productoActual = null;
+        let preciosContador = 0;
+
+        // ==================== DASHBOARD ====================
+        // Obtener fecha en zona horaria de Colombia
+        function getFechaColombia() {
+            const ahora = new Date();
+            // Colombia es UTC-5
+            const offsetColombia = -5 * 60;
+            const offsetLocal = ahora.getTimezoneOffset();
+            const diferenciaMinutos = offsetColombia - offsetLocal;
+            const fechaColombia = new Date(ahora.getTime() + diferenciaMinutos * 60000);
+            return fechaColombia.toISOString().slice(0, 10);
+        }
+
+        async function cargarVentasDia() {
+            const inputFecha = document.getElementById('dashboard-fecha');
+            const fecha = inputFecha.value || getFechaColombia();
+            inputFecha.value = fecha;
+            
+            try {
+                // Cargar total de ventas
+                const resp = await fetch(`/api/caja/ventas-dia?fecha=${fecha}`);
+                const data = await resp.json();
+                document.getElementById('dashboard-ventas-dia').textContent = `$${data.total_ventas?.toFixed(2) || 0}`;
+                
+                // Cargar detalles de pedidos
+                const respPedidos = await fetch(`/api/caja/pedidos-dia?fecha=${fecha}`);
+                const dataPedidos = await respPedidos.json();
+                
+                document.getElementById('dashboard-pedidos-count').textContent = `${dataPedidos.total_pedidos || 0} pedidos`;
+                
+                // Mostrar detalle de pedidos
+                cargarDetallePedidos(dataPedidos.pedidos || []);
+            } catch (e) {
+                document.getElementById('dashboard-ventas-dia').textContent = 'Error';
+                document.getElementById('dashboard-pedidos-detalle').innerHTML = 
+                    `<p class="text-red-400">Error cargando datos: ${e.message}</p>`;
+                console.error('Error cargando ventas:', e);
+            }
+        }
+
+        function cargarDetallePedidos(pedidos) {
+            const cont = document.getElementById('dashboard-pedidos-detalle');
+            
+            if (!pedidos || pedidos.length === 0) {
+                cont.innerHTML = '<p class="text-gray-400">No hay pedidos para esta fecha</p>';
+                return;
+            }
+            
+            cont.innerHTML = pedidos.map(pedido => {
+                const estadoColor = {
+                    'pendiente': 'bg-yellow-600',
+                    'en_preparacion': 'bg-blue-600',
+                    'listo': 'bg-green-600',
+                    'entregado': 'bg-gray-600',
+                    'cancelado': 'bg-red-600'
+                }[pedido.estado] || 'bg-gray-600';
+                
+                const itemsHtml = pedido.items.map(item => `
+                    <div class="flex justify-between text-sm py-1 border-b border-slate-600">
+                        <span>${item.cantidad}x ${item.producto}${item.tamano ? ` (${item.tamano})` : ''}</span>
+                        <span class="text-green-300">$${item.subtotal.toFixed(2)}</span>
+                    </div>
+                `).join('');
+                
+                // Formatear fecha y hora para Colombia
+                const formatearFecha = (fechaStr) => {
+                    // La fecha viene de SQLite sin zona horaria, tratarla como local (Colombia)
+                    // Agregar 'T' si no tiene y no agregar 'Z' para que no se interprete como UTC
+                    let fechaLocal = fechaStr.replace(' ', 'T');
+                    if (!fechaLocal.includes('T')) {
+                        fechaLocal += 'T00:00:00';
+                    }
+                    // Parsear sin el sufijo Z para que se trate como hora local
+                    const fecha = new Date(fechaLocal);
+                    
+                    // Formatear manualmente
+                    const dia = fecha.getDate().toString().padStart(2, '0');
+                    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+                    const año = fecha.getFullYear();
+                    let horas = fecha.getHours();
+                    const minutos = fecha.getMinutes().toString().padStart(2, '0');
+                    const ampm = horas >= 12 ? 'p. m.' : 'a. m.';
+                    horas = horas % 12 || 12;
+                    
+                    return `${dia}/${mes}/${año}, ${horas}:${minutos} ${ampm}`;
+                };
+                
+                return `
+                    <div class="bg-slate-700 rounded-lg p-4 hover:bg-slate-600 transition">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h4 class="font-semibold text-lg">Pedido #${pedido.numero_pedido || pedido.id}</h4>
+                                <p class="text-sm text-gray-400"><i class="fas fa-clock mr-1"></i>${formatearFecha(pedido.fecha_pedido)}</p>
+                                ${pedido.nombre_cliente ? `<p class="text-sm"><i class="fas fa-user mr-1"></i>${pedido.nombre_cliente}</p>` : ''}
+                                ${pedido.telefono_cliente ? `<p class="text-sm"><i class="fas fa-phone mr-1"></i>${pedido.telefono_cliente}</p>` : ''}
+                            </div>
+                            <div class="text-right">
+                                <span class="${estadoColor} text-xs px-3 py-1 rounded-full">${pedido.estado}</span>
+                                <p class="text-2xl font-bold text-green-300 mt-2">$${pedido.total.toFixed(2)}</p>
+                                <p class="text-xs text-gray-400">${pedido.tipo_pedido || 'Local'}</p>
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-slate-600">
+                            <p class="text-xs text-gray-400 mb-2"><i class="fas fa-list mr-1"></i>Items:</p>
+                            ${itemsHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function cargarHistorialCaja() {
+            const cont = document.getElementById('dashboard-historial-caja');
+            cont.textContent = 'Cargando...';
+            try {
+                const resp = await fetch('/api/caja/historial');
+                const data = await resp.json();
+                if (!data.sesiones?.length) {
+                    cont.textContent = 'Sin historial.';
+                    return;
+                }
+                cont.innerHTML = data.sesiones.map(s =>
+                    `<div class='p-2 rounded bg-slate-700 mb-1'>
+                        <b>${s.fecha_apertura}</b> - <span class='text-green-300'>${s.total_ventas ? '$'+s.total_ventas.toFixed(2) : '$0'}</span>
+                        <br><span class='text-xs'>Apertura: ${s.hora_apertura} | Cierre: ${s.hora_cierre || '-'}</span>
+                    </div>`
+                ).join('');
+            } catch (e) {
+                cont.textContent = 'Error al cargar historial.';
+            }
+        }
+
+        async function verificarEstadoCaja() {
+            try {
+                const resp = await fetch('/api/caja/actual');
+                const data = await resp.json();
+                const infoDiv = document.getElementById('caja-info');
+                const montoDiv = document.getElementById('caja-monto-inicial');
+                const btnAbrir = document.getElementById('btn-abrir-caja');
+                const btnCerrar = document.getElementById('btn-cerrar-caja');
+
+                if (data.abierta && data.sesion) {
+                    infoDiv.innerHTML = '<i class="fas fa-check-circle text-green-400 mr-2"></i>Caja Abierta';
+                    montoDiv.textContent = `Sesión: ${data.sesion.fecha_apertura || ''} ${data.sesion.hora_apertura || ''}`;
+                    btnAbrir.classList.add('hidden');
+                    btnCerrar.classList.remove('hidden');
+                    // Guardar el ID de la sesión actual
+                    window.sesionCajaActual = data.sesion.id;
+                } else {
+                    infoDiv.innerHTML = '<i class="fas fa-times-circle text-red-400 mr-2"></i>Caja Cerrada';
+                    montoDiv.textContent = '';
+                    btnAbrir.classList.remove('hidden');
+                    btnCerrar.classList.add('hidden');
+                    window.sesionCajaActual = null;
+                }
+            } catch (e) {
+                console.error('Error al verificar caja:', e);
+                document.getElementById('caja-info').textContent = 'Error al verificar estado';
+            }
+        }
+
+        function mostrarModalAbrirCaja() {
+            document.getElementById('modal-abrir-caja').classList.add('active');
+            document.getElementById('monto-inicial-caja').value = '';
+            document.getElementById('usuario-apertura').value = '';
+            document.getElementById('usuario-apertura').focus();
+        }
+
+        function cerrarModalAbrirCaja() {
+            document.getElementById('modal-abrir-caja').classList.remove('active');
+        }
+
+        async function abrirCaja() {
+            const monto = parseFloat(document.getElementById('monto-inicial-caja').value) || 0;
+            const usuario = (document.getElementById('usuario-apertura').value || '').trim() || 'admin';
+            try {
+                const resp = await fetch('/api/caja/abrir', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({monto_inicial: monto, usuario: usuario, observaciones: `Monto inicial: ${monto}`})
+                });
+                const data = await resp.json();
+                if (resp.ok) {
+                    mostrarNotificacion('✅ Caja abierta exitosamente', 'success');
+                    cerrarModalAbrirCaja();
+                    verificarEstadoCaja();
+                    cargarVentasDia();
+                } else {
+                    mostrarNotificacion('❌ Error: ' + (data.error || 'No se pudo abrir la caja'), 'error');
+                }
+            } catch (e) {
+                mostrarNotificacion('❌ Error de conexión al abrir caja', 'error');
+            }
+        }
+
+        async function cerrarCaja() {
+            if (!confirm('¿Deseas cerrar la caja? Esto finalizará la sesión actual.')) return;
+            try {
+                const sesionId = window.sesionCajaActual;
+                if (!sesionId) {
+                    mostrarNotificacion('❌ No hay sesión de caja abierta', 'error');
+                    return;
+                }
+                const resp = await fetch('/api/caja/cerrar', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({sesion_id: sesionId})
+                });
+                const data = await resp.json();
+                if (resp.ok) {
+                    mostrarNotificacion('✅ Caja cerrada exitosamente', 'success');
+                    verificarEstadoCaja();
+                    cargarHistorialCaja();
+                    cargarVentasDia();
+                } else {
+                    mostrarNotificacion('❌ Error: ' + (data.error || 'No se pudo cerrar la caja'), 'error');
+                }
+            } catch (e) {
+                mostrarNotificacion('❌ Error de conexión al cerrar caja', 'error');
+            }
+        }
+
+        // ==================== INICIALIZACIÓN ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            mostrarSeccion('dashboard');
+            verificarEstadoCaja();
+        });
+
+        // ==================== NAVEGACIÓN ====================
+        function mostrarSeccion(seccion) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.seccion').forEach(s => s.classList.add('hidden'));
+            // Desactivar todos los tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-blue-500', 'text-blue-400');
+            });
+            
+            // Mostrar sección seleccionada
+            document.getElementById(`seccion-${seccion}`).classList.remove('hidden');
+            document.getElementById(`tab-${seccion}`).classList.add('border-blue-500', 'text-blue-400');
+            
+            // Cargar datos según la sección
+            if (seccion === 'dashboard') {
+                cargarVentasDia();
+                cargarHistorialCaja();
+            } else if (seccion === 'categorias') {
+                cargarCategorias();
+            } else if (seccion === 'productos') {
+                cargarProductos();
+                cargarCategoriasEnSelect();
+            } else if (seccion === 'vinculaciones') {
+                cargarVinculaciones();
+            } else if (seccion === 'inventario') {
+                cargarInventario();
+            } else if (seccion === 'configuracion') {
+                // Cargar sistema de precios por zona
+                if (typeof cargarConfiguracion === 'function') {
+                    cargarConfiguracion();
+                }
+                if (typeof cargarZonasPrecios === 'function') {
+                    cargarZonasPrecios();
+                }
+            }
+        }
+
+        // ==================== CATEGORÍAS ====================
+        async function cargarCategorias() {
+            try {
+                const response = await fetch('/api/categorias-config');
+                categoriasData = await response.json();
+                mostrarCategorias();
+            } catch (error) {
+                console.error('Error cargando categorías:', error);
+                mostrarNotificacion('Error al cargar categorías', 'error');
+            }
+        }
+
+        function mostrarCategorias() {
+            const lista = document.getElementById('lista-categorias');
+            if (categoriasData.length === 0) {
+                lista.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <i class="fas fa-folder-open text-6xl text-gray-600 mb-4"></i>
+                        <p class="text-xl text-gray-400">No hay categorías creadas</p>
+                        <p class="text-gray-500 mt-2">Crea tu primera categoría para comenzar</p>
+                    </div>
+                `;
+                return;
+            }
+
+            lista.innerHTML = categoriasData.map(cat => `
+                <div class="bg-slate-800 rounded-lg p-6 card-hover">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <i class="${cat.icono} text-3xl text-blue-400"></i>
+                            <div>
+                                <h3 class="text-xl font-bold">${cat.nombre}</h3>
+                                <p class="text-sm text-gray-400">${cat.descripcion || 'Sin descripción'}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            ${cat.activo ? '<span class="bg-green-600 text-xs px-2 py-1 rounded">Activa</span>' : '<span class="bg-gray-600 text-xs px-2 py-1 rounded">Inactiva</span>'}
+                            ${cat.default_en_domicilio && cat.default_en_domicilio != 0 ? '<span class="bg-yellow-400 text-xs px-2 py-1 rounded ml-2 text-black">Predeterminada</span>' : ''}
+                            <button onclick="toggleVisiblePublico(${cat.id}, ${cat.visible_en_publico || 1})" title="Alternar visibilidad pública" class="px-2 py-1 rounded text-sm border border-slate-600 hover:bg-slate-700">
+                                ${cat.visible_en_publico && cat.visible_en_publico != 0 ? 'Visible' : 'Oculta'}
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4 text-sm text-gray-400">
+                        <p><strong>Campos requeridos:</strong></p>
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            ${cat.campos_requeridos.ingredientes ? '<span class="bg-slate-700 px-2 py-1 rounded text-xs">📝 Ingredientes</span>' : ''}
+                            ${cat.campos_requeridos.tamanos ? '<span class="bg-slate-700 px-2 py-1 rounded text-xs">📏 Tamaños</span>' : ''}
+                            ${cat.campos_requeridos.mililitros ? '<span class="bg-slate-700 px-2 py-1 rounded text-xs">🥤 Mililitros</span>' : ''}
+                            ${!cat.campos_requeridos.ingredientes && !cat.campos_requeridos.tamanos && !cat.campos_requeridos.mililitros ? '<span class="text-xs">Ninguno</span>' : ''}
+                        </div>
+                    </div>
+
+                    <div class="flex space-x-2">
+                        <button onclick="editarCategoria(${cat.id})" class="flex-1 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded transition">
+                            <i class="fas fa-edit mr-2"></i>Editar
+                        </button>
+                        <button onclick="eliminarCategoria(${cat.id})" class="flex-1 bg-red-600 hover:bg-red-700 px-4 py-2 rounded transition">
+                            <i class="fas fa-trash mr-2"></i>Eliminar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function abrirModalCategoria() {
+            categoriaActual = null;
+            document.getElementById('titulo-modal-categoria').textContent = 'Nueva Categoría';
+            document.getElementById('form-categoria').reset();
+            document.getElementById('categoria-id').value = '';
+            document.getElementById('categoria-icono').value = 'fas fa-tag';
+            
+            // Cargar categorías para el selector de categoría padre y compatibilidades
+            cargarCategoriasEnFormulario();
+            
+            abrirModal('modal-categoria');
+        }
+        
+        function cargarCategoriasEnFormulario() {
+            // Llenar selector de categoría padre
+            const selectCategoriaPadre = document.getElementById('categoria-padre');
+            selectCategoriaPadre.innerHTML = '<option value="">Ninguna (categoría principal)</option>';
+            
+            // Llenar contenedor de categorías compatibles
+            const contenedorCompatibles = document.getElementById('categorias-compatibles-container');
+            contenedorCompatibles.innerHTML = '';
+            
+            // Obtener ID de la categoría actual (si estamos editando)
+            const categoriaId = document.getElementById('categoria-id').value;
+            
+            // Agregar opciones de categorías existentes
+            categoriasData.forEach(cat => {
+                // No mostrar la categoría actual como opción para padre o compatible
+                if (categoriaId && cat.id == categoriaId) return;
+                
+                // Agregar como opción para categoría padre
+                selectCategoriaPadre.innerHTML += `<option value="${cat.id}">${cat.nombre}</option>`;
+                
+                // Agregar como opción para categorías compatibles
+                contenedorCompatibles.innerHTML += `
+                    <label class="flex items-center p-2 hover:bg-slate-600 rounded">
+                        <input type="checkbox" value="${cat.id}" class="mr-2 w-4 h-4">
+                        <span>${cat.nombre}</span>
+                    </label>
+                `;
+            });
+        }
+
+        function editarCategoria(id) {
+            const categoria = categoriasData.find(c => c.id === id);
+            if (!categoria) return;
+
+            categoriaActual = categoria;
+            document.getElementById('titulo-modal-categoria').textContent = 'Editar Categoría';
+            document.getElementById('categoria-id').value = categoria.id;
+            document.getElementById('categoria-nombre').value = categoria.nombre;
+            document.getElementById('categoria-descripcion').value = categoria.descripcion || '';
+            document.getElementById('categoria-icono').value = categoria.icono || 'fas fa-tag';
+            
+            // Actualizar la vista previa del icono
+            try { updateIconPreview(); } catch (e) { /* noop */ }
+            // Cargar las categorías en el formulario
+            cargarCategoriasEnFormulario();
+            
+            // Establecer categoría padre si existe
+            if (categoria.categoria_padre_id) {
+                document.getElementById('categoria-padre').value = categoria.categoria_padre_id;
+            } else {
+                document.getElementById('categoria-padre').value = '';
+            }
+            
+            // Establecer si es adición
+            document.getElementById('es-adicion').checked = categoria.es_adicion || false;
+            
+            // Marcar categorías compatibles
+            const checkboxes = document.querySelectorAll('#categorias-compatibles-container input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = categoria.categorias_compatibles && 
+                                  categoria.categorias_compatibles.includes(parseInt(checkbox.value));
+            });
+            
+            document.getElementById('campo-ingredientes').checked = categoria.campos_requeridos.ingredientes || false;
+            document.getElementById('campo-tamanos').checked = categoria.campos_requeridos.tamanos || false;
+            document.getElementById('campo-mililitros').checked = categoria.campos_requeridos.mililitros || false;
+
+            // Establecer visibilidad pública si el campo existe
+            try {
+                document.getElementById('categoria-visible-publico').checked = (categoria.visible_en_publico === 1 || categoria.visible_en_publico === true);
+            } catch (e) {
+                // ignorar si no existe el checkbox
+            }
+
+            // Establecer default en domicilios si existe el campo
+            try {
+                document.getElementById('categoria-default-domicilio').checked = (categoria.default_en_domicilio === 1 || categoria.default_en_domicilio === true);
+            } catch (e) {
+                // ignorar si no existe
+            }
+
+            abrirModal('modal-categoria');
+        }
+
+        async function guardarCategoria(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('categoria-id').value;
+            
+            // Obtener categorías compatibles seleccionadas
+            const categoriasCompatiblesChecks = document.querySelectorAll('#categorias-compatibles-container input[type="checkbox"]:checked');
+            const categoriasCompatibles = Array.from(categoriasCompatiblesChecks).map(check => parseInt(check.value));
+            
+            const data = {
+                nombre: document.getElementById('categoria-nombre').value,
+                descripcion: document.getElementById('categoria-descripcion').value,
+                icono: document.getElementById('categoria-icono').value,
+                categoria_padre_id: document.getElementById('categoria-padre').value || null,
+                es_adicion: document.getElementById('es-adicion').checked,
+                categorias_compatibles: categoriasCompatibles,
+                campos_requeridos: {
+                    ingredientes: document.getElementById('campo-ingredientes').checked,
+                    tamanos: document.getElementById('campo-tamanos').checked,
+                    mililitros: document.getElementById('campo-mililitros').checked
+                }
+            };
+            // Incluir visibilidad pública
+            try {
+                data.visible_en_publico = document.getElementById('categoria-visible-publico').checked ? 1 : 0;
+            } catch (e) {
+                data.visible_en_publico = 1;
+            }
+
+            // Incluir marca de categoría predeterminada en domicilios
+            try {
+                data.default_en_domicilio = document.getElementById('categoria-default-domicilio').checked ? 1 : 0;
+            } catch (e) {
+                data.default_en_domicilio = 0;
+            }
+
+            try {
+                const url = id ? `/api/categorias-config/${id}` : '/api/categorias-config';
+                const method = id ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    mostrarNotificacion(id ? 'Categoría actualizada' : 'Categoría creada', 'success');
+                    cerrarModal('modal-categoria');
+                    cargarCategorias();
+                } else {
+                    mostrarNotificacion(result.error || 'Error al guardar categoría', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error al guardar categoría', 'error');
+            }
+        }
+
+        async function eliminarCategoria(id) {
+            if (!confirm('¿Estás seguro de eliminar esta categoría? No se puede eliminar si tiene productos asociados.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/categorias-config/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    mostrarNotificacion('Categoría eliminada', 'success');
+                    cargarCategorias();
+                } else {
+                    mostrarNotificacion(result.error || 'Error al eliminar categoría', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error al eliminar categoría', 'error');
+            }
+        }
+
+        async function toggleVisiblePublico(catId, current) {
+            // Alterna la visibilidad pública de una categoría (1 visible, 0 oculta)
+            try {
+                const nuevo = current && current != 0 ? 0 : 1;
+                const resp = await fetch(`/api/categorias-config/${catId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ visible_en_publico: nuevo })
+                });
+
+                if (resp.ok) {
+                    mostrarNotificacion(nuevo ? 'Categoría ahora visible en público' : 'Categoría ocultada del menú público', 'success');
+                    cargarCategorias();
+                } else {
+                    const data = await resp.json();
+                    mostrarNotificacion(data.error || 'No se pudo actualizar visibilidad', 'error');
+                }
+            } catch (e) {
+                console.error('Error toggling visible_en_publico:', e);
+                mostrarNotificacion('Error al cambiar visibilidad', 'error');
+            }
+        }
+
+        async function confirmarLimpiarMenu() {
+            const confirmacion = prompt('Esta acción eliminará TODAS las categorías y productos. Escribe "ELIMINAR TODO" para confirmar:');
+            
+            if (confirmacion === 'ELIMINAR TODO') {
+                try {
+                    const response = await fetch('/api/limpiar-menu', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ confirmar: true })
+                    });
+
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        mostrarNotificacion('Menú limpiado exitosamente', 'success');
+                        cargarCategorias();
+                        cargarProductos();
+                    } else {
+                        mostrarNotificacion(result.error || 'Error al limpiar menú', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    mostrarNotificacion('Error al limpiar menú', 'error');
+                }
+            } else if (confirmacion !== null) {
+                mostrarNotificacion('Acción cancelada', 'info');
+            }
+        }
+
+        // ==================== PRODUCTOS ====================
+        async function cargarProductos() {
+            try {
+                const response = await fetch('/api/categorias-config');
+                categoriasData = await response.json();
+                
+                // Cargar productos de todas las categorías
+                productosData = [];
+                for (const cat of categoriasData) {
+                    const resp = await fetch(`/api/productos-categoria/${cat.id}`);
+                    const prods = await resp.json();
+                    productosData = productosData.concat(prods);
+                }
+                
+                mostrarProductos();
+            } catch (error) {
+                console.error('Error cargando productos:', error);
+                mostrarNotificacion('Error al cargar productos', 'error');
+            }
+        }
+
+        function mostrarProductos(filtro = '', filtroSubcategoria = '') {
+            const lista = document.getElementById('lista-productos');
+            let productosFiltrados = productosData;
+
+            if (filtro) {
+                productosFiltrados = productosData.filter(p => p.categoria_id == filtro);
+            }
+
+            // Aplicar filtro de subcategoría si es categoría de bebidas
+            if (filtroSubcategoria && filtro) {
+                const categoria = categoriasData.find(c => c.id == filtro);
+                if (categoria && categoria.nombre.toLowerCase().includes('bebida')) {
+                    productosFiltrados = productosFiltrados.filter(p =>
+                        (p.tipo_bebida && p.tipo_bebida.toLowerCase() === filtroSubcategoria.toLowerCase()) ||
+                        (p.subcategoria_nombre && p.subcategoria_nombre.toLowerCase() === filtroSubcategoria.toLowerCase())
+                    );
+                } else if (categoria) {
+                    // Para otras categorías, filtrar por subcategoría normal
+                    productosFiltrados = productosFiltrados.filter(p =>
+                        p.subcategoria_id && p.subcategoria_id == filtroSubcategoria
+                    );
+                }
+            }
+
+            if (productosFiltrados.length === 0) {
+                lista.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <i class="fas fa-box-open text-6xl text-gray-600 mb-4"></i>
+                        <p class="text-xl text-gray-400">No hay productos</p>
+                    </div>
+                `;
+                return;
+            }
+
+            lista.innerHTML = productosFiltrados.map(prod => {
+                const preciosHTML = prod.precios && prod.precios.length > 0 
+                    ? prod.precios.map(p => `<div class="text-sm"><span class="font-semibold">${p.nombre_precio}:</span> $${p.precio}</div>`).join('')
+                    : '<div class="text-sm text-gray-500">Sin precios</div>';
+
+                const stockInfo = prod.inventario 
+                    ? `<span class="text-sm ${prod.inventario.stock_actual <= prod.inventario.stock_minimo ? 'text-red-400' : 'text-green-400'}">
+                        Stock: ${prod.inventario.stock_actual || 0}
+                      </span>`
+                    : '';
+
+                const subcategoriaInfo = prod.subcategoria_nombre ? `<span class="text-xs bg-blue-600 px-2 py-1 rounded ml-2">${prod.subcategoria_nombre}</span>` : (prod.tipo_bebida ? `<span class="text-xs bg-green-600 px-2 py-1 rounded ml-2">${prod.tipo_bebida}</span>` : '');
+
+                return `
+                    <div class="bg-slate-800 rounded-lg p-6 card-hover">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h3 class="text-lg font-bold">${prod.nombre}</h3>
+                                <p class="text-sm text-gray-400">${prod.categoria_nombre || 'Sin categoría'}${subcategoriaInfo}</p>
+                            </div>
+                            ${stockInfo}
+                        </div>
+
+                        <p class="text-sm text-gray-300 mb-3">${prod.descripcion || 'Sin descripción'}</p>
+
+                        <div class="mb-4 p-3 bg-slate-700 rounded">
+                            <p class="font-semibold text-sm mb-2">Precios:</p>
+                            ${preciosHTML}
+                        </div>
+
+                        <div class="flex space-x-2">
+                            <button onclick="editarProducto(${prod.id})" class="flex-1 bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-sm transition">
+                                <i class="fas fa-edit mr-1"></i>Editar
+                            </button>
+                            <button onclick="eliminarProducto(${prod.id})" class="flex-1 bg-red-600 hover:bg-red-700 px-3 py-2 rounded text-sm transition">
+                                <i class="fas fa-trash mr-1"></i>Eliminar
+                            </button>
+                            <button onclick="abrirModalAsignar(${prod.id})" class="flex-1 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded transition">
+                                <i class="fas fa-cogs mr-2"></i>Configurar Opciones
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filtrarProductos() {
+            const filtro = document.getElementById('filtro-categoria').value;
+            const filtroSubcategoria = document.getElementById('filtro-subcategoria').value;
+            mostrarProductos(filtro, filtroSubcategoria);
+        }
+
+        function actualizarFiltrosSubcategoria() {
+            const categoriaId = document.getElementById('filtro-categoria').value;
+            const subcategoriaSelect = document.getElementById('filtro-subcategoria');
+
+            // Limpiar filtros anteriores
+            subcategoriaSelect.innerHTML = '<option value="">Todas las subcategorías</option>';
+
+            if (!categoriaId) {
+                subcategoriaSelect.style.display = 'none';
+                return;
+            }
+
+            // Verificar si es categoría de bebidas
+            const categoria = categoriasData.find(c => c.id == categoriaId);
+            if (categoria && categoria.nombre.toLowerCase().includes('bebida')) {
+                // Mostrar filtro de subcategorías para bebidas
+                subcategoriaSelect.style.display = 'block';
+
+                // Mostrar subcategorías fijas para bebidas
+                const subcategoriasBebidas = ['gaseosa', 'limonada', 'jugo', 'agua'];
+                subcategoriasBebidas.forEach(subcat => {
+                    const option = document.createElement('option');
+                    option.value = subcat;
+                    option.textContent = subcat.charAt(0).toUpperCase() + subcat.slice(1) + 's';
+                    subcategoriaSelect.appendChild(option);
+                });
+            } else {
+                subcategoriaSelect.style.display = 'none';
+            }
+
+            filtrarProductos();
+        }
+
+        async function cargarCategoriasEnSelect() {
+            const select = document.getElementById('producto-categoria');
+            const filtro = document.getElementById('filtro-categoria');
+            
+            const options = categoriasData.filter(c => c.activo).map(cat => 
+                `<option value="${cat.id}">${cat.nombre}</option>`
+            ).join('');
+            
+            select.innerHTML = '<option value="">Selecciona una categoría</option>' + options;
+            filtro.innerHTML = '<option value="">Todas las categorías</option>' + options;
+        }
+
+        function abrirModalProducto() {
+            productoActual = null;
+            document.getElementById('titulo-modal-producto').textContent = 'Nuevo Producto';
+            document.getElementById('form-producto').reset();
+            document.getElementById('producto-id').value = '';
+            document.getElementById('producto-imagen').value = '';
+            document.getElementById('lista-precios').innerHTML = '';
+            document.getElementById('campos-dinamicos-producto').innerHTML = '';
+            preciosContador = 0;
+            // Limpiar preview de imagen anterior
+            const existingPreview = document.querySelector('#producto-imagen').parentNode.querySelector('.mt-2');
+            if (existingPreview) existingPreview.remove();
+            abrirModal('modal-producto');
+            cargarCategoriasEnSelect();
+        }
+
+        function actualizarCamposProducto() {
+            const categoriaId = document.getElementById('producto-categoria').value;
+            const divSubcategoria = document.getElementById('div-subcategoria');
+
+            if (!categoriaId) {
+                document.getElementById('campos-dinamicos-producto').innerHTML = '';
+                if (divSubcategoria) divSubcategoria.style.display = 'none';
+                return;
+            }
+
+            const categoria = categoriasData.find(c => c.id == categoriaId);
+            if (!categoria) return;
+
+            // Mostrar/ocultar subcategorías
+            if (categoria.subcategorias && categoria.subcategorias.length > 0) {
+                const selectSubcategoria = document.getElementById('producto-subcategoria');
+                selectSubcategoria.innerHTML = '<option value="">Selecciona una subcategoría (opcional)</option>' +
+                    categoria.subcategorias.map(sub => `<option value="${sub.id}">${sub.nombre}</option>`).join('');
+                divSubcategoria.style.display = 'block';
+            } else if (categoria.nombre.toLowerCase().includes('bebida')) {
+                // Para bebidas, mostrar subcategorías dinámicas
+                const selectSubcategoria = document.getElementById('producto-subcategoria');
+                selectSubcategoria.innerHTML = '<option value="">Selecciona una subcategoría (opcional)</option>' +
+                    '<option value="gaseosa">Gaseosa</option>' +
+                    '<option value="limonada">Limonada</option>' +
+                    '<option value="jugo">Jugo Natural</option>' +
+                    '<option value="agua">Agua</option>' +
+                    '<option value="te">Té</option>' +
+                    '<option value="energizante">Energizante</option>' +
+                    '<option value="cerveza">Cerveza</option>' +
+                    '<option value="vino">Vino</option>';
+                divSubcategoria.style.display = 'block';
+            } else {
+                divSubcategoria.style.display = 'none';
+            }
+
+            let html = '';
+
+            if (categoria.campos_requeridos.ingredientes) {
+                html += `
+                    <div class="bg-slate-700 p-4 rounded-lg mb-4">
+                        <label class="block font-medium mb-2">Ingredientes</label>
+                        <textarea id="producto-ingredientes" rows="3" placeholder="Ej: Queso mozzarella, tomate, jamón..." class="w-full px-4 py-2 bg-slate-600 rounded-lg border border-slate-500 focus:border-blue-500 focus:outline-none"></textarea>
+                    </div>
+                `;
+            }
+
+            if (categoria.campos_requeridos.mililitros) {
+                html += `
+                    <div class="bg-slate-700 p-4 rounded-lg mb-4">
+                        <label class="block font-medium mb-2">¿Es jugo natural?</label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="es-jugo-natural" class="mr-2 w-5 h-5">
+                            <span class="text-sm">Marcar si es jugo natural (no requiere mililitros específicos)</span>
+                        </label>
+                    </div>
+                `;
+            }
+
+            document.getElementById('campos-dinamicos-producto').innerHTML = html;
+
+            // Limpiar y agregar un precio inicial
+            document.getElementById('lista-precios').innerHTML = '';
+            agregarPrecio();
+        }
+
+        function agregarPrecio() {
+            const categoriaId = document.getElementById('producto-categoria').value;
+            if (!categoriaId) {
+                mostrarNotificacion('Primero selecciona una categoría', 'warning');
+                return;
+            }
+
+            const categoria = categoriasData.find(c => c.id == categoriaId);
+            const lista = document.getElementById('lista-precios');
+            
+            let nombreLabel = 'Nombre';
+            let valorLabel = '';
+            let placeholder = '';
+
+            if (categoria.campos_requeridos.tamanos) {
+                nombreLabel = 'Tamaño';
+                placeholder = 'Ej: Personal, Mediano, Grande';
+            } else if (categoria.campos_requeridos.mililitros) {
+                const esJugo = document.getElementById('es-jugo-natural')?.checked;
+                if (!esJugo) {
+                    valorLabel = '<div><label class="block text-sm mb-1">Mililitros</label><input type="number" class="precio-valor-numerico w-full px-3 py-2 bg-slate-600 rounded border border-slate-500" placeholder="Ej: 300, 500, 1000"></div>';
+                }
+                nombreLabel = 'Nombre';
+                placeholder = 'Ej: Coca Cola 500ml, Jugo Natural';
+            } else {
+                placeholder = 'Ej: Precio único, Porción individual';
+            }
+
+            const html = `
+                <div class="bg-slate-700 p-3 rounded-lg flex gap-3 items-end" data-precio-id="${preciosContador}">
+                    <div class="flex-1">
+                        <label class="block text-sm mb-1">${nombreLabel}</label>
+                        <input type="text" class="precio-nombre w-full px-3 py-2 bg-slate-600 rounded border border-slate-500" placeholder="${placeholder}" required>
+                    </div>
+                    ${valorLabel}
+                    <div class="flex-1">
+                        <label class="block text-sm mb-1">Precio ($)</label>
+                        <input type="number" class="precio-valor w-full px-3 py-2 bg-slate-600 rounded border border-slate-500" step="0.01" min="0" required>
+                    </div>
+                    <button type="button" onclick="this.parentElement.remove()" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+
+            lista.insertAdjacentHTML('beforeend', html);
+            preciosContador++;
+        }
+
+        async function guardarProducto(event) {
+            event.preventDefault();
+
+            const id = document.getElementById('producto-id').value;
+            const categoriaId = document.getElementById('producto-categoria').value;
+            
+            // Recopilar precios
+            const preciosElements = document.querySelectorAll('#lista-precios > div');
+            if (preciosElements.length === 0) {
+                mostrarNotificacion('Debes agregar al menos un precio', 'warning');
+                return;
+            }
+
+            const precios = [];
+            preciosElements.forEach(el => {
+                const nombre = el.querySelector('.precio-nombre').value;
+                const precio = parseFloat(el.querySelector('.precio-valor').value);
+                const valorNumericoEl = el.querySelector('.precio-valor-numerico');
+                const valorNumerico = valorNumericoEl ? parseFloat(valorNumericoEl.value) : null;
+
+                precios.push({
+                    nombre: nombre,
+                    precio: precio,
+                    valor_numerico: valorNumerico
+                });
+            });
+
+            // Recopilar atributos adicionales
+            const atributos = {};
+            const ingredientesEl = document.getElementById('producto-ingredientes');
+            if (ingredientesEl) {
+                atributos.ingredientes = ingredientesEl.value;
+            }
+            const esJugoEl = document.getElementById('es-jugo-natural');
+            if (esJugoEl) {
+                atributos.es_jugo_natural = esJugoEl.checked;
+            }
+
+            // Manejar la imagen
+            const imagenInput = document.getElementById('producto-imagen');
+            let formData = new FormData();
+
+            // Agregar datos básicos
+            formData.append('nombre', document.getElementById('producto-nombre').value);
+            formData.append('descripcion', document.getElementById('producto-descripcion').value);
+            formData.append('categoria_id', categoriaId);
+            
+            // Agregar tipo_bebida a atributos si es una bebida
+            const tipoBebida = document.getElementById('producto-subcategoria').value;
+            if (tipoBebida) {
+                atributos.tipo_bebida = tipoBebida;
+            }
+            
+            formData.append('subcategoria_id', tipoBebida || null);
+            formData.append('stock_minimo', parseFloat(document.getElementById('producto-stock-minimo').value));
+            formData.append('precios', JSON.stringify(precios));
+            formData.append('atributos', JSON.stringify(atributos));
+            formData.append('crear_inventario', 'true');
+
+            // Agregar imagen si existe
+            if (imagenInput.files && imagenInput.files[0]) {
+                const file = imagenInput.files[0];
+                // Validar tamaño (máximo 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    mostrarNotificacion('La imagen no puede ser mayor a 5MB', 'error');
+                    return;
+                }
+                // Validar tipo
+                if (!file.type.startsWith('image/')) {
+                    mostrarNotificacion('Solo se permiten archivos de imagen', 'error');
+                    return;
+                }
+
+                formData.append('imagen', file);
+            }
+
+            try {
+                const url = id ? `/api/productos-dinamico/${id}` : '/api/productos-dinamico';
+                const method = id ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    body: formData  // Enviar FormData en lugar de JSON
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    mostrarNotificacion(id ? 'Producto actualizado' : 'Producto creado', 'success');
+                    cerrarModal('modal-producto');
+                    cargarProductos();
+                } else {
+                    mostrarNotificacion(result.error || 'Error al guardar producto', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error al guardar producto', 'error');
+            }
+        }
+
+        async function editarProducto(id) {
+            try {
+                const response = await fetch(`/api/productos-dinamico/${id}`);
+                const producto = await response.json();
+                
+                productoActual = producto;
+                document.getElementById('titulo-modal-producto').textContent = 'Editar Producto';
+                document.getElementById('producto-id').value = producto.id;
+                document.getElementById('producto-nombre').value = producto.nombre;
+                document.getElementById('producto-descripcion').value = producto.descripcion || '';
+                document.getElementById('producto-categoria').value = producto.categoria_id;
+                document.getElementById('producto-stock-minimo').value = producto.inventario?.stock_minimo || 10;
+                
+                // Actualizar campos dinámicos
+                actualizarCamposProducto();
+                
+                // Cargar subcategoría
+                if (producto.subcategoria_id) {
+                    document.getElementById('producto-subcategoria').value = producto.subcategoria_id;
+                } else if (producto.tipo_bebida) {
+                    document.getElementById('producto-subcategoria').value = producto.tipo_bebida;
+                }
+
+                // Cargar atributos
+                if (producto.atributos && Array.isArray(producto.atributos)) {
+                    producto.atributos.forEach(attr => {
+                        const el = document.getElementById(`producto-${attr.atributo_nombre}`);
+                        if (el) {
+                            if (el.type === 'checkbox') {
+                                el.checked = attr.atributo_valor === 'true';
+                            } else {
+                                el.value = attr.atributo_valor;
+                            }
+                        }
+                    });
+                } else {
+                    // Si no hay atributos, intentar cargar desde campos individuales
+                    const ingredientesEl = document.getElementById('producto-ingredientes');
+                    if (ingredientesEl && producto.ingredientes) {
+                        ingredientesEl.value = producto.ingredientes;
+                    }
+                    const esJugoEl = document.getElementById('es-jugo-natural');
+                    if (esJugoEl && producto.es_jugo_natural !== undefined) {
+                        esJugoEl.checked = producto.es_jugo_natural;
+                    }
+                }
+
+                // Cargar imagen si existe
+                if (producto.imagen_url) {
+                    // Mostrar preview de la imagen existente
+                    const imagenInput = document.getElementById('producto-imagen');
+                    const previewDiv = document.createElement('div');
+                    previewDiv.className = 'mt-2';
+                    previewDiv.innerHTML = `
+                        <p class="text-sm text-gray-400 mb-2">Imagen actual:</p>
+                        <img src="${producto.imagen_url}" alt="Imagen actual" class="max-w-32 max-h-32 object-cover rounded border border-slate-600">
+                    `;
+                    imagenInput.parentNode.appendChild(previewDiv);
+                }
+                
+                // Cargar precios
+                document.getElementById('lista-precios').innerHTML = '';
+                if (producto.precios && producto.precios.length > 0) {
+                    producto.precios.forEach(precio => {
+                        // Intentar agregar usando la función existente
+                        try {
+                            agregarPrecio();
+                        } catch (e) {
+                            console.warn('agregarPrecio falló:', e);
+                        }
+
+                        const lastAdded = document.querySelector('#lista-precios > div:last-child');
+
+                        if (lastAdded) {
+                            const nombreEl = lastAdded.querySelector('.precio-nombre');
+                            const valorEl = lastAdded.querySelector('.precio-valor');
+                            const valorNumericoEl = lastAdded.querySelector('.precio-valor-numerico');
+
+                            if (nombreEl) nombreEl.value = precio.nombre_precio || '';
+                            if (valorEl) valorEl.value = precio.precio ?? '';
+                            if (valorNumericoEl && precio.valor_numerico !== undefined && precio.valor_numerico !== null) {
+                                valorNumericoEl.value = precio.valor_numerico;
+                            }
+                        } else {
+                            // Fallback: si por alguna razón no se agregó el elemento, crear uno manualmente
+                            const lista = document.getElementById('lista-precios');
+                            const nombreVal = precio.nombre_precio || '';
+                            const precioVal = precio.precio ?? '';
+                            const valorNum = precio.valor_numerico !== undefined && precio.valor_numerico !== null ? precio.valor_numerico : '';
+
+                            const fallbackHtml = `
+                                <div class="bg-slate-700 p-3 rounded-lg flex gap-3 items-end" data-precio-id="fallback-${Date.now()}">
+                                    <div class="flex-1">
+                                        <label class="block text-sm mb-1">Nombre</label>
+                                        <input type="text" class="precio-nombre w-full px-3 py-2 bg-slate-600 rounded border border-slate-500" value="${nombreVal}" required>
+                                    </div>
+                                    <div class="flex-1">
+                                        <label class="block text-sm mb-1">Precio ($)</label>
+                                        <input type="number" class="precio-valor w-full px-3 py-2 bg-slate-600 rounded border border-slate-500" step="0.01" min="0" value="${precioVal}" required>
+                                    </div>
+                                    <button type="button" onclick="this.parentElement.remove()" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            `;
+                            lista.insertAdjacentHTML('beforeend', fallbackHtml);
+                        }
+                    });
+                }
+                
+                abrirModal('modal-producto');
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error al cargar producto', 'error');
+            }
+        }
+
+        async function eliminarProducto(id) {
+            if (!confirm('¿Estás seguro de eliminar este producto? También se eliminará su inventario asociado.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/productos-dinamico/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    mostrarNotificacion('Producto eliminado', 'success');
+                    cargarProductos();
+                } else {
+                    mostrarNotificacion(result.error || 'Error al eliminar producto', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error al eliminar producto', 'error');
+            }
+        }
+
+        // ==================== INVENTARIO ====================
+        async function cargarInventario() {
+            try {
+                // Cargar todos los productos directamente
+                const response = await fetch('/api/productos');
+                const productos = await response.json();
+                
+                mostrarInventario(productos);
+            } catch (error) {
+                console.error('Error cargando inventario:', error);
+                mostrarNotificacion('Error al cargar inventario', 'error');
+            }
+        }
+
+        function mostrarInventario(productos) {
+            const tbody = document.getElementById('tabla-inventario-body');
+            
+            if (productos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-400">No hay productos en inventario</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = productos.map(prod => {
+                const stockActual = prod.stock_actual || 0;
+                const stockMinimo = prod.stock_minimo || 0;
+                const estado = stockActual <= stockMinimo && stockMinimo > 0;
+
+                return `
+                    <tr class="border-b border-slate-700 hover:bg-slate-750">
+                        <td class="py-3 px-4" data-label="Producto">${prod.nombre}</td>
+                        <td class="py-3 px-4 text-gray-400" data-label="Categoría">${prod.categoria_nombre || 'N/A'}</td>
+                        <td class="py-3 px-4 text-center font-semibold ${estado ? 'text-red-400' : 'text-green-400'}" data-label="Stock Actual">${stockActual} ${prod.unidad_medida || 'und'}</td>
+                        <td class="py-3 px-4 text-center text-gray-400" data-label="Stock Mínimo">${stockMinimo}</td>
+                        <td class="py-3 px-4 text-center" data-label="Estado">
+                            ${estado 
+                                ? '<span class="bg-red-900 text-red-200 px-3 py-1 rounded-full text-xs">⚠️ Stock Bajo</span>' 
+                                : '<span class="bg-green-900 text-green-200 px-3 py-1 rounded-full text-xs">✓ OK</span>'}
+                        </td>
+                        <td class="py-3 px-4 text-center" data-label="Acciones">
+                            <button onclick="abrirModalStock(${prod.id}, '${prod.nombre}', ${stockActual}, ${stockMinimo})" class="bg-blue-600 hover:bg-blue-700 px-4 py-1 rounded text-sm">
+                                Actualizar
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function abrirModalStock(productoId, productoNombre, stockActual, stockMinimo) {
+            document.getElementById('stock-producto-id').value = productoId;
+            document.getElementById('stock-producto-nombre').textContent = productoNombre;
+            document.getElementById('stock-actual').value = stockActual;
+            abrirModal('modal-stock');
+        }
+
+        async function actualizarStock(event) {
+            event.preventDefault();
+
+            const productoId = document.getElementById('stock-producto-id').value;
+            const stockActual = parseFloat(document.getElementById('stock-actual').value);
+
+            try {
+                const response = await fetch(`/api/inventario-producto/${productoId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ stock_actual: stockActual })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    mostrarNotificacion('Stock actualizado', 'success');
+                    cerrarModal('modal-stock');
+                    cargarInventario();
+                } else {
+                    mostrarNotificacion(result.error || 'Error al actualizar stock', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error al actualizar stock', 'error');
+            }
+        }
+
+        // ==================== UTILIDADES ====================
+        function abrirModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        // Actualiza el preview del icono en el formulario de categoría
+        function updateIconPreview() {
+            const sel = document.getElementById('categoria-icono');
+            const preview = document.getElementById('categoria-icono-preview');
+            if (!sel || !preview) return;
+            const cls = sel.value || 'fas fa-tag';
+            preview.innerHTML = `<i class="${cls}"></i>`;
+        }
+
+        function cerrarModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('active');
+                // Forzar reflow para asegurar que el modal se cierre correctamente
+                void modal.offsetWidth;
+            }
+        }
+
+        function mostrarNotificacion(mensaje, tipo = 'info') {
+            // Usar el sistema de notificaciones existente
+            if (typeof showNotification === 'function') {
+                showNotification(mensaje, tipo);
+            } else {
+                // Fallback simple
+                alert(mensaje);
+            }
+        }
+
+
+        // ==================== VINCULACIONES ====================
+        async function cargarVinculaciones() {
+            try {
+                const response = await fetch('/api/productos/vinculaciones');
+                const vinculaciones = await response.json();
+
+                mostrarVinculaciones(vinculaciones);
+                cargarProductosEnSelects();
+            } catch (error) {
+                console.error('Error cargando vinculaciones:', error);
+                mostrarNotificacion('Error al cargar vinculaciones', 'error');
+            }
+        }
+
+        function mostrarVinculaciones(vinculaciones) {
+            const container = document.getElementById('vinculaciones-activas');
+
+            if (!vinculaciones || vinculaciones.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-400">
+                        <i class="fas fa-link text-4xl mb-4 text-gray-600"></i>
+                        <p class="text-lg">No hay vinculaciones configuradas</p>
+                        <p class="text-sm">Crea tu primera vinculación para combinar productos</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = vinculaciones.map(vinc => {
+                // Compatibilidad: la API puede devolver estructura anidada o campos planos
+                const principal = vinc.producto_principal || {};
+                const adicional = vinc.producto_adicional || {};
+                const principalNombre = principal.nombre || vinc.producto_principal_nombre || 'Producto principal';
+                const adicionalNombre = adicional.nombre || vinc.producto_adicional_nombre || vinc.producto_vinculado_nombre || 'Producto adicional';
+                const tipo = vinc.tipo_vinculacion || vinc.tipo || 'adicional';
+                const obligatorio = vinc.obligatorio === 1 || vinc.obligatorio === true;
+                // Precio puede venir como precio_fijo o precio_adicional según endpoint/cliente
+                const precio = (vinc.precio_fijo !== undefined && vinc.precio_fijo !== null) ? vinc.precio_fijo : (vinc.precio_adicional || 0);
+
+                return `
+                <div class="bg-slate-700 rounded-lg p-4 border border-slate-600">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="font-semibold text-green-400">${principalNombre}</span>
+                                <i class="fas fa-arrow-right text-gray-400"></i>
+                                <span class="font-semibold text-blue-400">${adicionalNombre}</span>
+                            </div>
+                            <div class="flex items-center gap-4 text-sm text-gray-400">
+                                <span><i class="fas fa-tag mr-1"></i>${tipo}</span>
+                                ${obligatorio ? '<span class="text-red-400"><i class="fas fa-exclamation-triangle mr-1"></i>Obligatorio</span>' : ''}
+                                ${precio > 0 ? `<span class="text-green-400">+ $${formatPrice(precio)}</span>` : ''}
+                            </div>
+                        </div>
+                        <button onclick="eliminarVinculacion(${vinc.id})" class="text-red-400 hover:text-red-300 ml-4">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        let todosLosProductos = [];
+        
+        async function cargarProductosEnSelects() {
+            try {
+                const response = await fetch('/api/productos');
+                todosLosProductos = await response.json();
+
+                const selectPrincipal = document.getElementById('vinculacion-producto-principal');
+                const options = todosLosProductos.map(p => `<option value="${p.id}">${p.nombre} (${p.categoria_nombre})</option>`).join('');
+                selectPrincipal.innerHTML = '<option value="">Selecciona producto principal</option>' + options;
+                
+                filtrarProductosVinculados();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+        
+        function filtrarProductosVinculados() {
+            const tipo = document.getElementById('vinculacion-tipo').value;
+            const filtroSubcategoria = document.getElementById('vinculacion-filtro-subcategoria').value;
+            const divFiltro = document.getElementById('filtro-subcategoria-div');
+            const listaProductos = document.getElementById('vinculacion-productos-lista');
+            
+            // Mostrar filtro de subcategoría solo para bebidas
+            divFiltro.style.display = tipo === 'bebida' ? 'block' : 'none';
+            
+            // Filtrar productos según tipo y subcategoría
+            let productosFiltrados = todosLosProductos.filter(p => {
+                if (tipo === 'bebida') {
+                    return p.categoria_nombre && p.categoria_nombre.toLowerCase().includes('bebida');
+                } else if (tipo === 'adicional') {
+                    return p.categoria_nombre && p.categoria_nombre.toLowerCase().includes('adicion');
+                }
+                return true; // complemento muestra todos
+            });
+            
+            // Filtrar por subcategoría si es bebida
+            if (tipo === 'bebida' && filtroSubcategoria) {
+                productosFiltrados = productosFiltrados.filter(p => 
+                    p.tipo_bebida && p.tipo_bebida.toLowerCase() === filtroSubcategoria.toLowerCase()
+                );
+            }
+            
+            // Renderizar checkboxes
+            if (productosFiltrados.length === 0) {
+                listaProductos.innerHTML = '<p class="text-gray-400 text-sm">No hay productos disponibles</p>';
+            } else {
+                listaProductos.innerHTML = productosFiltrados.map(p => `
+                    <label class="flex items-center p-2 hover:bg-slate-600 rounded cursor-pointer">
+                        <input type="checkbox" value="${p.id}" class="mr-3 w-4 h-4 vinculacion-checkbox">
+                        <span class="flex-1">${p.nombre}</span>
+                        <span class="text-xs text-gray-400">${p.categoria_nombre}${p.tipo_bebida ? ' - ' + p.tipo_bebida : ''}</span>
+                    </label>
+                `).join('');
+            }
+        }
+
+        async function crearVinculacionesMultiples() {
+            const productoPrincipal = document.getElementById('vinculacion-producto-principal').value;
+            const productosVinculados = Array.from(document.querySelectorAll('.vinculacion-checkbox:checked')).map(cb => cb.value);
+            const tipo = document.getElementById('vinculacion-tipo').value;
+            const obligatorio = document.getElementById('vinculacion-obligatorio').checked;
+            const precio = parseFloat(document.getElementById('vinculacion-precio').value) || 0;
+
+            if (!productoPrincipal) {
+                mostrarNotificacion('Selecciona un producto principal', 'warning');
+                return;
+            }
+            
+            if (productosVinculados.length === 0) {
+                mostrarNotificacion('Selecciona al menos un producto para vincular', 'warning');
+                return;
+            }
+
+            if (productosVinculados.includes(productoPrincipal)) {
+                mostrarNotificacion('No puedes vincular un producto consigo mismo', 'warning');
+                return;
+            }
+
+            try {
+                let exitosas = 0;
+                let fallidas = 0;
+                
+                // Crear vinculaciones en paralelo
+                const promesas = productosVinculados.map(async (productoVinculado) => {
+                    try {
+                        const response = await fetch(`/api/productos/${productoPrincipal}/vinculaciones`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                producto_vinculado_id: productoVinculado,
+                                tipo_vinculacion: tipo,
+                                obligatorio: obligatorio,
+                                precio_adicional: precio
+                            })
+                        });
+                        
+                        if (response.ok) {
+                            exitosas++;
+                        } else {
+                            fallidas++;
+                        }
+                    } catch (error) {
+                        fallidas++;
+                    }
+                });
+                
+                await Promise.all(promesas);
+                
+                if (exitosas > 0) {
+                    mostrarNotificacion(`${exitosas} vinculación(es) creada(s) exitosamente${fallidas > 0 ? `, ${fallidas} fallida(s)` : ''}`, 'success');
+                    cargarVinculaciones();
+                    
+                    // Limpiar formulario
+                    document.getElementById('vinculacion-producto-principal').value = '';
+                    document.querySelectorAll('.vinculacion-checkbox').forEach(cb => cb.checked = false);
+                    document.getElementById('vinculacion-tipo').value = 'bebida';
+                    document.getElementById('vinculacion-obligatorio').checked = false;
+                    document.getElementById('vinculacion-precio').value = '';
+                    filtrarProductosVinculados();
+                } else {
+                    mostrarNotificacion('Error al crear vinculaciones', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error al crear vinculaciones', 'error');
+            }
+        }
+
+        async function eliminarVinculacion(vinculacionId) {
+            if (!confirm('¿Estás seguro de eliminar esta vinculación?')) {
+                return;
+            }
+
+            try {
+                const deleteResponse = await fetch(`/api/productos/vinculaciones/${vinculacionId}`, {
+                    method: 'DELETE'
+                });
+
+                if (deleteResponse.ok) {
+                    mostrarNotificacion('Vinculación eliminada exitosamente', 'success');
+                    cargarVinculaciones();
+                } else {
+                    const result = await deleteResponse.json();
+                    mostrarNotificacion(result.error || 'Error al eliminar vinculación', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error al eliminar vinculación', 'error');
+            }
+        }
+
+        function abrirModalVinculacion() {
+            // Por ahora solo enfocamos en la sección de creación rápida
+            document.getElementById('vinculacion-producto-principal').focus();
+            mostrarNotificacion('Usa el formulario de creación rápida para agregar vinculaciones', 'info');
+        }
+
+        // ==================== CONFIGURACIÓN ====================
+        // Las funciones de gestión de precios por zona están en precios-zona.js
+        
+        async function cargarPrecioDomicilio() {
+            // Esta función ahora es manejada por el sistema de precios por zona
+            // Ver precios-zona.js: cargarConfiguracion() y cargarZonasPrecios()
+            console.log('⚙️ Sistema de precios por zona cargado');
+        }
+
+        async function actualizarPrecioDomicilio() {
+            // Función legacy - el sistema ahora usa precios por zona
+            // Ver precios-zona.js: guardarConfiguracion()
+            console.warn('⚠️ Esta función es obsoleta. Usar el nuevo sistema de precios por zona.');
+            showNotification('Por favor usa la nueva sección de Configuración de Domicilios', 'info');
+        }
+
+        // Función auxiliar para mantener compatibilidad (no hace nada real ahora)
+        async function actualizarPrecioDomicilioLegacy() {
+            const nuevoPrecio = parseFloat(document.getElementById('nuevo-precio-domicilio')?.value);
+
+            if (isNaN(nuevoPrecio) || nuevoPrecio < 0) {
+                showNotification('Por favor ingresa un precio válido', 'error');
+                return;
+            }
+
+            try {
+                // Actualizar también en el frontend público (si está abierto)
+                // Buscar todas las ventanas/frames que podrían tener el frontend público
+                const frames = window.parent.frames;
+                for (let i = 0; i < frames.length; i++) {
+                    try {
+                        frames[i].postMessage({
+                            type: 'actualizar_precio_domicilio',
+                            precio: nuevoPrecio
+                        }, '*');
+                    } catch (e) {
+                        // Ignorar errores de cross-origin
+                    }
+                }
+
+                // También intentar con window.parent directamente
+                if (window.parent && window.parent !== window) {
+                    try {
+                        window.parent.postMessage({
+                            type: 'actualizar_precio_domicilio',
+                            precio: nuevoPrecio
+                        }, '*');
+                    } catch (e) {
+                        // Ignorar errores de cross-origin
+                    }
+                }
+
+                // Crear un evento personalizado para comunicar con otras instancias
+                const eventoPrecio = new CustomEvent('precioDomicilioActualizado', {
+                    detail: { precio: nuevoPrecio }
+                });
+                window.dispatchEvent(eventoPrecio);
+
+                // Intentar con localStorage como respaldo (si están en la misma origin)
+                try {
+                    localStorage.setItem('precio_domicilio', nuevoPrecio.toString());
+                } catch (e) {
+                    // Ignorar si localStorage no está disponible
+                }
+
+                mostrarNotificacion('Precio de domicilio actualizado exitosamente', 'success');
+                document.getElementById('nuevo-precio-domicilio').value = nuevoPrecio;
+            } catch (error) {
+                console.error('Error actualizando precio:', error);
+                mostrarNotificacion('Error al actualizar precio', 'error');
+            }
+        }
+
+        function formatPrice(price) {
+            const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+            return Math.round(numPrice).toLocaleString('es-CO');
+        }
+    </script>
+</body>
+</html>
+
