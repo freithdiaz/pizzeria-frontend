@@ -54,6 +54,15 @@ async function mostrarSeccionDosSabores(producto) {
 
     // Mostrar la sección
     container.classList.remove('hidden');
+
+    // Construir HTML condicional para modo 3 según bandera del producto
+    const modo3Html = producto.permite_tres_sabores ? `
+                <label class="inline-flex items-center">
+                    <input type="radio" name="modo-dos-sabores" value="3" onchange="setModoDosSabores(3)" class="form-radio">
+                    <span class="ml-2 text-sm">3 sabores (tercios)</span>
+                </label>
+    ` : '';
+
     container.innerHTML = `
         <div class="bg-gradient-to-r from-orange-50 to-yellow-50 border border-orange-200 rounded-xl p-4 mt-4">
             <div class="flex items-center gap-3 mb-3">
@@ -71,10 +80,7 @@ async function mostrarSeccionDosSabores(producto) {
                     <input type="radio" name="modo-dos-sabores" value="2" checked onchange="setModoDosSabores(2)" class="form-radio">
                     <span class="ml-2 text-sm">2 sabores (mitad y mitad)</span>
                 </label>
-                <label class="inline-flex items-center">
-                    <input type="radio" name="modo-dos-sabores" value="3" onchange="setModoDosSabores(3)" class="form-radio">
-                    <span class="ml-2 text-sm">3 sabores (tercios)</span>
-                </label>
+                ${modo3Html}
             </div>
 
             <label class="flex items-center gap-3 cursor-pointer mb-3 p-2 bg-white rounded-lg border border-orange-200 hover:border-orange-400 transition">
