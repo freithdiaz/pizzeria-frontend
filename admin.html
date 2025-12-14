@@ -902,12 +902,12 @@
             
             try {
                 // Cargar total de ventas
-                const resp = await fetch(`/api/caja/ventas-dia?fecha=${fecha}`);
+                const resp = await fetch(API_BASE_URL + '/api/caja/ventas-dia?fecha=${fecha}`);
                 const data = await resp.json();
                 document.getElementById('dashboard-ventas-dia').textContent = `$${data.total_ventas?.toFixed(2) || 0}`;
                 
                 // Cargar detalles de pedidos
-                const respPedidos = await fetch(`/api/caja/pedidos-dia?fecha=${fecha}`);
+                const respPedidos = await fetch(API_BASE_URL + '/api/caja/pedidos-dia?fecha=${fecha}`);
                 const dataPedidos = await respPedidos.json();
                 
                 document.getElementById('dashboard-pedidos-count').textContent = `${dataPedidos.total_pedidos || 0} pedidos`;
@@ -997,7 +997,7 @@
             const cont = document.getElementById('dashboard-historial-caja');
             cont.textContent = 'Cargando...';
             try {
-                const resp = await fetch('/api/caja/historial');
+                const resp = await fetch(API_BASE_URL + '/api/caja/historial');
                 const data = await resp.json();
                 if (!data.sesiones?.length) {
                     cont.textContent = 'Sin historial.';
@@ -1016,7 +1016,7 @@
 
         async function verificarEstadoCaja() {
             try {
-                const resp = await fetch('/api/caja/actual');
+                const resp = await fetch(API_BASE_URL + '/api/caja/actual');
                 const data = await resp.json();
                 const infoDiv = document.getElementById('caja-info');
                 const montoDiv = document.getElementById('caja-monto-inicial');
@@ -1058,7 +1058,7 @@
             const monto = parseFloat(document.getElementById('monto-inicial-caja').value) || 0;
             const usuario = (document.getElementById('usuario-apertura').value || '').trim() || 'admin';
             try {
-                const resp = await fetch('/api/caja/abrir', {
+                const resp = await fetch(API_BASE_URL + '/api/caja/abrir', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({monto_inicial: monto, usuario: usuario, observaciones: `Monto inicial: ${monto}`})
@@ -1085,7 +1085,7 @@
                     mostrarNotificacion('❌ No hay sesión de caja abierta', 'error');
                     return;
                 }
-                const resp = await fetch('/api/caja/cerrar', {
+                const resp = await fetch(API_BASE_URL + '/api/caja/cerrar', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({sesion_id: sesionId})
@@ -1150,7 +1150,7 @@
         // ==================== CATEGORÍAS ====================
         async function cargarCategorias() {
             try {
-                const response = await fetch('/api/categorias-config');
+                const response = await fetch(API_BASE_URL + '/api/categorias-config');
                 categoriasData = await response.json();
                 mostrarCategorias();
             } catch (error) {
@@ -1377,7 +1377,7 @@
             }
 
             try {
-                const response = await fetch(`/api/categorias-config/${id}`, {
+                const response = await fetch(API_BASE_URL + '/api/categorias-config/${id}`, {
                     method: 'DELETE'
                 });
 
@@ -1399,7 +1399,7 @@
             // Alterna la visibilidad pública de una categoría (1 visible, 0 oculta)
             try {
                 const nuevo = current && current != 0 ? 0 : 1;
-                const resp = await fetch(`/api/categorias-config/${catId}`, {
+                const resp = await fetch(API_BASE_URL + '/api/categorias-config/${catId}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ visible_en_publico: nuevo })
@@ -1423,7 +1423,7 @@
             
             if (confirmacion === 'ELIMINAR TODO') {
                 try {
-                    const response = await fetch('/api/limpiar-menu', {
+                    const response = await fetch(API_BASE_URL + '/api/limpiar-menu', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ confirmar: true })
@@ -1450,13 +1450,13 @@
         // ==================== PRODUCTOS ====================
         async function cargarProductos() {
             try {
-                const response = await fetch('/api/categorias-config');
+                const response = await fetch(API_BASE_URL + '/api/categorias-config');
                 categoriasData = await response.json();
                 
                 // Cargar productos de todas las categorías
                 productosData = [];
                 for (const cat of categoriasData) {
-                    const resp = await fetch(`/api/productos-categoria/${cat.id}`);
+                    const resp = await fetch(API_BASE_URL + '/api/productos-categoria/${cat.id}`);
                     const prods = await resp.json();
                     productosData = productosData.concat(prods);
                 }
@@ -1832,7 +1832,7 @@
 
         async function editarProducto(id) {
             try {
-                const response = await fetch(`/api/productos-dinamico/${id}`);
+                const response = await fetch(API_BASE_URL + '/api/productos-dinamico/${id}`);
                 const producto = await response.json();
                 
                 productoActual = producto;
@@ -1953,7 +1953,7 @@
             }
 
             try {
-                const response = await fetch(`/api/productos-dinamico/${id}`, {
+                const response = await fetch(API_BASE_URL + '/api/productos-dinamico/${id}`, {
                     method: 'DELETE'
                 });
 
@@ -1975,7 +1975,7 @@
         async function cargarInventario() {
             try {
                 // Cargar todos los productos directamente
-                const response = await fetch('/api/productos');
+                const response = await fetch(API_BASE_URL + '/api/productos');
                 const productos = await response.json();
                 
                 mostrarInventario(productos);
@@ -2033,7 +2033,7 @@
             const stockActual = parseFloat(document.getElementById('stock-actual').value);
 
             try {
-                const response = await fetch(`/api/inventario-producto/${productoId}`, {
+                const response = await fetch(API_BASE_URL + '/api/inventario-producto/${productoId}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ stock_actual: stockActual })
@@ -2091,7 +2091,7 @@
         // ==================== VINCULACIONES ====================
         async function cargarVinculaciones() {
             try {
-                const response = await fetch('/api/productos/vinculaciones');
+                const response = await fetch(API_BASE_URL + '/api/productos/vinculaciones');
                 const vinculaciones = await response.json();
 
                 mostrarVinculaciones(vinculaciones);
@@ -2155,7 +2155,7 @@
         
         async function cargarProductosEnSelects() {
             try {
-                const response = await fetch('/api/productos');
+                const response = await fetch(API_BASE_URL + '/api/productos');
                 todosLosProductos = await response.json();
 
                 const selectPrincipal = document.getElementById('vinculacion-producto-principal');
@@ -2237,7 +2237,7 @@
                 // Crear vinculaciones en paralelo
                 const promesas = productosVinculados.map(async (productoVinculado) => {
                     try {
-                        const response = await fetch(`/api/productos/${productoPrincipal}/vinculaciones`, {
+                        const response = await fetch(API_BASE_URL + '/api/productos/${productoPrincipal}/vinculaciones`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -2286,7 +2286,7 @@
             }
 
             try {
-                const deleteResponse = await fetch(`/api/productos/vinculaciones/${vinculacionId}`, {
+                const deleteResponse = await fetch(API_BASE_URL + '/api/productos/vinculaciones/${vinculacionId}`, {
                     method: 'DELETE'
                 });
 
@@ -2389,4 +2389,5 @@
     </script>
 </body>
 </html>
+
 
