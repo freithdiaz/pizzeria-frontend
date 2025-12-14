@@ -1,12 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nissi Pizza - Administración Dinámica</title>
+    <title>Nissi Pizza - AdministraciÃ³n DinÃ¡mica</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Unificar versión de Font Awesome con la página de domicilio para evitar inconsistencias en los iconos -->
+    <!-- Unificar versiÃ³n de Font Awesome con la pÃ¡gina de domicilio para evitar inconsistencias en los iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
@@ -42,7 +42,7 @@
             border: 1px solid #334155;
             color: #f1f5f9;
         }
-        /* Mejoras para móviles: modales ocupen casi todo el ancho y padding reducido */
+        /* Mejoras para mÃ³viles: modales ocupen casi todo el ancho y padding reducido */
         @media (max-width: 640px) {
             .modal > div {
                 max-width: 98%;
@@ -77,7 +77,7 @@
             transform: translateY(-5px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
-        /* Mejoras responsivas para tablas y acciones en pantallas pequeñas */
+        /* Mejoras responsivas para tablas y acciones en pantallas pequeÃ±as */
         @media (max-width: 640px) {
             /* Tabla de inventario: convertir rows en bloques apilados */
             .overflow-x-auto table, .overflow-x-auto thead, .overflow-x-auto tbody, .overflow-x-auto th, .overflow-x-auto td, .overflow-x-auto tr {
@@ -117,14 +117,14 @@
                 padding-right: 0.5rem !important;
             }
 
-            /* Permitir que los botones de acción dentro de las tarjetas se apilen verticalmente */
+            /* Permitir que los botones de acciÃ³n dentro de las tarjetas se apilen verticalmente */
             .card-hover .space-x-2 {
                 display: flex;
                 gap: 0.5rem;
                 flex-direction: column;
             }
 
-            /* Ajustes para modales y contenedores más estrechos */
+            /* Ajustes para modales y contenedores mÃ¡s estrechos */
             .modal > div {
                 padding: 0.75rem;
             }
@@ -138,7 +138,7 @@
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
                     <i class="fas fa-pizza-slice text-3xl text-yellow-400"></i>
-                    <h1 class="text-2xl font-bold">Nissi Pizza - Administración</h1>
+                    <h1 class="text-2xl font-bold">Nissi Pizza - AdministraciÃ³n</h1>
                 </div>
                 <div class="flex items-center space-x-3">
                     <a href="/" class="bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded-lg transition">
@@ -157,7 +157,7 @@
                     <i class="fas fa-chart-line mr-2"></i>Dashboard
                 </button>
                 <button onclick="mostrarSeccion('categorias')" id="tab-categorias" class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
-                    <i class="fas fa-folder mr-2"></i>Categorías
+                    <i class="fas fa-folder mr-2"></i>CategorÃ­as
                 </button>
                 <button onclick="mostrarSeccion('productos')" id="tab-productos" class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
                     <i class="fas fa-box mr-2"></i>Productos
@@ -169,10 +169,10 @@
                     <i class="fas fa-warehouse mr-2"></i>Inventario
                 </button>
                 <button onclick="mostrarSeccion('configuracion')" id="tab-configuracion" class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
-                    <i class="fas fa-cog mr-2"></i>Configuración
+                    <i class="fas fa-cog mr-2"></i>ConfiguraciÃ³n
                 </button>
             </nav>
-        <!-- SECCIÓN: DASHBOARD -->
+        <!-- SECCIÃ“N: DASHBOARD -->
         <div id="seccion-dashboard" class="seccion hidden">
             <h2 class="text-3xl font-bold mb-6">Dashboard de Ventas</h2>
             
@@ -202,7 +202,7 @@
                 <div class="bg-slate-800 rounded-lg p-6">
                     <h3 class="text-xl font-semibold mb-4 flex items-center">
                         <i class="fas fa-chart-line mr-2 text-green-400"></i>
-                        Ventas del Día
+                        Ventas del DÃ­a
                     </h3>
                     <div class="mb-4">
                         <label class="block text-sm mb-2">Fecha:</label>
@@ -223,7 +223,7 @@
                 </div>
             </div>
 
-            <!-- Detalle de Pedidos del Día -->
+            <!-- Detalle de Pedidos del DÃ­a -->
             <div class="bg-slate-800 rounded-lg p-6">
                 <h3 class="text-xl font-semibold mb-4 flex items-center">
                     <i class="fas fa-receipt mr-2 text-blue-400"></i>
@@ -241,7 +241,7 @@
                 <h3 class="text-2xl font-bold mb-4">Abrir Caja</h3>
                 <div class="mb-4">
                     <label class="block text-sm mb-2">Usuario que abre la caja:</label>
-                    <input type="text" id="usuario-apertura" placeholder="Nombre de usuario (sin contraseña)" class="w-full bg-slate-700 px-4 py-2 rounded border border-slate-600 mb-3">
+                    <input type="text" id="usuario-apertura" placeholder="Nombre de usuario (sin contraseÃ±a)" class="w-full bg-slate-700 px-4 py-2 rounded border border-slate-600 mb-3">
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm mb-2">Monto inicial en caja:</label>
@@ -263,12 +263,12 @@
     <!-- Main Content -->
     <main class="container mx-auto px-4 py-8">
         
-        <!-- SECCIÓN: CATEGORÍAS -->
+        <!-- SECCIÃ“N: CATEGORÃAS -->
         <div id="seccion-categorias" class="seccion hidden">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-3xl font-bold">Gestión de Categorías</h2>
+                <h2 class="text-3xl font-bold">GestiÃ³n de CategorÃ­as</h2>
                 <button onclick="abrirModalCategoria()" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition">
-                    <i class="fas fa-plus mr-2"></i>Nueva Categoría
+                    <i class="fas fa-plus mr-2"></i>Nueva CategorÃ­a
                 </button>
             </div>
 
@@ -277,7 +277,7 @@
                     <i class="fas fa-exclamation-triangle text-red-400 text-2xl mr-3"></i>
                     <div>
                         <h3 class="font-bold text-red-300">Zona de Peligro</h3>
-                        <p class="text-sm text-red-200">Si deseas empezar desde cero, puedes eliminar todo el menú (categorías y productos).</p>
+                        <p class="text-sm text-red-200">Si deseas empezar desde cero, puedes eliminar todo el menÃº (categorÃ­as y productos).</p>
                     </div>
                     <button onclick="confirmarLimpiarMenu()" class="ml-auto bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-semibold whitespace-nowrap">
                         Limpiar Todo
@@ -286,20 +286,20 @@
             </div>
 
             <div id="lista-categorias" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Las categorías se cargarán aquí -->
+                <!-- Las categorÃ­as se cargarÃ¡n aquÃ­ -->
             </div>
         </div>
 
-        <!-- SECCIÓN: PRODUCTOS -->
+        <!-- SECCIÃ“N: PRODUCTOS -->
         <div id="seccion-productos" class="seccion hidden">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-3xl font-bold">Gestión de Productos</h2>
+                <h2 class="text-3xl font-bold">GestiÃ³n de Productos</h2>
                 <div class="flex space-x-3">
                     <select id="filtro-categoria" onchange="actualizarFiltrosSubcategoria()" class="bg-slate-700 px-4 py-2 rounded-lg border border-slate-600">
-                        <option value="">Todas las categorías</option>
+                        <option value="">Todas las categorÃ­as</option>
                     </select>
                     <select id="filtro-subcategoria" onchange="filtrarProductos()" class="bg-slate-700 px-4 py-2 rounded-lg border border-slate-600" style="display: none;">
-                        <option value="">Todas las subcategorías</option>
+                        <option value="">Todas las subcategorÃ­as</option>
                     </select>
                     <button onclick="abrirModalProducto()" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition">
                         <i class="fas fa-plus mr-2"></i>Nuevo Producto
@@ -308,16 +308,16 @@
             </div>
 
             <div id="lista-productos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Los productos se cargarán aquí -->
+                <!-- Los productos se cargarÃ¡n aquÃ­ -->
             </div>
         </div>
 
-        <!-- SECCIÓN: VINCULACIONES -->
+        <!-- SECCIÃ“N: VINCULACIONES -->
         <div id="seccion-vinculaciones" class="seccion hidden">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-3xl font-bold">Vinculaciones de Productos</h2>
                 <button onclick="abrirModalVinculacion()" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition">
-                    <i class="fas fa-plus mr-2"></i>Nueva Vinculación
+                    <i class="fas fa-plus mr-2"></i>Nueva VinculaciÃ³n
                 </button>
             </div>
 
@@ -326,7 +326,7 @@
                     <i class="fas fa-info-circle text-blue-400 text-2xl mr-3"></i>
                     <div>
                         <h3 class="font-bold text-blue-300">Sistema de Vinculaciones</h3>
-                        <p class="text-sm text-blue-200">Permite combinar productos automáticamente. Por ejemplo: Pizza Hawaiana + Coca Cola + Borde de Queso.</p>
+                        <p class="text-sm text-blue-200">Permite combinar productos automÃ¡ticamente. Por ejemplo: Pizza Hawaiana + Coca Cola + Borde de Queso.</p>
                     </div>
                 </div>
             </div>
@@ -338,14 +338,14 @@
                         Vinculaciones Activas
                     </h3>
                     <div id="vinculaciones-activas" class="space-y-3">
-                        <!-- Las vinculaciones se cargarán aquí -->
+                        <!-- Las vinculaciones se cargarÃ¡n aquÃ­ -->
                     </div>
                 </div>
 
                 <div class="bg-slate-800 rounded-lg p-6">
                     <h3 class="text-xl font-semibold mb-4 flex items-center">
                         <i class="fas fa-plus-circle mr-2 text-blue-400"></i>
-                        Crear Nueva Vinculación
+                        Crear Nueva VinculaciÃ³n
                     </h3>
                     <div class="space-y-4">
                         <div>
@@ -355,7 +355,7 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm mb-2">Tipo de Vinculación</label>
+                            <label class="block text-sm mb-2">Tipo de VinculaciÃ³n</label>
                             <select id="vinculacion-tipo" onchange="filtrarProductosVinculados()" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
                                 <option value="bebida">Bebida</option>
                                 <option value="adicional">Adicional</option>
@@ -370,7 +370,7 @@
                                 <option value="limonada">Limonadas</option>
                                 <option value="jugo">Jugos Naturales</option>
                                 <option value="agua">Aguas</option>
-                                <option value="te">Tés</option>
+                                <option value="te">TÃ©s</option>
                                 <option value="energizante">Energizantes</option>
                                 <option value="cerveza">Cervezas</option>
                                 <option value="vino">Vinos</option>
@@ -379,7 +379,7 @@
                         <div>
                             <label class="block text-sm mb-2">Productos a Vincular (selecciona varios)</label>
                             <div id="vinculacion-productos-lista" class="max-h-64 overflow-y-auto bg-slate-700 rounded-lg border border-slate-600 p-3 space-y-2">
-                                <!-- Los checkboxes se cargarán aquí -->
+                                <!-- Los checkboxes se cargarÃ¡n aquÃ­ -->
                             </div>
                         </div>
                         <div class="flex items-center">
@@ -389,7 +389,7 @@
                         <div>
                             <label class="block text-sm mb-2">Precio Adicional ($)</label>
                             <input type="number" id="vinculacion-precio" step="0.01" min="0" placeholder="0.00" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
-                            <p class="text-xs text-gray-400 mt-1">Se aplicará a todos los productos seleccionados</p>
+                            <p class="text-xs text-gray-400 mt-1">Se aplicarÃ¡ a todos los productos seleccionados</p>
                         </div>
                         <button onclick="crearVinculacionesMultiples()" class="w-full bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition">
                             <i class="fas fa-plus mr-2"></i>Crear Vinculaciones
@@ -399,14 +399,14 @@
             </div>
         </div>
 
-        <!-- SECCIÓN: INVENTARIO -->
+        <!-- SECCIÃ“N: INVENTARIO -->
          <div id="seccion-inventario" class="seccion hidden">
-              <h2 class="text-3xl font-bold mb-6">Gestión de Inventario</h2>
+              <h2 class="text-3xl font-bold mb-6">GestiÃ³n de Inventario</h2>
 
               <div class="bg-slate-800 rounded-lg p-6">
                   <div class="flex items-center mb-4">
                       <i class="fas fa-info-circle text-blue-400 mr-2"></i>
-                      <p class="text-gray-300">El inventario se crea automáticamente al agregar productos. Aquí puedes gestionar el stock.</p>
+                      <p class="text-gray-300">El inventario se crea automÃ¡ticamente al agregar productos. AquÃ­ puedes gestionar el stock.</p>
                   </div>
 
                   <div id="lista-inventario" class="overflow-x-auto">
@@ -414,9 +414,9 @@
                           <thead>
                               <tr class="border-b border-slate-700">
                                   <th class="text-left py-3 px-4">Producto</th>
-                                  <th class="text-left py-3 px-4">Categoría</th>
+                                  <th class="text-left py-3 px-4">CategorÃ­a</th>
                                   <th class="text-center py-3 px-4">Stock Actual</th>
-                                  <th class="text-center py-3 px-4">Stock Mínimo</th>
+                                  <th class="text-center py-3 px-4">Stock MÃ­nimo</th>
                                   <th class="text-center py-3 px-4">Estado</th>
                                   <th class="text-center py-3 px-4">Acciones</th>
                               </tr>
@@ -430,19 +430,19 @@
           </div>
 
 
-         <!-- SECCIÓN: CONFIGURACIÓN -->
+         <!-- SECCIÃ“N: CONFIGURACIÃ“N -->
          <div id="seccion-configuracion" class="seccion hidden">
              <div class="flex justify-between items-center mb-6">
-                 <h2 class="text-3xl font-bold">Configuración de Domicilios</h2>
+                 <h2 class="text-3xl font-bold">ConfiguraciÃ³n de Domicilios</h2>
              </div>
 
-             <!-- Configuración General -->
+             <!-- ConfiguraciÃ³n General -->
              <div class="bg-slate-800 rounded-lg p-6 mb-6">
                  <div class="flex items-center justify-between mb-4">
                      <div class="flex items-center">
                          <i class="fas fa-cog text-blue-400 text-2xl mr-3"></i>
                          <div>
-                             <h3 class="text-xl font-semibold">Configuración General</h3>
+                             <h3 class="text-xl font-semibold">ConfiguraciÃ³n General</h3>
                              <p class="text-gray-400 text-sm">Sistema de precios de domicilio</p>
                          </div>
                      </div>
@@ -458,7 +458,7 @@
                              Precio por Defecto
                          </h4>
                          <p class="text-sm text-gray-300 mb-3">
-                             Precio cuando no hay zona configurada o el sistema de zonas está desactivado
+                             Precio cuando no hay zona configurada o el sistema de zonas estÃ¡ desactivado
                          </p>
                          <input type="number" id="precio-default" step="100" min="0" placeholder="3000" 
                                 class="w-full px-4 py-2 bg-slate-600 rounded-lg border border-slate-500 focus:border-blue-500 focus:outline-none">
@@ -470,7 +470,7 @@
                              Sistema de Precios por Zona
                          </h4>
                          <p class="text-sm text-gray-300 mb-3">
-                             Activar precios dinámicos según municipio y barrio
+                             Activar precios dinÃ¡micos segÃºn municipio y barrio
                          </p>
                          <label class="flex items-center cursor-pointer">
                              <input type="checkbox" id="usar-precios-zona" 
@@ -483,19 +483,19 @@
                  <div class="mt-4">
                      <button onclick="guardarConfiguracion()" 
                              class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition">
-                         <i class="fas fa-save mr-2"></i>Guardar Configuración
+                         <i class="fas fa-save mr-2"></i>Guardar ConfiguraciÃ³n
                      </button>
                  </div>
              </div>
 
-             <!-- Gestión de Zonas -->
+             <!-- GestiÃ³n de Zonas -->
              <div class="bg-slate-800 rounded-lg p-6">
                  <div class="flex items-center justify-between mb-4">
                      <div class="flex items-center">
                          <i class="fas fa-map-marked-alt text-purple-400 text-2xl mr-3"></i>
                          <div>
                              <h3 class="text-xl font-semibold">Zonas de Precio</h3>
-                             <p class="text-gray-400 text-sm">Configura precios según municipio y barrio</p>
+                             <p class="text-gray-400 text-sm">Configura precios segÃºn municipio y barrio</p>
                          </div>
                      </div>
                      <button onclick="mostrarModalNuevaZona()" 
@@ -542,12 +542,12 @@
                      <div class="flex">
                          <i class="fas fa-info-circle text-blue-400 mr-3 mt-1"></i>
                          <div class="text-sm text-gray-300">
-                             <p class="font-semibold mb-2">Cómo funciona el sistema de precios por zona:</p>
+                             <p class="font-semibold mb-2">CÃ³mo funciona el sistema de precios por zona:</p>
                              <ul class="list-disc ml-5 space-y-1">
-                                 <li><strong>Barrio específico:</strong> Si defines un precio para un barrio concreto (ej: "Laureles, Medellín"), ese precio tendrá prioridad</li>
-                                 <li><strong>Municipio general:</strong> Si solo defines el municipio sin barrio (ej: "Medellín"), ese precio se aplica a todos los barrios no especificados</li>
-                                 <li><strong>Precio por defecto:</strong> Si no hay configuración para el municipio, se usa el precio por defecto</li>
-                                 <li><strong>Geocodificación automática:</strong> El sistema detecta automáticamente el municipio y barrio cuando el cliente ingresa su dirección</li>
+                                 <li><strong>Barrio especÃ­fico:</strong> Si defines un precio para un barrio concreto (ej: "Laureles, MedellÃ­n"), ese precio tendrÃ¡ prioridad</li>
+                                 <li><strong>Municipio general:</strong> Si solo defines el municipio sin barrio (ej: "MedellÃ­n"), ese precio se aplica a todos los barrios no especificados</li>
+                                 <li><strong>Precio por defecto:</strong> Si no hay configuraciÃ³n para el municipio, se usa el precio por defecto</li>
+                                 <li><strong>GeocodificaciÃ³n automÃ¡tica:</strong> El sistema detecta automÃ¡ticamente el municipio y barrio cuando el cliente ingresa su direcciÃ³n</li>
                              </ul>
                          </div>
                      </div>
@@ -570,7 +570,7 @@
                          <label class="block font-medium mb-2 text-sm">Municipio *</label>
                          <input type="text" id="zona-municipio" required 
                                 class="w-full px-4 py-2 bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none" 
-                                placeholder="Ej: Medellín, Envigado, Itagüí">
+                                placeholder="Ej: MedellÃ­n, Envigado, ItagÃ¼Ã­">
                          <p class="text-xs text-gray-400 mt-1">Nombre del municipio o ciudad</p>
                      </div>
 
@@ -579,7 +579,7 @@
                          <input type="text" id="zona-barrio" 
                                 class="w-full px-4 py-2 bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none" 
                                 placeholder="Ej: Laureles, Poblado">
-                         <p class="text-xs text-gray-400 mt-1">Déjalo vacío para aplicar a todo el municipio</p>
+                         <p class="text-xs text-gray-400 mt-1">DÃ©jalo vacÃ­o para aplicar a todo el municipio</p>
                      </div>
 
                      <div>
@@ -621,11 +621,11 @@
 
     </main>
 
-    <!-- MODAL: Crear/Editar Categoría -->
+    <!-- MODAL: Crear/Editar CategorÃ­a -->
     <div id="modal-categoria" class="modal">
         <div class="bg-slate-800 rounded-lg p-4 max-w-md w-full">
             <div class="flex justify-between items-center mb-2">
-                <h3 class="text-xl font-bold" id="titulo-modal-categoria">Nueva Categoría</h3>
+                <h3 class="text-xl font-bold" id="titulo-modal-categoria">Nueva CategorÃ­a</h3>
                 <button type="button" onclick="cerrarModal('modal-categoria')" class="text-gray-400 hover:text-white">
                     <i class="fas fa-times"></i>
                 </button>
@@ -634,7 +634,7 @@
                 <input type="hidden" id="categoria-id">
                 
                 <div class="mb-4">
-                    <label class="block font-medium mb-1 text-sm">Ícono</label>
+                    <label class="block font-medium mb-1 text-sm">Ãcono</label>
                     <div class="flex items-center gap-2">
                         <select id="categoria-icono" class="w-full px-3 py-1 text-sm bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none">
                             <!-- Opciones comunes de Font Awesome (valor = clase) -->
@@ -663,41 +663,41 @@
                             <i class="fas fa-tag"></i>
                         </div>
                     </div>
-                    <p class="text-xs text-gray-400 mt-1">Selecciona un ícono para la categoría. Ej: <code>fas fa-pizza-slice</code></p>
+                    <p class="text-xs text-gray-400 mt-1">Selecciona un Ã­cono para la categorÃ­a. Ej: <code>fas fa-pizza-slice</code></p>
                 </div>
 
                 <div class="mb-2">
-                    <label class="block font-medium mb-1 text-sm">Nombre de la Categoría *</label>
+                    <label class="block font-medium mb-1 text-sm">Nombre de la CategorÃ­a *</label>
                     <input type="text" id="categoria-nombre" required class="w-full px-3 py-1 text-sm bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none" placeholder="Ej: Pizzas Premium">
                 </div>
 
                 <div class="mb-2">
-                    <label class="block font-medium mb-1 text-sm">Descripción</label>
+                    <label class="block font-medium mb-1 text-sm">DescripciÃ³n</label>
                     <textarea id="categoria-descripcion" rows="1" class="w-full px-3 py-1 text-sm bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none"></textarea>
                 </div>
 
                 <div class="mb-2">
-                    <label class="block font-medium mb-1 text-sm">Categoría Padre</label>
+                    <label class="block font-medium mb-1 text-sm">CategorÃ­a Padre</label>
                     <select id="categoria-padre" class="w-full px-3 py-1 text-sm bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none">
-                        <option value="">Ninguna (categoría principal)</option>
+                        <option value="">Ninguna (categorÃ­a principal)</option>
                     </select>
-                    <p class="text-xs text-gray-400 mt-1">Si es una subcategoría, seleccione la categoría padre</p>
+                    <p class="text-xs text-gray-400 mt-1">Si es una subcategorÃ­a, seleccione la categorÃ­a padre</p>
                 </div>
 
                 <div class="mb-2">
-                    <label class="block font-medium mb-1 text-sm">Categorías Compatibles</label>
+                    <label class="block font-medium mb-1 text-sm">CategorÃ­as Compatibles</label>
                     <div id="categorias-compatibles-container" class="bg-slate-700 p-2 rounded border border-slate-600 max-h-32 overflow-y-auto text-sm">
-                        <!-- Se llenará dinámicamente con JavaScript -->
+                        <!-- Se llenarÃ¡ dinÃ¡micamente con JavaScript -->
                     </div>
-                    <p class="text-xs text-gray-400 mt-1">Seleccione las categorías que pueden combinarse con esta</p>
+                    <p class="text-xs text-gray-400 mt-1">Seleccione las categorÃ­as que pueden combinarse con esta</p>
                 </div>
 
                 <div class="mb-2">
                     <label class="flex items-center text-sm">
                         <input type="checkbox" id="es-adicion" class="mr-2 w-4 h-4">
-                        <span>Es una adición (puede agregarse a otros productos)</span>
+                        <span>Es una adiciÃ³n (puede agregarse a otros productos)</span>
                     </label>
-                    <p class="text-xs text-gray-400 mt-1">Marque si esta categoría contiene productos que pueden ser adiciones</p>
+                    <p class="text-xs text-gray-400 mt-1">Marque si esta categorÃ­a contiene productos que pueden ser adiciones</p>
                 </div>
 
                 <div class="mb-3">
@@ -709,7 +709,7 @@
                         </label>
                         <label class="flex items-center text-sm">
                             <input type="checkbox" id="campo-tamanos" class="mr-2 w-4 h-4">
-                            <span>Tamaños con precios (Personal, Mediano, Grande)</span>
+                            <span>TamaÃ±os con precios (Personal, Mediano, Grande)</span>
                         </label>
                         <label class="flex items-center text-sm">
                             <input type="checkbox" id="campo-mililitros" class="mr-2 w-4 h-4">
@@ -721,9 +721,9 @@
                 <div class="mb-2">
                     <label class="flex items-center text-sm">
                         <input type="checkbox" id="categoria-visible-publico" class="mr-2 w-4 h-4">
-                        <span>Visible en menú público</span>
+                        <span>Visible en menÃº pÃºblico</span>
                     </label>
-                    <p class="text-xs text-gray-400 mt-1">Si está desmarcado, la categoría no aparecerá en el menú público aunque los productos sigan accesibles por vinculaciones.</p>
+                    <p class="text-xs text-gray-400 mt-1">Si estÃ¡ desmarcado, la categorÃ­a no aparecerÃ¡ en el menÃº pÃºblico aunque los productos sigan accesibles por vinculaciones.</p>
                 </div>
 
                 <div class="mb-2">
@@ -731,7 +731,7 @@
                         <input type="checkbox" id="categoria-default-domicilio" class="mr-2 w-4 h-4">
                         <span>Predeterminada en Domicilios</span>
                     </label>
-                    <p class="text-xs text-gray-400 mt-1">Si marca esta opción, la categoría seleccionada será la categoría inicial que verán los clientes en el menú público (solo una categoría puede ser predeterminada).</p>
+                    <p class="text-xs text-gray-400 mt-1">Si marca esta opciÃ³n, la categorÃ­a seleccionada serÃ¡ la categorÃ­a inicial que verÃ¡n los clientes en el menÃº pÃºblico (solo una categorÃ­a puede ser predeterminada).</p>
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-1">
@@ -760,7 +760,7 @@
                     </div>
 
                     <div class="md:col-span-2">
-                        <label class="block font-medium mb-2">Descripción</label>
+                        <label class="block font-medium mb-2">DescripciÃ³n</label>
                         <textarea id="producto-descripcion" rows="2" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none"></textarea>
                     </div>
 
@@ -771,32 +771,32 @@
                     </div>
 
                     <div>
-                        <label class="block font-medium mb-2">Categoría *</label>
+                        <label class="block font-medium mb-2">CategorÃ­a *</label>
                         <select id="producto-categoria" required onchange="actualizarCamposProducto()" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
-                            <option value="">Selecciona una categoría</option>
+                            <option value="">Selecciona una categorÃ­a</option>
                         </select>
                     </div>
 
                     <div id="div-subcategoria" style="display: none;">
-                        <label class="block font-medium mb-2">Subcategoría</label>
+                        <label class="block font-medium mb-2">SubcategorÃ­a</label>
                         <select id="producto-subcategoria" onchange="actualizarCamposProducto()" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
-                            <option value="">Selecciona una subcategoría (opcional)</option>
+                            <option value="">Selecciona una subcategorÃ­a (opcional)</option>
                         </select>
                         <p class="text-sm text-gray-400 mt-1">Para bebidas: gaseosa, limonada, etc.</p>
                     </div>
 
                     <div>
-                        <label class="block font-medium mb-2">Stock Mínimo</label>
+                        <label class="block font-medium mb-2">Stock MÃ­nimo</label>
                         <input type="number" id="producto-stock-minimo" value="10" min="0" step="1" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
                     </div>
                 </div>
 
-                <!-- Campos dinámicos según categoría -->
+                <!-- Campos dinÃ¡micos segÃºn categorÃ­a -->
                 <div id="campos-dinamicos-producto" class="mt-6">
-                    <!-- Se llenarán dinámicamente según la categoría -->
+                    <!-- Se llenarÃ¡n dinÃ¡micamente segÃºn la categorÃ­a -->
                 </div>
 
-                <!-- Sección de Precios -->
+                <!-- SecciÃ³n de Precios -->
                 <div id="seccion-precios" class="mt-6">
                     <div class="flex justify-between items-center mb-3">
                         <label class="block font-medium">Precios *</label>
@@ -805,7 +805,7 @@
                         </button>
                     </div>
                     <div id="lista-precios" class="space-y-2">
-                        <!-- Los precios se agregarán aquí -->
+                        <!-- Los precios se agregarÃ¡n aquÃ­ -->
                     </div>
                 </div>
 
@@ -861,7 +861,7 @@
                      Cancelar
                  </button>
                  <button id="btnGuardarAsignacion" type="button" onclick="guardarAsignacion()" class="px-6 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white transition">
-                     Guardar Configuración
+                     Guardar ConfiguraciÃ³n
                  </button>
              </div>
          </div>
@@ -941,7 +941,7 @@
                 const itemsHtml = pedido.items.map(item => `
                     <div class="flex justify-between text-sm py-1 border-b border-slate-600">
                         <span>${item.cantidad}x ${item.producto}${item.tamano ? ` (${item.tamano})` : ''}</span>
-                        <span class="text-green-300">$${item.subtotal.toFixed(2)}</span>
+                        <span class="text-green-300">$${parseFloat(item.subtotal).toFixed(2)}</span>
                     </div>
                 `).join('');
                 
@@ -959,13 +959,13 @@
                     // Formatear manualmente
                     const dia = fecha.getDate().toString().padStart(2, '0');
                     const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
-                    const año = fecha.getFullYear();
+                    const aÃ±o = fecha.getFullYear();
                     let horas = fecha.getHours();
                     const minutos = fecha.getMinutes().toString().padStart(2, '0');
                     const ampm = horas >= 12 ? 'p. m.' : 'a. m.';
                     horas = horas % 12 || 12;
                     
-                    return `${dia}/${mes}/${año}, ${horas}:${minutos} ${ampm}`;
+                    return `${dia}/${mes}/${aÃ±o}, ${horas}:${minutos} ${ampm}`;
                 };
                 
                 return `
@@ -979,7 +979,7 @@
                             </div>
                             <div class="text-right">
                                 <span class="${estadoColor} text-xs px-3 py-1 rounded-full">${pedido.estado}</span>
-                                <p class="text-2xl font-bold text-green-300 mt-2">$${pedido.total.toFixed(2)}</p>
+                                <p class="text-2xl font-bold text-green-300 mt-2">$${parseFloat(pedido.total).toFixed(2)}</p>
                                 <p class="text-xs text-gray-400">${pedido.tipo_pedido || 'Local'}</p>
                             </div>
                         </div>
@@ -1024,10 +1024,10 @@
 
                 if (data.abierta && data.sesion) {
                     infoDiv.innerHTML = '<i class="fas fa-check-circle text-green-400 mr-2"></i>Caja Abierta';
-                    montoDiv.textContent = `Sesión: ${data.sesion.fecha_apertura || ''} ${data.sesion.hora_apertura || ''}`;
+                    montoDiv.textContent = `SesiÃ³n: ${data.sesion.fecha_apertura || ''} ${data.sesion.hora_apertura || ''}`;
                     btnAbrir.classList.add('hidden');
                     btnCerrar.classList.remove('hidden');
-                    // Guardar el ID de la sesión actual
+                    // Guardar el ID de la sesiÃ³n actual
                     window.sesionCajaActual = data.sesion.id;
                 } else {
                     infoDiv.innerHTML = '<i class="fas fa-times-circle text-red-400 mr-2"></i>Caja Cerrada';
@@ -1064,24 +1064,24 @@
                 });
                 const data = await resp.json();
                 if (resp.ok) {
-                    mostrarNotificacion('✅ Caja abierta exitosamente', 'success');
+                    mostrarNotificacion('âœ… Caja abierta exitosamente', 'success');
                     cerrarModalAbrirCaja();
                     verificarEstadoCaja();
                     cargarVentasDia();
                 } else {
-                    mostrarNotificacion('❌ Error: ' + (data.error || 'No se pudo abrir la caja'), 'error');
+                    mostrarNotificacion('âŒ Error: ' + (data.error || 'No se pudo abrir la caja'), 'error');
                 }
             } catch (e) {
-                mostrarNotificacion('❌ Error de conexión al abrir caja', 'error');
+                mostrarNotificacion('âŒ Error de conexiÃ³n al abrir caja', 'error');
             }
         }
 
         async function cerrarCaja() {
-            if (!confirm('¿Deseas cerrar la caja? Esto finalizará la sesión actual.')) return;
+            if (!confirm('Â¿Deseas cerrar la caja? Esto finalizarÃ¡ la sesiÃ³n actual.')) return;
             try {
                 const sesionId = window.sesionCajaActual;
                 if (!sesionId) {
-                    mostrarNotificacion('❌ No hay sesión de caja abierta', 'error');
+                    mostrarNotificacion('âŒ No hay sesiÃ³n de caja abierta', 'error');
                     return;
                 }
                 const resp = await fetch(API_BASE_URL + '/api/caja/cerrar', {
@@ -1091,25 +1091,25 @@
                 });
                 const data = await resp.json();
                 if (resp.ok) {
-                    mostrarNotificacion('✅ Caja cerrada exitosamente', 'success');
+                    mostrarNotificacion('âœ… Caja cerrada exitosamente', 'success');
                     verificarEstadoCaja();
                     cargarHistorialCaja();
                     cargarVentasDia();
                 } else {
-                    mostrarNotificacion('❌ Error: ' + (data.error || 'No se pudo cerrar la caja'), 'error');
+                    mostrarNotificacion('âŒ Error: ' + (data.error || 'No se pudo cerrar la caja'), 'error');
                 }
             } catch (e) {
-                mostrarNotificacion('❌ Error de conexión al cerrar caja', 'error');
+                mostrarNotificacion('âŒ Error de conexiÃ³n al cerrar caja', 'error');
             }
         }
 
-        // ==================== INICIALIZACIÓN ====================
+        // ==================== INICIALIZACIÃ“N ====================
         document.addEventListener('DOMContentLoaded', function() {
             mostrarSeccion('dashboard');
             verificarEstadoCaja();
         });
 
-        // ==================== NAVEGACIÓN ====================
+        // ==================== NAVEGACIÃ“N ====================
         function mostrarSeccion(seccion) {
             // Ocultar todas las secciones
             document.querySelectorAll('.seccion').forEach(s => s.classList.add('hidden'));
@@ -1118,11 +1118,11 @@
                 btn.classList.remove('border-blue-500', 'text-blue-400');
             });
             
-            // Mostrar sección seleccionada
+            // Mostrar secciÃ³n seleccionada
             document.getElementById(`seccion-${seccion}`).classList.remove('hidden');
             document.getElementById(`tab-${seccion}`).classList.add('border-blue-500', 'text-blue-400');
             
-            // Cargar datos según la sección
+            // Cargar datos segÃºn la secciÃ³n
             if (seccion === 'dashboard') {
                 cargarVentasDia();
                 cargarHistorialCaja();
@@ -1146,15 +1146,15 @@
             }
         }
 
-        // ==================== CATEGORÍAS ====================
+        // ==================== CATEGORÃAS ====================
         async function cargarCategorias() {
             try {
                 const response = await fetch(API_BASE_URL + '/api/categorias-config');
                 categoriasData = await response.json();
                 mostrarCategorias();
             } catch (error) {
-                console.error('Error cargando categorías:', error);
-                mostrarNotificacion('Error al cargar categorías', 'error');
+                console.error('Error cargando categorÃ­as:', error);
+                mostrarNotificacion('Error al cargar categorÃ­as', 'error');
             }
         }
 
@@ -1164,8 +1164,8 @@
                 lista.innerHTML = `
                     <div class="col-span-full text-center py-12">
                         <i class="fas fa-folder-open text-6xl text-gray-600 mb-4"></i>
-                        <p class="text-xl text-gray-400">No hay categorías creadas</p>
-                        <p class="text-gray-500 mt-2">Crea tu primera categoría para comenzar</p>
+                        <p class="text-xl text-gray-400">No hay categorÃ­as creadas</p>
+                        <p class="text-gray-500 mt-2">Crea tu primera categorÃ­a para comenzar</p>
                     </div>
                 `;
                 return;
@@ -1178,13 +1178,13 @@
                             <i class="${cat.icono} text-3xl text-blue-400"></i>
                             <div>
                                 <h3 class="text-xl font-bold">${cat.nombre}</h3>
-                                <p class="text-sm text-gray-400">${cat.descripcion || 'Sin descripción'}</p>
+                                <p class="text-sm text-gray-400">${cat.descripcion || 'Sin descripciÃ³n'}</p>
                             </div>
                         </div>
                         <div class="flex items-center space-x-3">
                             ${cat.activo ? '<span class="bg-green-600 text-xs px-2 py-1 rounded">Activa</span>' : '<span class="bg-gray-600 text-xs px-2 py-1 rounded">Inactiva</span>'}
                             ${cat.default_en_domicilio && cat.default_en_domicilio != 0 ? '<span class="bg-yellow-400 text-xs px-2 py-1 rounded ml-2 text-black">Predeterminada</span>' : ''}
-                            <button onclick="toggleVisiblePublico(${cat.id}, ${cat.visible_en_publico || 1})" title="Alternar visibilidad pública" class="px-2 py-1 rounded text-sm border border-slate-600 hover:bg-slate-700">
+                            <button onclick="toggleVisiblePublico(${cat.id}, ${cat.visible_en_publico || 1})" title="Alternar visibilidad pÃºblica" class="px-2 py-1 rounded text-sm border border-slate-600 hover:bg-slate-700">
                                 ${cat.visible_en_publico && cat.visible_en_publico != 0 ? 'Visible' : 'Oculta'}
                             </button>
                         </div>
@@ -1193,9 +1193,9 @@
                     <div class="mb-4 text-sm text-gray-400">
                         <p><strong>Campos requeridos:</strong></p>
                         <div class="flex flex-wrap gap-2 mt-2">
-                            ${cat.campos_requeridos.ingredientes ? '<span class="bg-slate-700 px-2 py-1 rounded text-xs">📝 Ingredientes</span>' : ''}
-                            ${cat.campos_requeridos.tamanos ? '<span class="bg-slate-700 px-2 py-1 rounded text-xs">📏 Tamaños</span>' : ''}
-                            ${cat.campos_requeridos.mililitros ? '<span class="bg-slate-700 px-2 py-1 rounded text-xs">🥤 Mililitros</span>' : ''}
+                            ${cat.campos_requeridos.ingredientes ? '<span class="bg-slate-700 px-2 py-1 rounded text-xs">ðŸ“ Ingredientes</span>' : ''}
+                            ${cat.campos_requeridos.tamanos ? '<span class="bg-slate-700 px-2 py-1 rounded text-xs">ðŸ“ TamaÃ±os</span>' : ''}
+                            ${cat.campos_requeridos.mililitros ? '<span class="bg-slate-700 px-2 py-1 rounded text-xs">ðŸ¥¤ Mililitros</span>' : ''}
                             ${!cat.campos_requeridos.ingredientes && !cat.campos_requeridos.tamanos && !cat.campos_requeridos.mililitros ? '<span class="text-xs">Ninguno</span>' : ''}
                         </div>
                     </div>
@@ -1214,38 +1214,38 @@
 
         function abrirModalCategoria() {
             categoriaActual = null;
-            document.getElementById('titulo-modal-categoria').textContent = 'Nueva Categoría';
+            document.getElementById('titulo-modal-categoria').textContent = 'Nueva CategorÃ­a';
             document.getElementById('form-categoria').reset();
             document.getElementById('categoria-id').value = '';
             document.getElementById('categoria-icono').value = 'fas fa-tag';
             
-            // Cargar categorías para el selector de categoría padre y compatibilidades
+            // Cargar categorÃ­as para el selector de categorÃ­a padre y compatibilidades
             cargarCategoriasEnFormulario();
             
             abrirModal('modal-categoria');
         }
         
         function cargarCategoriasEnFormulario() {
-            // Llenar selector de categoría padre
+            // Llenar selector de categorÃ­a padre
             const selectCategoriaPadre = document.getElementById('categoria-padre');
-            selectCategoriaPadre.innerHTML = '<option value="">Ninguna (categoría principal)</option>';
+            selectCategoriaPadre.innerHTML = '<option value="">Ninguna (categorÃ­a principal)</option>';
             
-            // Llenar contenedor de categorías compatibles
+            // Llenar contenedor de categorÃ­as compatibles
             const contenedorCompatibles = document.getElementById('categorias-compatibles-container');
             contenedorCompatibles.innerHTML = '';
             
-            // Obtener ID de la categoría actual (si estamos editando)
+            // Obtener ID de la categorÃ­a actual (si estamos editando)
             const categoriaId = document.getElementById('categoria-id').value;
             
-            // Agregar opciones de categorías existentes
+            // Agregar opciones de categorÃ­as existentes
             categoriasData.forEach(cat => {
-                // No mostrar la categoría actual como opción para padre o compatible
+                // No mostrar la categorÃ­a actual como opciÃ³n para padre o compatible
                 if (categoriaId && cat.id == categoriaId) return;
                 
-                // Agregar como opción para categoría padre
+                // Agregar como opciÃ³n para categorÃ­a padre
                 selectCategoriaPadre.innerHTML += `<option value="${cat.id}">${cat.nombre}</option>`;
                 
-                // Agregar como opción para categorías compatibles
+                // Agregar como opciÃ³n para categorÃ­as compatibles
                 contenedorCompatibles.innerHTML += `
                     <label class="flex items-center p-2 hover:bg-slate-600 rounded">
                         <input type="checkbox" value="${cat.id}" class="mr-2 w-4 h-4">
@@ -1260,7 +1260,7 @@
             if (!categoria) return;
 
             categoriaActual = categoria;
-            document.getElementById('titulo-modal-categoria').textContent = 'Editar Categoría';
+            document.getElementById('titulo-modal-categoria').textContent = 'Editar CategorÃ­a';
             document.getElementById('categoria-id').value = categoria.id;
             document.getElementById('categoria-nombre').value = categoria.nombre;
             document.getElementById('categoria-descripcion').value = categoria.descripcion || '';
@@ -1268,20 +1268,20 @@
             
             // Actualizar la vista previa del icono
             try { updateIconPreview(); } catch (e) { /* noop */ }
-            // Cargar las categorías en el formulario
+            // Cargar las categorÃ­as en el formulario
             cargarCategoriasEnFormulario();
             
-            // Establecer categoría padre si existe
+            // Establecer categorÃ­a padre si existe
             if (categoria.categoria_padre_id) {
                 document.getElementById('categoria-padre').value = categoria.categoria_padre_id;
             } else {
                 document.getElementById('categoria-padre').value = '';
             }
             
-            // Establecer si es adición
+            // Establecer si es adiciÃ³n
             document.getElementById('es-adicion').checked = categoria.es_adicion || false;
             
-            // Marcar categorías compatibles
+            // Marcar categorÃ­as compatibles
             const checkboxes = document.querySelectorAll('#categorias-compatibles-container input[type="checkbox"]');
             checkboxes.forEach(checkbox => {
                 checkbox.checked = categoria.categorias_compatibles && 
@@ -1292,7 +1292,7 @@
             document.getElementById('campo-tamanos').checked = categoria.campos_requeridos.tamanos || false;
             document.getElementById('campo-mililitros').checked = categoria.campos_requeridos.mililitros || false;
 
-            // Establecer visibilidad pública si el campo existe
+            // Establecer visibilidad pÃºblica si el campo existe
             try {
                 document.getElementById('categoria-visible-publico').checked = (categoria.visible_en_publico === 1 || categoria.visible_en_publico === true);
             } catch (e) {
@@ -1314,7 +1314,7 @@
             
             const id = document.getElementById('categoria-id').value;
             
-            // Obtener categorías compatibles seleccionadas
+            // Obtener categorÃ­as compatibles seleccionadas
             const categoriasCompatiblesChecks = document.querySelectorAll('#categorias-compatibles-container input[type="checkbox"]:checked');
             const categoriasCompatibles = Array.from(categoriasCompatiblesChecks).map(check => parseInt(check.value));
             
@@ -1331,14 +1331,14 @@
                     mililitros: document.getElementById('campo-mililitros').checked
                 }
             };
-            // Incluir visibilidad pública
+            // Incluir visibilidad pÃºblica
             try {
                 data.visible_en_publico = document.getElementById('categoria-visible-publico').checked ? 1 : 0;
             } catch (e) {
                 data.visible_en_publico = 1;
             }
 
-            // Incluir marca de categoría predeterminada en domicilios
+            // Incluir marca de categorÃ­a predeterminada en domicilios
             try {
                 data.default_en_domicilio = document.getElementById('categoria-default-domicilio').checked ? 1 : 0;
             } catch (e) {
@@ -1358,20 +1358,20 @@
                 const result = await response.json();
                 
                 if (response.ok) {
-                    mostrarNotificacion(id ? 'Categoría actualizada' : 'Categoría creada', 'success');
+                    mostrarNotificacion(id ? 'CategorÃ­a actualizada' : 'CategorÃ­a creada', 'success');
                     cerrarModal('modal-categoria');
                     cargarCategorias();
                 } else {
-                    mostrarNotificacion(result.error || 'Error al guardar categoría', 'error');
+                    mostrarNotificacion(result.error || 'Error al guardar categorÃ­a', 'error');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                mostrarNotificacion('Error al guardar categoría', 'error');
+                mostrarNotificacion('Error al guardar categorÃ­a', 'error');
             }
         }
 
         async function eliminarCategoria(id) {
-            if (!confirm('¿Estás seguro de eliminar esta categoría? No se puede eliminar si tiene productos asociados.')) {
+            if (!confirm('Â¿EstÃ¡s seguro de eliminar esta categorÃ­a? No se puede eliminar si tiene productos asociados.')) {
                 return;
             }
 
@@ -1383,19 +1383,19 @@
                 const result = await response.json();
                 
                 if (response.ok) {
-                    mostrarNotificacion('Categoría eliminada', 'success');
+                    mostrarNotificacion('CategorÃ­a eliminada', 'success');
                     cargarCategorias();
                 } else {
-                    mostrarNotificacion(result.error || 'Error al eliminar categoría', 'error');
+                    mostrarNotificacion(result.error || 'Error al eliminar categorÃ­a', 'error');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                mostrarNotificacion('Error al eliminar categoría', 'error');
+                mostrarNotificacion('Error al eliminar categorÃ­a', 'error');
             }
         }
 
         async function toggleVisiblePublico(catId, current) {
-            // Alterna la visibilidad pública de una categoría (1 visible, 0 oculta)
+            // Alterna la visibilidad pÃºblica de una categorÃ­a (1 visible, 0 oculta)
             try {
                 const nuevo = current && current != 0 ? 0 : 1;
                 const resp = await fetch(`${API_BASE_URL}/api/categorias-config/${catId}`, {
@@ -1405,7 +1405,7 @@
                 });
 
                 if (resp.ok) {
-                    mostrarNotificacion(nuevo ? 'Categoría ahora visible en público' : 'Categoría ocultada del menú público', 'success');
+                    mostrarNotificacion(nuevo ? 'CategorÃ­a ahora visible en pÃºblico' : 'CategorÃ­a ocultada del menÃº pÃºblico', 'success');
                     cargarCategorias();
                 } else {
                     const data = await resp.json();
@@ -1418,7 +1418,7 @@
         }
 
         async function confirmarLimpiarMenu() {
-            const confirmacion = prompt('Esta acción eliminará TODAS las categorías y productos. Escribe "ELIMINAR TODO" para confirmar:');
+            const confirmacion = prompt('Esta acciÃ³n eliminarÃ¡ TODAS las categorÃ­as y productos. Escribe "ELIMINAR TODO" para confirmar:');
             
             if (confirmacion === 'ELIMINAR TODO') {
                 try {
@@ -1431,18 +1431,18 @@
                     const result = await response.json();
                     
                     if (response.ok) {
-                        mostrarNotificacion('Menú limpiado exitosamente', 'success');
+                        mostrarNotificacion('MenÃº limpiado exitosamente', 'success');
                         cargarCategorias();
                         cargarProductos();
                     } else {
-                        mostrarNotificacion(result.error || 'Error al limpiar menú', 'error');
+                        mostrarNotificacion(result.error || 'Error al limpiar menÃº', 'error');
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    mostrarNotificacion('Error al limpiar menú', 'error');
+                    mostrarNotificacion('Error al limpiar menÃº', 'error');
                 }
             } else if (confirmacion !== null) {
-                mostrarNotificacion('Acción cancelada', 'info');
+                mostrarNotificacion('AcciÃ³n cancelada', 'info');
             }
         }
 
@@ -1452,7 +1452,7 @@
                 const response = await fetch(API_BASE_URL + '/api/categorias-config');
                 categoriasData = await response.json();
                 
-                // Cargar productos de todas las categorías
+                // Cargar productos de todas las categorÃ­as
                 productosData = [];
                 for (const cat of categoriasData) {
                     const resp = await fetch(`${API_BASE_URL}/api/productos-categoria/${cat.id}`);
@@ -1475,7 +1475,7 @@
                 productosFiltrados = productosData.filter(p => p.categoria_id == filtro);
             }
 
-            // Aplicar filtro de subcategoría si es categoría de bebidas
+            // Aplicar filtro de subcategorÃ­a si es categorÃ­a de bebidas
             if (filtroSubcategoria && filtro) {
                 const categoria = categoriasData.find(c => c.id == filtro);
                 if (categoria && categoria.nombre.toLowerCase().includes('bebida')) {
@@ -1484,7 +1484,7 @@
                         (p.subcategoria_nombre && p.subcategoria_nombre.toLowerCase() === filtroSubcategoria.toLowerCase())
                     );
                 } else if (categoria) {
-                    // Para otras categorías, filtrar por subcategoría normal
+                    // Para otras categorÃ­as, filtrar por subcategorÃ­a normal
                     productosFiltrados = productosFiltrados.filter(p =>
                         p.subcategoria_id && p.subcategoria_id == filtroSubcategoria
                     );
@@ -1519,12 +1519,12 @@
                         <div class="flex justify-between items-start mb-3">
                             <div>
                                 <h3 class="text-lg font-bold">${prod.nombre}</h3>
-                                <p class="text-sm text-gray-400">${prod.categoria_nombre || 'Sin categoría'}${subcategoriaInfo}</p>
+                                <p class="text-sm text-gray-400">${prod.categoria_nombre || 'Sin categorÃ­a'}${subcategoriaInfo}</p>
                             </div>
                             ${stockInfo}
                         </div>
 
-                        <p class="text-sm text-gray-300 mb-3">${prod.descripcion || 'Sin descripción'}</p>
+                        <p class="text-sm text-gray-300 mb-3">${prod.descripcion || 'Sin descripciÃ³n'}</p>
 
                         <div class="mb-4 p-3 bg-slate-700 rounded">
                             <p class="font-semibold text-sm mb-2">Precios:</p>
@@ -1558,20 +1558,20 @@
             const subcategoriaSelect = document.getElementById('filtro-subcategoria');
 
             // Limpiar filtros anteriores
-            subcategoriaSelect.innerHTML = '<option value="">Todas las subcategorías</option>';
+            subcategoriaSelect.innerHTML = '<option value="">Todas las subcategorÃ­as</option>';
 
             if (!categoriaId) {
                 subcategoriaSelect.style.display = 'none';
                 return;
             }
 
-            // Verificar si es categoría de bebidas
+            // Verificar si es categorÃ­a de bebidas
             const categoria = categoriasData.find(c => c.id == categoriaId);
             if (categoria && categoria.nombre.toLowerCase().includes('bebida')) {
-                // Mostrar filtro de subcategorías para bebidas
+                // Mostrar filtro de subcategorÃ­as para bebidas
                 subcategoriaSelect.style.display = 'block';
 
-                // Mostrar subcategorías fijas para bebidas
+                // Mostrar subcategorÃ­as fijas para bebidas
                 const subcategoriasBebidas = ['gaseosa', 'limonada', 'jugo', 'agua'];
                 subcategoriasBebidas.forEach(subcat => {
                     const option = document.createElement('option');
@@ -1594,8 +1594,8 @@
                 `<option value="${cat.id}">${cat.nombre}</option>`
             ).join('');
             
-            select.innerHTML = '<option value="">Selecciona una categoría</option>' + options;
-            filtro.innerHTML = '<option value="">Todas las categorías</option>' + options;
+            select.innerHTML = '<option value="">Selecciona una categorÃ­a</option>' + options;
+            filtro.innerHTML = '<option value="">Todas las categorÃ­as</option>' + options;
         }
 
         function abrirModalProducto() {
@@ -1627,21 +1627,21 @@
             const categoria = categoriasData.find(c => c.id == categoriaId);
             if (!categoria) return;
 
-            // Mostrar/ocultar subcategorías
+            // Mostrar/ocultar subcategorÃ­as
             if (categoria.subcategorias && categoria.subcategorias.length > 0) {
                 const selectSubcategoria = document.getElementById('producto-subcategoria');
-                selectSubcategoria.innerHTML = '<option value="">Selecciona una subcategoría (opcional)</option>' +
+                selectSubcategoria.innerHTML = '<option value="">Selecciona una subcategorÃ­a (opcional)</option>' +
                     categoria.subcategorias.map(sub => `<option value="${sub.id}">${sub.nombre}</option>`).join('');
                 divSubcategoria.style.display = 'block';
             } else if (categoria.nombre.toLowerCase().includes('bebida')) {
-                // Para bebidas, mostrar subcategorías dinámicas
+                // Para bebidas, mostrar subcategorÃ­as dinÃ¡micas
                 const selectSubcategoria = document.getElementById('producto-subcategoria');
-                selectSubcategoria.innerHTML = '<option value="">Selecciona una subcategoría (opcional)</option>' +
+                selectSubcategoria.innerHTML = '<option value="">Selecciona una subcategorÃ­a (opcional)</option>' +
                     '<option value="gaseosa">Gaseosa</option>' +
                     '<option value="limonada">Limonada</option>' +
                     '<option value="jugo">Jugo Natural</option>' +
                     '<option value="agua">Agua</option>' +
-                    '<option value="te">Té</option>' +
+                    '<option value="te">TÃ©</option>' +
                     '<option value="energizante">Energizante</option>' +
                     '<option value="cerveza">Cerveza</option>' +
                     '<option value="vino">Vino</option>';
@@ -1656,7 +1656,7 @@
                 html += `
                     <div class="bg-slate-700 p-4 rounded-lg mb-4">
                         <label class="block font-medium mb-2">Ingredientes</label>
-                        <textarea id="producto-ingredientes" rows="3" placeholder="Ej: Queso mozzarella, tomate, jamón..." class="w-full px-4 py-2 bg-slate-600 rounded-lg border border-slate-500 focus:border-blue-500 focus:outline-none"></textarea>
+                        <textarea id="producto-ingredientes" rows="3" placeholder="Ej: Queso mozzarella, tomate, jamÃ³n..." class="w-full px-4 py-2 bg-slate-600 rounded-lg border border-slate-500 focus:border-blue-500 focus:outline-none"></textarea>
                     </div>
                 `;
             }
@@ -1664,10 +1664,10 @@
             if (categoria.campos_requeridos.mililitros) {
                 html += `
                     <div class="bg-slate-700 p-4 rounded-lg mb-4">
-                        <label class="block font-medium mb-2">¿Es jugo natural?</label>
+                        <label class="block font-medium mb-2">Â¿Es jugo natural?</label>
                         <label class="flex items-center">
                             <input type="checkbox" id="es-jugo-natural" class="mr-2 w-5 h-5">
-                            <span class="text-sm">Marcar si es jugo natural (no requiere mililitros específicos)</span>
+                            <span class="text-sm">Marcar si es jugo natural (no requiere mililitros especÃ­ficos)</span>
                         </label>
                     </div>
                 `;
@@ -1683,7 +1683,7 @@
         function agregarPrecio() {
             const categoriaId = document.getElementById('producto-categoria').value;
             if (!categoriaId) {
-                mostrarNotificacion('Primero selecciona una categoría', 'warning');
+                mostrarNotificacion('Primero selecciona una categorÃ­a', 'warning');
                 return;
             }
 
@@ -1695,7 +1695,7 @@
             let placeholder = '';
 
             if (categoria.campos_requeridos.tamanos) {
-                nombreLabel = 'Tamaño';
+                nombreLabel = 'TamaÃ±o';
                 placeholder = 'Ej: Personal, Mediano, Grande';
             } else if (categoria.campos_requeridos.mililitros) {
                 const esJugo = document.getElementById('es-jugo-natural')?.checked;
@@ -1705,7 +1705,7 @@
                 nombreLabel = 'Nombre';
                 placeholder = 'Ej: Coca Cola 500ml, Jugo Natural';
             } else {
-                placeholder = 'Ej: Precio único, Porción individual';
+                placeholder = 'Ej: Precio Ãºnico, PorciÃ³n individual';
             }
 
             const html = `
@@ -1771,7 +1771,7 @@
             const imagenInput = document.getElementById('producto-imagen');
             let formData = new FormData();
 
-            // Agregar datos básicos
+            // Agregar datos bÃ¡sicos
             formData.append('nombre', document.getElementById('producto-nombre').value);
             formData.append('descripcion', document.getElementById('producto-descripcion').value);
             formData.append('categoria_id', categoriaId);
@@ -1791,7 +1791,7 @@
             // Agregar imagen si existe
             if (imagenInput.files && imagenInput.files[0]) {
                 const file = imagenInput.files[0];
-                // Validar tamaño (máximo 5MB)
+                // Validar tamaÃ±o (mÃ¡ximo 5MB)
                 if (file.size > 5 * 1024 * 1024) {
                     mostrarNotificacion('La imagen no puede ser mayor a 5MB', 'error');
                     return;
@@ -1842,10 +1842,10 @@
                 document.getElementById('producto-categoria').value = producto.categoria_id;
                 document.getElementById('producto-stock-minimo').value = producto.inventario?.stock_minimo || 10;
                 
-                // Actualizar campos dinámicos
+                // Actualizar campos dinÃ¡micos
                 actualizarCamposProducto();
                 
-                // Cargar subcategoría
+                // Cargar subcategorÃ­a
                 if (producto.subcategoria_id) {
                     document.getElementById('producto-subcategoria').value = producto.subcategoria_id;
                 } else if (producto.tipo_bebida) {
@@ -1893,11 +1893,11 @@
                 document.getElementById('lista-precios').innerHTML = '';
                 if (producto.precios && producto.precios.length > 0) {
                     producto.precios.forEach(precio => {
-                        // Intentar agregar usando la función existente
+                        // Intentar agregar usando la funciÃ³n existente
                         try {
                             agregarPrecio();
                         } catch (e) {
-                            console.warn('agregarPrecio falló:', e);
+                            console.warn('agregarPrecio fallÃ³:', e);
                         }
 
                         const lastAdded = document.querySelector('#lista-precios > div:last-child');
@@ -1913,7 +1913,7 @@
                                 valorNumericoEl.value = precio.valor_numerico;
                             }
                         } else {
-                            // Fallback: si por alguna razón no se agregó el elemento, crear uno manualmente
+                            // Fallback: si por alguna razÃ³n no se agregÃ³ el elemento, crear uno manualmente
                             const lista = document.getElementById('lista-precios');
                             const nombreVal = precio.nombre_precio || '';
                             const precioVal = precio.precio ?? '';
@@ -1947,7 +1947,7 @@
         }
 
         async function eliminarProducto(id) {
-            if (!confirm('¿Estás seguro de eliminar este producto? También se eliminará su inventario asociado.')) {
+            if (!confirm('Â¿EstÃ¡s seguro de eliminar este producto? TambiÃ©n se eliminarÃ¡ su inventario asociado.')) {
                 return;
             }
 
@@ -2000,13 +2000,13 @@
                 return `
                     <tr class="border-b border-slate-700 hover:bg-slate-750">
                         <td class="py-3 px-4" data-label="Producto">${prod.nombre}</td>
-                        <td class="py-3 px-4 text-gray-400" data-label="Categoría">${prod.categoria_nombre || 'N/A'}</td>
+                        <td class="py-3 px-4 text-gray-400" data-label="CategorÃ­a">${prod.categoria_nombre || 'N/A'}</td>
                         <td class="py-3 px-4 text-center font-semibold ${estado ? 'text-red-400' : 'text-green-400'}" data-label="Stock Actual">${stockActual} ${prod.unidad_medida || 'und'}</td>
-                        <td class="py-3 px-4 text-center text-gray-400" data-label="Stock Mínimo">${stockMinimo}</td>
+                        <td class="py-3 px-4 text-center text-gray-400" data-label="Stock MÃ­nimo">${stockMinimo}</td>
                         <td class="py-3 px-4 text-center" data-label="Estado">
                             ${estado 
-                                ? '<span class="bg-red-900 text-red-200 px-3 py-1 rounded-full text-xs">⚠️ Stock Bajo</span>' 
-                                : '<span class="bg-green-900 text-green-200 px-3 py-1 rounded-full text-xs">✓ OK</span>'}
+                                ? '<span class="bg-red-900 text-red-200 px-3 py-1 rounded-full text-xs">âš ï¸ Stock Bajo</span>' 
+                                : '<span class="bg-green-900 text-green-200 px-3 py-1 rounded-full text-xs">âœ“ OK</span>'}
                         </td>
                         <td class="py-3 px-4 text-center" data-label="Acciones">
                             <button onclick="abrirModalStock(${prod.id}, '${prod.nombre}', ${stockActual}, ${stockMinimo})" class="bg-blue-600 hover:bg-blue-700 px-4 py-1 rounded text-sm">
@@ -2058,7 +2058,7 @@
             document.getElementById(modalId).classList.add('active');
         }
 
-        // Actualiza el preview del icono en el formulario de categoría
+        // Actualiza el preview del icono en el formulario de categorÃ­a
         function updateIconPreview() {
             const sel = document.getElementById('categoria-icono');
             const preview = document.getElementById('categoria-icono-preview');
@@ -2109,7 +2109,7 @@
                     <div class="text-center py-8 text-gray-400">
                         <i class="fas fa-link text-4xl mb-4 text-gray-600"></i>
                         <p class="text-lg">No hay vinculaciones configuradas</p>
-                        <p class="text-sm">Crea tu primera vinculación para combinar productos</p>
+                        <p class="text-sm">Crea tu primera vinculaciÃ³n para combinar productos</p>
                     </div>
                 `;
                 return;
@@ -2123,7 +2123,7 @@
                 const adicionalNombre = adicional.nombre || vinc.producto_adicional_nombre || vinc.producto_vinculado_nombre || 'Producto adicional';
                 const tipo = vinc.tipo_vinculacion || vinc.tipo || 'adicional';
                 const obligatorio = vinc.obligatorio === 1 || vinc.obligatorio === true;
-                // Precio puede venir como precio_fijo o precio_adicional según endpoint/cliente
+                // Precio puede venir como precio_fijo o precio_adicional segÃºn endpoint/cliente
                 const precio = (vinc.precio_fijo !== undefined && vinc.precio_fijo !== null) ? vinc.precio_fijo : (vinc.precio_adicional || 0);
 
                 return `
@@ -2173,10 +2173,10 @@
             const divFiltro = document.getElementById('filtro-subcategoria-div');
             const listaProductos = document.getElementById('vinculacion-productos-lista');
             
-            // Mostrar filtro de subcategoría solo para bebidas
+            // Mostrar filtro de subcategorÃ­a solo para bebidas
             divFiltro.style.display = tipo === 'bebida' ? 'block' : 'none';
             
-            // Filtrar productos según tipo y subcategoría
+            // Filtrar productos segÃºn tipo y subcategorÃ­a
             let productosFiltrados = todosLosProductos.filter(p => {
                 if (tipo === 'bebida') {
                     return p.categoria_nombre && p.categoria_nombre.toLowerCase().includes('bebida');
@@ -2186,7 +2186,7 @@
                 return true; // complemento muestra todos
             });
             
-            // Filtrar por subcategoría si es bebida
+            // Filtrar por subcategorÃ­a si es bebida
             if (tipo === 'bebida' && filtroSubcategoria) {
                 productosFiltrados = productosFiltrados.filter(p => 
                     p.tipo_bebida && p.tipo_bebida.toLowerCase() === filtroSubcategoria.toLowerCase()
@@ -2260,7 +2260,7 @@
                 await Promise.all(promesas);
                 
                 if (exitosas > 0) {
-                    mostrarNotificacion(`${exitosas} vinculación(es) creada(s) exitosamente${fallidas > 0 ? `, ${fallidas} fallida(s)` : ''}`, 'success');
+                    mostrarNotificacion(`${exitosas} vinculaciÃ³n(es) creada(s) exitosamente${fallidas > 0 ? `, ${fallidas} fallida(s)` : ''}`, 'success');
                     cargarVinculaciones();
                     
                     // Limpiar formulario
@@ -2280,7 +2280,7 @@
         }
 
         async function eliminarVinculacion(vinculacionId) {
-            if (!confirm('¿Estás seguro de eliminar esta vinculación?')) {
+            if (!confirm('Â¿EstÃ¡s seguro de eliminar esta vinculaciÃ³n?')) {
                 return;
             }
 
@@ -2290,52 +2290,52 @@
                 });
 
                 if (deleteResponse.ok) {
-                    mostrarNotificacion('Vinculación eliminada exitosamente', 'success');
+                    mostrarNotificacion('VinculaciÃ³n eliminada exitosamente', 'success');
                     cargarVinculaciones();
                 } else {
                     const result = await deleteResponse.json();
-                    mostrarNotificacion(result.error || 'Error al eliminar vinculación', 'error');
+                    mostrarNotificacion(result.error || 'Error al eliminar vinculaciÃ³n', 'error');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                mostrarNotificacion('Error al eliminar vinculación', 'error');
+                mostrarNotificacion('Error al eliminar vinculaciÃ³n', 'error');
             }
         }
 
         function abrirModalVinculacion() {
-            // Por ahora solo enfocamos en la sección de creación rápida
+            // Por ahora solo enfocamos en la secciÃ³n de creaciÃ³n rÃ¡pida
             document.getElementById('vinculacion-producto-principal').focus();
-            mostrarNotificacion('Usa el formulario de creación rápida para agregar vinculaciones', 'info');
+            mostrarNotificacion('Usa el formulario de creaciÃ³n rÃ¡pida para agregar vinculaciones', 'info');
         }
 
-        // ==================== CONFIGURACIÓN ====================
-        // Las funciones de gestión de precios por zona están en precios-zona.js
+        // ==================== CONFIGURACIÃ“N ====================
+        // Las funciones de gestiÃ³n de precios por zona estÃ¡n en precios-zona.js
         
         async function cargarPrecioDomicilio() {
-            // Esta función ahora es manejada por el sistema de precios por zona
+            // Esta funciÃ³n ahora es manejada por el sistema de precios por zona
             // Ver precios-zona.js: cargarConfiguracion() y cargarZonasPrecios()
-            console.log('⚙️ Sistema de precios por zona cargado');
+            console.log('âš™ï¸ Sistema de precios por zona cargado');
         }
 
         async function actualizarPrecioDomicilio() {
-            // Función legacy - el sistema ahora usa precios por zona
+            // FunciÃ³n legacy - el sistema ahora usa precios por zona
             // Ver precios-zona.js: guardarConfiguracion()
-            console.warn('⚠️ Esta función es obsoleta. Usar el nuevo sistema de precios por zona.');
-            showNotification('Por favor usa la nueva sección de Configuración de Domicilios', 'info');
+            console.warn('âš ï¸ Esta funciÃ³n es obsoleta. Usar el nuevo sistema de precios por zona.');
+            showNotification('Por favor usa la nueva secciÃ³n de ConfiguraciÃ³n de Domicilios', 'info');
         }
 
-        // Función auxiliar para mantener compatibilidad (no hace nada real ahora)
+        // FunciÃ³n auxiliar para mantener compatibilidad (no hace nada real ahora)
         async function actualizarPrecioDomicilioLegacy() {
             const nuevoPrecio = parseFloat(document.getElementById('nuevo-precio-domicilio')?.value);
 
             if (isNaN(nuevoPrecio) || nuevoPrecio < 0) {
-                showNotification('Por favor ingresa un precio válido', 'error');
+                showNotification('Por favor ingresa un precio vÃ¡lido', 'error');
                 return;
             }
 
             try {
-                // Actualizar también en el frontend público (si está abierto)
-                // Buscar todas las ventanas/frames que podrían tener el frontend público
+                // Actualizar tambiÃ©n en el frontend pÃºblico (si estÃ¡ abierto)
+                // Buscar todas las ventanas/frames que podrÃ­an tener el frontend pÃºblico
                 const frames = window.parent.frames;
                 for (let i = 0; i < frames.length; i++) {
                     try {
@@ -2348,7 +2348,7 @@
                     }
                 }
 
-                // También intentar con window.parent directamente
+                // TambiÃ©n intentar con window.parent directamente
                 if (window.parent && window.parent !== window) {
                     try {
                         window.parent.postMessage({
@@ -2366,11 +2366,11 @@
                 });
                 window.dispatchEvent(eventoPrecio);
 
-                // Intentar con localStorage como respaldo (si están en la misma origin)
+                // Intentar con localStorage como respaldo (si estÃ¡n en la misma origin)
                 try {
                     localStorage.setItem('precio_domicilio', nuevoPrecio.toString());
                 } catch (e) {
-                    // Ignorar si localStorage no está disponible
+                    // Ignorar si localStorage no estÃ¡ disponible
                 }
 
                 mostrarNotificacion('Precio de domicilio actualizado exitosamente', 'success');
