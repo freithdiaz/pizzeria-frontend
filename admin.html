@@ -1017,7 +1017,7 @@
                 
                 const itemsHtml = pedido.items.map(item => `
                     <div class="flex justify-between text-sm py-1 border-b border-slate-600">
-                        <span>${item.cantidad}x ${item.producto}${item.tamano ? ` (${item.tamano})` : ''}</span>
+                        <span>${item.cantidad}x ${item.producto}${item.segundo_sabor ? ` (mitad ${item.segundo_sabor})` : ''}${item.tamano ? ` (${item.tamano})` : ''}</span>
                         <span class="text-green-300">$${parseFloat(item.subtotal).toFixed(2)}</span>
                     </div>
                 `).join('');
@@ -2699,4 +2699,6 @@
     </script>
 </body>
 </html>
+
+
 

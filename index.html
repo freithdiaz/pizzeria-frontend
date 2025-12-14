@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Usar la misma versión de Font Awesome que el resto de plantillas para evitar inconsistencias -->
+    <!-- Usar la misma versiÃ³n de Font Awesome que el resto de plantillas para evitar inconsistencias -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./css/styles.css">
 <script src="./js/config.js"></script></head>
@@ -22,7 +22,7 @@
                 Nissi Pizza
             </h1>
             <p class="mt-4 text-xl font-semibold">
-                ¡Tu pedido, listo en un instante!
+                Â¡Tu pedido, listo en un instante!
             </p>
         </div>
     </div>
@@ -57,12 +57,12 @@
             <button onclick="showTableView()" class="nav-item w-full sm:w-auto text-white font-semibold py-2 px-4 rounded-lg sm:rounded-full hover:bg-gray-600 transition-colors">
                 <i class="fas fa-table mr-2"></i>
                 <span class="hidden sm:inline">Mesas</span>
-                <span class="sm:hidden">🍽️ Mesas</span>
+                <span class="sm:hidden">ðŸ½ï¸ Mesas</span>
             </button>
             <button onclick="showOrderManagement()" class="nav-item w-full sm:w-auto text-white font-semibold py-2 px-4 rounded-lg sm:rounded-full hover:bg-gray-600 transition-colors">
                 <i class="fas fa-clipboard-list mr-2"></i>
-                <span class="hidden sm:inline">Gestión de Pedidos</span>
-                <span class="sm:hidden">📋 Pedidos</span>
+                <span class="hidden sm:inline">GestiÃ³n de Pedidos</span>
+                <span class="sm:hidden">ðŸ“‹ Pedidos</span>
             </button>
         </nav>
 
@@ -101,9 +101,9 @@
 
         <!-- Step 2: Main Menu View (Initially hidden) -->
         <section id="main-menu-view" class="view-section">
-            <h3 class="text-2xl font-bold text-white mb-6">Menú Completo</h3>
+            <h3 class="text-2xl font-bold text-white mb-6">MenÃº Completo</h3>
             <div class="space-y-6">
-                <!-- Las categorías se cargarán dinámicamente aquí desde JavaScript -->
+                <!-- Las categorÃ­as se cargarÃ¡n dinÃ¡micamente aquÃ­ desde JavaScript -->
             </div>
             
             <!-- Floating Cart/Checkout Button -->
@@ -126,7 +126,7 @@
                         </button>
                     </div>
                     <div id="cart-items-list" class="space-y-3 mb-6">
-                        <!-- Los items del carrito se cargarán aquí -->
+                        <!-- Los items del carrito se cargarÃ¡n aquÃ­ -->
                     </div>
                     <div class="border-t border-gray-600 pt-4">
                         <div class="flex justify-between items-center text-xl font-bold text-white">
@@ -148,32 +148,32 @@
 
         <!-- Order Management View -->
         <section id="order-management-view" class="view-section">
-            <h3 class="text-2xl font-bold text-white mb-6 text-center">Gestión de Pedidos</h3>
+            <h3 class="text-2xl font-bold text-white mb-6 text-center">GestiÃ³n de Pedidos</h3>
             <div class="mb-4 flex justify-center flex-wrap gap-2 px-2">
                 <button onclick="filterOrdersByStatus('all')" id="filter-all" class="filter-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm flex items-center">
                     <i class="fas fa-list mr-1"></i>
                     <span class="hidden xs:inline">Todos</span>
-                    <span class="xs:hidden">📋</span>
+                    <span class="xs:hidden">ðŸ“‹</span>
                 </button>
                 <button onclick="filterOrdersByStatus('pendiente')" id="filter-pendiente" class="filter-btn bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm flex items-center">
                     <i class="fas fa-clock mr-1"></i>
                     <span class="hidden xs:inline">Pendientes</span>
-                    <span class="xs:hidden">🕐</span>
+                    <span class="xs:hidden">ðŸ•</span>
                 </button>
                 <button onclick="filterOrdersByStatus('preparando')" id="filter-preparando" class="filter-btn bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm flex items-center">
                     <i class="fas fa-fire mr-1"></i>
                     <span class="hidden xs:inline">En Prep.</span>
-                    <span class="xs:hidden">🔥</span>
+                    <span class="xs:hidden">ðŸ”¥</span>
                 </button>
                 <button onclick="filterOrdersByStatus('listo')" id="filter-listo" class="filter-btn bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm flex items-center">
                     <i class="fas fa-check-circle mr-1"></i>
                     <span class="hidden xs:inline">Listos</span>
-                    <span class="xs:hidden">✅</span>
+                    <span class="xs:hidden">âœ…</span>
                 </button>
                 <button onclick="filterOrdersByStatus('entregado')" id="filter-entregado" class="filter-btn bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm flex items-center">
                     <i class="fas fa-box-open mr-1"></i>
                     <span class="hidden xs:inline">Entregados</span>
-                    <span class="xs:hidden">📦</span>
+                    <span class="xs:hidden">ðŸ“¦</span>
                 </button>
             </div>
             <div id="order-management-container" class="space-y-6">
@@ -216,7 +216,7 @@
         <!-- Custom Message Box -->
         <div id="message-box" class="hidden fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50">
             <div class="bg-gray-800 p-8 rounded-3xl shadow-2xl w-full max-w-sm mx-4 text-center">
-                <h4 class="text-xl font-bold text-white mb-2">¡Pedido enviado!</h4>
+                <h4 class="text-xl font-bold text-white mb-2">Â¡Pedido enviado!</h4>
                 <p id="message-text" class="text-gray-400 text-sm"></p>
                 <div id="order-summary" class="mt-4 p-4 bg-gray-700 rounded-xl text-left text-sm text-gray-300"></div>
                 
@@ -274,7 +274,7 @@
             </div>
             <div class="modal-body">
                 <div id="main-order-details-content" class="space-y-4">
-                    <!-- El contenido se carga dinámicamente -->
+                    <!-- El contenido se carga dinÃ¡micamente -->
                 </div>
             </div>
             <div class="modal-footer">
@@ -427,12 +427,37 @@
                 </div>
                 <p id="pizzaSeleccionada" class="text-gray-300 mt-2"></p>
             </div>
+
+            <!-- SecciÃn Dos Sabores -->
+            <div id="seccionDosSaboresMesa" class="p-6 border-b border-gray-700 hidden">
+                <div class="bg-orange-900/20 rounded-lg p-4 border border-orange-600">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i class="fas fa-pizza-slice text-orange-500"></i>
+                        <h4 class="text-lg font-semibold text-orange-400">Â¡Esta pizza puede ser de dos sabores!</h4>
+                    </div>
+                    <p class="text-gray-300 text-sm mb-4">Selecciona un segundo sabor para tu pizza (opcional)</p>
+                    <div id="saboresDisponiblesMesa" class="grid grid-cols-2 gap-2">
+                        <!-- Sabores se cargan dinÃ¡micamente -->
+                    </div>
+                    <div id="saborSeleccionadoMesa" class="mt-3 hidden bg-green-800/30 rounded-lg p-3 border border-green-600">
+                        <div class="flex justify-between items-center">
+                            <span class="text-green-400 font-medium">
+                                <i class="fas fa-check-circle mr-2"></i>
+                                Segundo sabor: <span id="nombreSegundoSaborMesa"></span>
+                            </span>
+                            <button onclick="quitarSegundoSaborMesa()" class="text-red-400 hover:text-red-300 text-sm">
+                                <i class="fas fa-times"></i> Quitar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
             <div class="p-6">
                 <div class="mb-4">
                     <h4 class="text-lg font-semibold text-white mb-3">Selecciona adicionales (opcional)</h4>
                     <div id="adicionalesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <!-- Los adicionales se cargarán aquí -->
+                        <!-- Los adicionales se cargarÃ¡n aquÃ­ -->
                     </div>
                 </div>
                 
@@ -462,7 +487,7 @@
         <div class="bg-gray-800 rounded-2xl p-6 max-w-md w-full mx-4 border border-gray-600">
             <div class="text-center mb-6">
                 <h3 class="text-2xl font-bold text-white mb-2">Aplicar Descuento</h3>
-                <p class="text-gray-400">¿Deseas aplicar algún descuento a este pedido?</p>
+                <p class="text-gray-400">Â¿Deseas aplicar algÃºn descuento a este pedido?</p>
             </div>
 
             <div class="space-y-4 mb-6">
@@ -531,7 +556,9 @@
     </div>
 
     <script src="./js/notifications.js"></script>
+    <script src="./js/dos-sabores.js"></script>
     <script src="./js/app.js" defer></script>
 </body>
 </html>
+
 
