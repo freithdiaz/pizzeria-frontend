@@ -59,7 +59,7 @@ async function loadRecipes() {
                             name: producto.nombre,
                             description: producto.descripcion || '',
                             size: precio.tamano_nombre || 'Única',
-                            sale_price: precio.precio,
+                            sale_price: parseFloat(precio.precio) || 0,
                             category: producto.categoria_nombre,
                             image_url: producto.imagen_url,
                             permite_dos_sabores: producto.permite_dos_sabores
@@ -296,7 +296,7 @@ async function loadPizzasByType(tipoPizza, gridId) {
                         name: displayName,
                         size: size,
                         description: producto.descripcion || 'Delicioso producto',
-                        sale_price: precio.precio ,
+                        sale_price: parseFloat(precio.precio) || 0,
                         category: tipoPizza,
                         tipo_producto: producto.es_pizza ? 'pizza' : (producto.es_bebida ? 'bebida' : 'otro'),
                         producto_id: producto.id,
@@ -366,7 +366,7 @@ async function loadCategoryProducts(categoryId) {
                         name: producto.nombre,
                         description: producto.descripcion || '',
                         size: precio.nombre_precio || 'Única',
-                        sale_price: precio.precio,
+                        sale_price: parseFloat(precio.precio) || 0,
                         category: producto.categoria_nombre,
                         image_url: producto.imagen_url,
                         permite_dos_sabores: producto.permite_dos_sabores,
@@ -1678,7 +1678,7 @@ async function loadVinculadosForProduct(productId) {
                 lista.forEach(prod => {
                     // Crear un objeto compatible con la estructura esperada por renderAdicionales
                     // Usamos un id único prefijado para evitar colisiones con adiciones normales
-                    const precioVal = prod.precio || prod.precio_venta || 0;
+                    const precioVal = parseFloat(prod.precio) || parseFloat(prod.precio_venta) || 0;
                     const adicional = {
                         id: `vinc-${prod.id}`,
                         nombre: prod.nombre || prod.titulo || `Producto ${prod.id}`,
@@ -1731,14 +1731,14 @@ function renderAdicionales() {
             if (adicional.precios && typeof adicional.precios === 'object') {
                 // Preferir precio por tamaño actual
                 if (currentPizzaSize && adicional.precios[currentPizzaSize]) {
-                    precio = adicional.precios[currentPizzaSize].precio || 0;
+                    precio = parseFloat(adicional.precios[currentPizzaSize].precio) || 0;
                 } else if (adicional.precios['Personal']) {
-                    precio = adicional.precios['Personal'].precio || 0;
+                    precio = parseFloat(adicional.precios['Personal'].precio) || 0;
                 } else {
                     // Si no hay key por nombre de tamaño, tomar el primer precio disponible
                     const keys = Object.keys(adicional.precios);
                     if (keys.length > 0 && adicional.precios[keys[0]] && adicional.precios[keys[0]].precio) {
-                        precio = adicional.precios[keys[0]].precio;
+                        precio = parseFloat(adicional.precios[keys[0]].precio) || 0;
                     }
                 }
             }
@@ -1801,7 +1801,7 @@ function toggleAdicional(adicionalId) {
         selectedAdicionales.push({
             id: adicional.id,
             name: adicional.nombre,
-            price: precioData.precio
+            price: parseFloat(precioData.precio) || 0
         });
     }
     
