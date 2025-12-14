@@ -1346,7 +1346,7 @@
             }
 
             try {
-                const url = id ? `/api/categorias-config/${id}` : '/api/categorias-config';
+                const url = id ? `${API_BASE_URL}/api/categorias-config/${id}` : `${API_BASE_URL}/api/categorias-config`;
                 const method = id ? 'PUT' : 'POST';
                 
                 const response = await fetch(url, {
@@ -1806,7 +1806,7 @@
             }
 
             try {
-                const url = id ? `/api/productos-dinamico/${id}` : '/api/productos-dinamico';
+                const url = id ? `${API_BASE_URL}/api/productos-dinamico/${id}` : `${API_BASE_URL}/api/productos-dinamico`;
                 const method = id ? 'PUT' : 'POST';
 
                 const response = await fetch(url, {
