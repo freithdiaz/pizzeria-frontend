@@ -56,6 +56,7 @@ async function loadRecipes() {
                         allRecipes.push({
                             id: `${producto.id}_${precio.id}`,
                             product_id: producto.id,
+                              size_id: precio.id,
                             name: producto.nombre,
                             description: producto.descripcion || '',
                             size: precio.tamano_nombre || 'única',
