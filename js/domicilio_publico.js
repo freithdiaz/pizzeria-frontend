@@ -291,6 +291,11 @@ async function abrirModalProducto(productoId) {
     // Cargar productos vinculados (bebidas, adicionales, etc.)
     await cargarProductosVinculados(productoId);
 
+    // Mostrar sección de dos sabores si el producto lo permite
+    if (typeof mostrarSeccionDosSabores === 'function') {
+        await mostrarSeccionDosSabores(productoActual);
+    }
+
     // Mostrar selector rápido para pizzas populares
     mostrarSelectorRapido(productoActual);
 
@@ -714,6 +719,11 @@ function cerrarModalProducto() {
     document.getElementById('producto-modal').classList.remove('active');
     productoActual = null;
     adicionesSeleccionadas = {};
+    
+    // Resetear dos sabores
+    if (typeof resetearDosSabores === 'function') {
+        resetearDosSabores();
+    }
 }
 
 function agregarAlCarrito() {
@@ -879,6 +889,15 @@ function agregarAlCarrito() {
             const label = inputTamano.closest('label');
             const nombreTamano = label.querySelector('.font-semibold')?.textContent || 'Tamaño seleccionado';
             descripcionProducto += ` (${nombreTamano})`;
+        }
+    }
+
+    // Agregar segundo sabor si está seleccionado
+    let segundoSabor = null;
+    if (typeof getSegundoSaborSeleccionado === 'function') {
+        segundoSabor = getSegundoSaborSeleccionado();
+        if (segundoSabor) {
+            descripcionProducto += ` + Mitad ${segundoSabor.nombre}`;
         }
     }
 
