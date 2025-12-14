@@ -1066,7 +1066,7 @@ function renderOrderManagement() {
                             </span>
                             <div>
                                 <p class="text-white font-semibold">${item.name}</p>
-                                ${tamano && tamano.toLowerCase() !== 'única' && tamano.toLowerCase() !== 'unica' ? `<p class="text-blue-400 text-sm"><i class="fas fa-ruler mr-1"></i>Tamaño: ${tamano}</p>` : ''}
+                                ${tamano && tamano.trim() !== '' ? `<p class="text-blue-400 text-sm"><i class="fas fa-ruler mr-1"></i>Tamaño: ${tamano}</p>` : ''}
                                 ${segundoSabor ? `<p class="text-orange-400 text-sm"><i class="fas fa-pizza-slice mr-1"></i>2do Sabor: ${segundoSabor}</p>` : ''}
                                 ${item.additions && item.additions.length > 0 ? `
                                     <p class="text-yellow-400 text-sm mt-1">
@@ -1440,7 +1440,7 @@ async function printOrder(orderId) {
                             <div class="item">
                                 <div class="item-desc">
                                     ${item.quantity}x ${item.name}
-                                    ${tamano && tamano.toLowerCase() !== 'única' ? `<div style="font-size: 0.9em;">(${tamano})</div>` : ''}
+                                    ${tamano && tamano.trim() !== '' ? `<div style="font-size: 0.9em;">(${tamano})</div>` : ''}
                                     ${segundoSabor ? `<div style="font-size: 0.9em;">2do Sabor: ${segundoSabor}</div>` : ''}
                                     ${additionsText}
                                 </div>
@@ -1601,7 +1601,7 @@ function printAlternative(order) {
                     <div class="print-item">
                         <div class="print-item-desc">
                             ${item.quantity}x ${item.name}
-                            ${tamano && tamano.toLowerCase() !== 'única' ? `<div style="font-size: 0.9em;">(${tamano})</div>` : ''}
+                            ${tamano && tamano.trim() !== '' ? `<div style="font-size: 0.9em;">(${tamano})</div>` : ''}
                             ${segundoSabor ? `<div style="font-size: 0.9em;">2do Sabor: ${segundoSabor}</div>` : ''}
                             ${additionsText}
                         </div>
