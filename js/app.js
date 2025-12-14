@@ -881,7 +881,8 @@ async function submitOrderToAPI() {
                 size_id: size_id,
                 quantity: item.quantity,
                 unit_price: item.sale_price || item.price,
-                additions: item.adicionales || []
+                additions: item.adicionales || [],
+                segundo_sabor: item.segundo_sabor || null
             };
             console.log('Created order item:', orderItem);
             return orderItem;
@@ -2131,7 +2132,8 @@ async function submitOrderWithDiscount(totalWithDiscount, discountPercentage) {
             size_id: size_id,
             quantity: cartItem.quantity,
             unit_price: cartItem.sale_price || cartItem.price,
-            additions: cartItem.adicionales || []
+            additions: cartItem.adicionales || [],
+            segundo_sabor: cartItem.segundo_sabor || null
         };
         
         console.log('Created order item:', orderItem);
