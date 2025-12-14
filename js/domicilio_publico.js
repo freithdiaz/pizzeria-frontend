@@ -1,10 +1,10 @@
-// Estado global
+﻿// Estado global
 let productos = [];
 let categorias = [];
 let carrito = [];
 let productoActual = null;
 let adicionesSeleccionadas = {};
-let preciosOpciones = {}; // Guardar precios de opciones para cálculo rápido
+let preciosOpciones = {}; // Guardar precios de opciones para cÃ¡lculo rÃ¡pido
 let clienteActual = null; // Guardar datos del cliente buscado
 
 // Cargar datos al iniciar
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     } catch (e) {
         console.log('Error cargando precio desde localStorage:', e);
-        // Ignorar si localStorage no está disponible
+        // Ignorar si localStorage no estÃ¡ disponible
     }
 
     // Escuchar mensajes del admin para actualizar precio
@@ -37,12 +37,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // También escuchar eventos personalizados
+    // TambiÃ©n escuchar eventos personalizados
     window.addEventListener('precioDomicilioActualizado', (event) => {
         actualizarPrecioDomicilio(event.detail.precio);
     });
 
-    // Función para actualizar precio de domicilio
+    // FunciÃ³n para actualizar precio de domicilio
     function actualizarPrecioDomicilio(nuevoPrecio) {
         const precioAnterior = window.precioDomicilio;
         window.precioDomicilio = nuevoPrecio;
@@ -54,16 +54,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.log('Precio guardado en localStorage:', window.precioDomicilio);
         } catch (e) {
             console.log('Error guardando en localStorage:', e);
-            // Ignorar si localStorage no está disponible
+            // Ignorar si localStorage no estÃ¡ disponible
         }
 
-        // Forzar actualización del carrito incluso si no está visible
+        // Forzar actualizaciÃ³n del carrito incluso si no estÃ¡ visible
         setTimeout(() => {
             renderizarCarrito();
             console.log('Carrito renderizado con nuevo precio de domicilio');
         }, 100);
 
-        // Mostrar notificación de actualización
+        // Mostrar notificaciÃ³n de actualizaciÃ³n
         mostrarNotificacionRapida(`Precio de domicilio actualizado: $${formatPrice(window.precioDomicilio)}`, 'info');
     }
 });
@@ -75,28 +75,28 @@ async function cargarCategorias() {
         const response = await fetch(API_BASE_URL + '/api/categorias-config');
         const data = await response.json();
         categorias = data.data || data;
-        // Filtrar solo categorías activas
-    // Filtrar solo categorías activas y visibles en el menú público
+        // Filtrar solo categorÃ­as activas
+    // Filtrar solo categorÃ­as activas y visibles en el menÃº pÃºblico
     categorias = categorias.filter(cat => (cat.activo === 1 || cat.activo === true) && (cat.visible_en_publico === 1 || cat.visible_en_publico === true || cat.visible_en_publico === undefined));
         renderizarCategorias();
-        // Si hay una categoría marcada como predeterminada para domicilios, seleccionarla automáticamente
+        // Si hay una categorÃ­a marcada como predeterminada para domicilios, seleccionarla automÃ¡ticamente
         try {
             const defaultCat = categorias.find(c => c.default_en_domicilio === 1 || c.default_en_domicilio === true);
             if (defaultCat) {
-                // Ejecutar la selección después de un pequeño delay para asegurar DOM listo
+                // Ejecutar la selecciÃ³n despuÃ©s de un pequeÃ±o delay para asegurar DOM listo
                 setTimeout(() => filtrarPorCategoria(defaultCat.id), 100);
             }
         } catch (e) {
             // ignorar si no existe la propiedad
         }
     } catch (error) {
-        console.error('Error cargando categorías:', error);
-        // Mostrar mensaje de error para categorías
+        console.error('Error cargando categorÃ­as:', error);
+        // Mostrar mensaje de error para categorÃ­as
         const container = document.getElementById('categorias-container');
         container.innerHTML = `
             <div class="text-center py-4 text-gray-500">
                 <i class="fas fa-exclamation-triangle text-2xl mb-2 text-red-400"></i>
-                <p class="text-sm">Error al cargar categorías</p>
+                <p class="text-sm">Error al cargar categorÃ­as</p>
             </div>
         `;
     }
@@ -111,15 +111,15 @@ async function cargarProductos() {
         renderizarProductos();
     } catch (error) {
         console.error('Error cargando productos:', error);
-        // Mostrar mensaje de error más amigable
+        // Mostrar mensaje de error mÃ¡s amigable
         const container = document.getElementById('productos-container');
         container.innerHTML = `
             <div class="col-span-full text-center py-16 text-gray-500">
                 <i class="fas fa-exclamation-triangle text-6xl mb-4 text-red-400"></i>
                 <h3 class="text-xl font-semibold mb-2">Error al cargar productos</h3>
-                <p class="text-gray-600 mb-4">Ha ocurrido un error al cargar los productos. Por favor intenta recargar la página.</p>
+                <p class="text-gray-600 mb-4">Ha ocurrido un error al cargar los productos. Por favor intenta recargar la pÃ¡gina.</p>
                 <button onclick="location.reload()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">
-                    Recargar página
+                    Recargar pÃ¡gina
                 </button>
             </div>
         `;
@@ -130,7 +130,7 @@ async function cargarProductos() {
 
 function renderizarCategorias() {
     const container = document.getElementById('categorias-container');
-    // Mostrar únicamente las categorías creadas (sin botón "Todas")
+    // Mostrar Ãºnicamente las categorÃ­as creadas (sin botÃ³n "Todas")
     container.innerHTML = `${categorias.map(cat => `
             <button
                 onclick="filtrarPorCategoria(${cat.id})"
@@ -151,15 +151,15 @@ function renderizarProductos(filtro = null) {
     let productosFiltrados = productos;
 
     if (filtro) {
-        // Obtener la categoría seleccionada
+        // Obtener la categorÃ­a seleccionada
         const categoriaSeleccionada = categorias.find(c => c.id === filtro);
         
-        // Filtrar productos por categoría seleccionada
+        // Filtrar productos por categorÃ­a seleccionada
         productosFiltrados = productos.filter(p => p.categoria_id === filtro);
         
-        // Si la categoría tiene categorías compatibles, incluir también esos productos
+        // Si la categorÃ­a tiene categorÃ­as compatibles, incluir tambiÃ©n esos productos
         if (categoriaSeleccionada && categoriaSeleccionada.categorias_compatibles && categoriaSeleccionada.categorias_compatibles.length > 0) {
-            // Obtener productos de categorías compatibles
+            // Obtener productos de categorÃ­as compatibles
             const productosCompatibles = productos.filter(p => 
                 categoriaSeleccionada.categorias_compatibles.includes(p.categoria_id) && 
                 !productosFiltrados.some(pf => pf.id === p.id)
@@ -169,7 +169,7 @@ function renderizarProductos(filtro = null) {
             productosFiltrados = [...productosFiltrados, ...productosCompatibles];
         }
         
-        const categoriaNombre = categoriaSeleccionada?.nombre || 'Categoría';
+        const categoriaNombre = categoriaSeleccionada?.nombre || 'CategorÃ­a';
         titulo.textContent = categoriaNombre;
     } else {
         titulo.textContent = 'Nuestros Productos';
@@ -183,7 +183,7 @@ function renderizarProductos(filtro = null) {
             <div class="col-span-full text-center py-16 text-gray-500">
                 <i class="fas fa-search text-6xl mb-4 text-gray-300"></i>
                 <h3 class="text-xl font-semibold mb-2">No se encontraron productos</h3>
-                <p class="text-gray-600">Intenta con otra categoría o limpia la búsqueda</p>
+                <p class="text-gray-600">Intenta con otra categorÃ­a o limpia la bÃºsqueda</p>
                 <button onclick="filtrarPorCategoria(null)" class="mt-4 bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">
                     Ver todos los productos
                 </button>
@@ -193,12 +193,12 @@ function renderizarProductos(filtro = null) {
     }
     
     container.innerHTML = productosFiltrados.map(producto => {
-        // Obtener información de la categoría del producto
+        // Obtener informaciÃ³n de la categorÃ­a del producto
         const categoriaProducto = categorias.find(c => c.id === producto.categoria_id);
         const nombreCategoria = categoriaProducto ? categoriaProducto.nombre : '';
         const esAdicion = categoriaProducto && categoriaProducto.es_adicion;
         
-        // NO mostrar precios en el menú principal - solo "Personalizar"
+        // NO mostrar precios en el menÃº principal - solo "Personalizar"
         return `
             <div class="product-card" onclick="abrirModalProducto(${producto.id})">
                 <div class="relative product-image-wrapper">
@@ -218,7 +218,7 @@ function renderizarProductos(filtro = null) {
                     ` : ''}
                     ${esAdicion ? `
                         <span class="product-badge badge-addition">
-                            <i class="fas fa-plus-circle"></i> Adición
+                            <i class="fas fa-plus-circle"></i> AdiciÃ³n
                         </span>
                     ` : ''}
                     ${producto.permite_dos_sabores ? `
@@ -266,7 +266,7 @@ async function abrirModalProducto(productoId) {
     document.getElementById('modal-cantidad').textContent = '1';
     document.getElementById('modal-comentarios').value = '';
 
-    // Llenar información básica
+    // Llenar informaciÃ³n bÃ¡sica
     const nombreEl = document.getElementById('modal-producto-nombre');
     const descripcionEl = document.getElementById('modal-producto-descripcion');
     const precioEl = document.getElementById('modal-producto-precio');
@@ -274,7 +274,7 @@ async function abrirModalProducto(productoId) {
     if (nombreEl) nombreEl.textContent = productoActual.nombre;
     if (descripcionEl) descripcionEl.textContent = productoActual.descripcion || '';
 
-    // NO mostrar precio base - se calcula dinámicamente
+    // NO mostrar precio base - se calcula dinÃ¡micamente
     if (precioEl) precioEl.textContent = 'Calculando...';
 
     // Imagen
@@ -291,12 +291,12 @@ async function abrirModalProducto(productoId) {
     // Cargar productos vinculados (bebidas, adicionales, etc.)
     await cargarProductosVinculados(productoId);
 
-    // Mostrar sección de dos sabores si el producto lo permite
+    // Mostrar secciÃ³n de dos sabores si el producto lo permite
     if (typeof mostrarSeccionDosSabores === 'function') {
         await mostrarSeccionDosSabores(productoActual);
     }
 
-    // Mostrar selector rápido para pizzas populares
+    // Mostrar selector rÃ¡pido para pizzas populares
     mostrarSelectorRapido(productoActual);
 
     // Calcular total inicial
@@ -305,14 +305,14 @@ async function abrirModalProducto(productoId) {
     // Mostrar modal
     document.getElementById('producto-modal').classList.add('active');
 
-    // Mostrar botones rápidos de adiciones DESPUÉS de que se carguen los grupos
-    // Esto se hace con un pequeño delay para asegurar que los grupos estén cargados
+    // Mostrar botones rÃ¡pidos de adiciones DESPUÃ‰S de que se carguen los grupos
+    // Esto se hace con un pequeÃ±o delay para asegurar que los grupos estÃ©n cargados
     setTimeout(() => {
         mostrarBotonesRapidosAdiciones(productoActual);
     }, 500);
 }
 
-// Nueva función para cargar grupos de bebidas dinámicos
+// Nueva funciÃ³n para cargar grupos de bebidas dinÃ¡micos
 async function cargarGruposBebidas(productoId) {
     try {
         const response = await fetch(`${API_BASE_URL}/api/productos/${productoId}/grupos-bebidas`);
@@ -343,7 +343,7 @@ async function cargarGruposAdiciones(productoId) {
 
         console.log('Grupos cargados para producto', productoId, ':', gruposNormales);
 
-        // Cargar grupos de bebidas dinámicos
+        // Cargar grupos de bebidas dinÃ¡micos
         const gruposBebidas = await cargarGruposBebidas(productoId);
 
         // Cargar vinculaciones del producto
@@ -354,7 +354,7 @@ async function cargarGruposAdiciones(productoId) {
             vinculaciones = await vinculacionesResponse.json();
         }
 
-        // Crear grupos dinámicos basados en vinculaciones
+        // Crear grupos dinÃ¡micos basados en vinculaciones
         const gruposVinculaciones = crearGruposDesdeVinculaciones(vinculaciones.como_principal);
 
         // Combinar todos los tipos de grupos
@@ -373,7 +373,7 @@ async function cargarGruposAdiciones(productoId) {
             if (item.grupo && item.opciones !== undefined) {
                 return item;
             }
-            // Si es un grupo plano (grupos de bebidas), envolver en estructura estándar
+            // Si es un grupo plano (grupos de bebidas), envolver en estructura estÃ¡ndar
             else {
                 return {
                     grupo: {
@@ -392,7 +392,7 @@ async function cargarGruposAdiciones(productoId) {
             }
         });
 
-        // Agregar precios de bebidas dinámicas a productoActual.precios
+        // Agregar precios de bebidas dinÃ¡micas a productoActual.precios
         if (!productoActual.precios) {
             productoActual.precios = [];
         }
@@ -400,7 +400,7 @@ async function cargarGruposAdiciones(productoId) {
         gruposNormalizados.forEach(grupoData => {
             if (grupoData.opciones && grupoData.opciones.length > 0) {
                 grupoData.opciones.forEach(opcion => {
-                    // Si la opción tiene precio_adicional y no está ya en productoActual.precios
+                    // Si la opciÃ³n tiene precio_adicional y no estÃ¡ ya en productoActual.precios
                     if (opcion.precio_adicional > 0) {
                         const precioExistente = productoActual.precios.find(p => String(p.id) === String(opcion.id));
                         if (!precioExistente) {
@@ -433,8 +433,8 @@ async function cargarGruposAdiciones(productoId) {
                             <h4 class="font-bold text-base">${grupo.nombre}</h4>
                             <p class="text-xs text-gray-500">
                                 ${grupo.descripcion || ''}
-                                ${esObligatorio ? '· Seleccione mínimo 1 opción' : '· Seleccione hasta ' + grupo.maximo + ' opción(es)'}
-                                ${esBebida ? '· Generado dinámicamente' : ''}
+                                ${esObligatorio ? 'Â· Seleccione mÃ­nimo 1 opciÃ³n' : 'Â· Seleccione hasta ' + grupo.maximo + ' opciÃ³n(es)'}
+                                ${esBebida ? 'Â· Generado dinÃ¡micamente' : ''}
                             </p>
                         </div>
                         ${esObligatorio ?
@@ -448,7 +448,7 @@ async function cargarGruposAdiciones(productoId) {
                         <div class="space-y-2 pl-2">
                             ${opciones.map(opcion => {
                                 if (esTamano) {
-                                    // Diseño especial para tamaños (radio buttons)
+                                    // DiseÃ±o especial para tamaÃ±os (radio buttons)
                                     return `
                                         <label class="flex items-center justify-between p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-red-300 transition">
                                             <div class="flex items-center gap-3">
@@ -468,7 +468,7 @@ async function cargarGruposAdiciones(productoId) {
                                         </label>
                                     `;
                                 } else if (esSegundoSabor) {
-                                    // Diseño para segundo sabor (checkboxes de sabores)
+                                    // DiseÃ±o para segundo sabor (checkboxes de sabores)
                                     return `
                                         <label class="flex items-center p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
                                             <input
@@ -482,7 +482,7 @@ async function cargarGruposAdiciones(productoId) {
                                         </label>
                                     `;
                                 } else {
-                                    // Diseño genérico para otras adiciones (bebidas, bordes, etc.) - SIEMPRE CHECKBOXES PARA BEBIDAS
+                                    // DiseÃ±o genÃ©rico para otras adiciones (bebidas, bordes, etc.) - SIEMPRE CHECKBOXES PARA BEBIDAS
                                     const esBebida = grupo.nombre && (grupo.nombre.toLowerCase().includes('bebida') || grupo.nombre.toLowerCase().includes('gaseosa') || grupo.nombre.toLowerCase().includes('jugo') || grupo.nombre.toLowerCase().includes('limonada'));
                                     const inputType = esBebida ? 'checkbox' : (grupo.maximo === 1 ? 'radio' : 'checkbox');
 
@@ -521,7 +521,7 @@ async function cargarGruposAdiciones(productoId) {
     }
 }
 
-// Nueva función para toggle de grupos colapsables
+// Nueva funciÃ³n para toggle de grupos colapsables
 function toggleGrupo(grupoId) {
     const contenido = document.getElementById(`grupo-${grupoId}`);
     const icono = document.getElementById(`icon-grupo-${grupoId}`);
@@ -535,7 +535,7 @@ function toggleGrupo(grupoId) {
     }
 }
 
-// Función actualizada para seleccionar opciones
+// FunciÃ³n actualizada para seleccionar opciones
 function seleccionarOpcion(grupoId, opcionId, maxSelecciones, event) {
     if (!adicionesSeleccionadas[grupoId]) {
         adicionesSeleccionadas[grupoId] = [];
@@ -543,14 +543,14 @@ function seleccionarOpcion(grupoId, opcionId, maxSelecciones, event) {
 
     const input = event.target;
 
-    // Convertir opcionId a string si es necesario para comparación consistente
+    // Convertir opcionId a string si es necesario para comparaciÃ³n consistente
     const opcionIdStr = opcionId.toString();
 
     if (maxSelecciones === 1) {
         // Radio button - solo uno
         adicionesSeleccionadas[grupoId] = input.checked ? [opcionIdStr] : [];
     } else {
-        // Checkbox - múltiples hasta el máximo
+        // Checkbox - mÃºltiples hasta el mÃ¡ximo
         const index = adicionesSeleccionadas[grupoId].indexOf(opcionIdStr);
 
         if (input.checked) {
@@ -560,7 +560,7 @@ function seleccionarOpcion(grupoId, opcionId, maxSelecciones, event) {
                 }
             } else {
                 input.checked = false;
-                alert(`Solo puedes seleccionar hasta ${maxSelecciones} opción(es) de este grupo`);
+                alert(`Solo puedes seleccionar hasta ${maxSelecciones} opciÃ³n(es) de este grupo`);
             }
         } else {
             if (index > -1) {
@@ -584,33 +584,33 @@ function cambiarCantidad(cambio) {
 function calcularTotalModal() {
     if (!productoActual) return;
 
-    // Obtener precio base dinámico basado en selecciones
+    // Obtener precio base dinÃ¡mico basado en selecciones
     let precioBase = 0;
 
-    // Si hay tamaños seleccionados, usar el precio del tamaño
-    const tamanoSeleccionado = adicionesSeleccionadas['tamano'] || adicionesSeleccionadas['tamaño'];
-    console.log('🔍 calcularTotalModal - Tamaño seleccionado:', tamanoSeleccionado);
+    // Si hay tamaÃ±os seleccionados, usar el precio del tamaÃ±o
+    const tamanoSeleccionado = adicionesSeleccionadas['tamano'] || adicionesSeleccionadas['tamaÃ±o'];
+    console.log('ðŸ” calcularTotalModal - TamaÃ±o seleccionado:', tamanoSeleccionado);
     
     if (tamanoSeleccionado && tamanoSeleccionado.length > 0) {
-        // Buscar el precio correspondiente en productoActual.precios usando el ID del tamaño seleccionado
+        // Buscar el precio correspondiente en productoActual.precios usando el ID del tamaÃ±o seleccionado
         const tamanoId = tamanoSeleccionado[0];
-        console.log('🔍 calcularTotalModal - Buscando precio para tamaño ID:', tamanoId);
-        console.log('🔍 calcularTotalModal - Precios disponibles:', productoActual?.precios);
+        console.log('ðŸ” calcularTotalModal - Buscando precio para tamaÃ±o ID:', tamanoId);
+        console.log('ðŸ” calcularTotalModal - Precios disponibles:', productoActual?.precios);
         
         if (productoActual.precios) {
             const precioEncontrado = productoActual.precios.find(p => p.id == tamanoId);
-            console.log('🔍 calcularTotalModal - Precio encontrado:', precioEncontrado);
+            console.log('ðŸ” calcularTotalModal - Precio encontrado:', precioEncontrado);
             
             if (precioEncontrado) {
                 precioBase = parseFloat(precioEncontrado.precio) || 0;
-                console.log('🔍 calcularTotalModal - Precio base establecido:', precioBase);
+                console.log('ðŸ” calcularTotalModal - Precio base establecido:', precioBase);
             }
         }
 
-        // Fallback: buscar en el DOM si no se encontró en los datos del producto
+        // Fallback: buscar en el DOM si no se encontrÃ³ en los datos del producto
         if (precioBase === 0) {
             const inputTamano = document.querySelector(`input[name="grupo-tamano"][value="${tamanoId}"]:checked`) ||
-                                document.querySelector(`input[name="grupo-tamaño"][value="${tamanoId}"]:checked`);
+                                document.querySelector(`input[name="grupo-tamaÃ±o"][value="${tamanoId}"]:checked`);
             if (inputTamano) {
                 const label = inputTamano.closest('label');
                 if (label) {
@@ -624,28 +624,28 @@ function calcularTotalModal() {
         }
     }
 
-    // Si no hay tamaño seleccionado pero el producto tiene precios dinámicos, usar el más bajo
+    // Si no hay tamaÃ±o seleccionado pero el producto tiene precios dinÃ¡micos, usar el mÃ¡s bajo
     if (precioBase === 0 && productoActual.precios && productoActual.precios.length > 0) {
         precioBase = Math.min(...productoActual.precios.map(p => parseFloat(p.precio) || 0));
         }
 
-    // Si aún no hay precio base, usar precio_base del producto
+    // Si aÃºn no hay precio base, usar precio_base del producto
     if (precioBase === 0) {
         precioBase = parseFloat(productoActual.precio_base) || parseFloat(productoActual.precio_venta) || 0;
         }
 
     let precioAdicionales = 0;
 
-    // Sumar precios de adiciones seleccionadas (excluyendo tamaños ya que están en precioBase)
+    // Sumar precios de adiciones seleccionadas (excluyendo tamaÃ±os ya que estÃ¡n en precioBase)
     for (const grupoId in adicionesSeleccionadas) {
-        if (grupoId === 'tamano' || grupoId === 'tamaño') continue; // Ya incluido en precioBase
+        if (grupoId === 'tamano' || grupoId === 'tamaÃ±o') continue; // Ya incluido en precioBase
 
-        console.log(`🔍 Procesando grupo: ${grupoId}`, adicionesSeleccionadas[grupoId]);
+        console.log(`ðŸ” Procesando grupo: ${grupoId}`, adicionesSeleccionadas[grupoId]);
 
         adicionesSeleccionadas[grupoId].forEach(opcionId => {
-            console.log(`  - Buscando precio para opción ID: ${opcionId} en grupo ${grupoId}`);
+            console.log(`  - Buscando precio para opciÃ³n ID: ${opcionId} en grupo ${grupoId}`);
 
-            // Buscar el precio de esta opción en el input checked
+            // Buscar el precio de esta opciÃ³n en el input checked
             const input = document.querySelector(`input[name="grupo-${grupoId}"][value="${opcionId}"]:checked`);
             console.log(`  - Input encontrado:`, input);
 
@@ -654,25 +654,25 @@ function calcularTotalModal() {
                 console.log(`  - Label encontrado:`, label);
 
                 if (label) {
-                    // Buscar el precio directamente en los precios dinámicos del producto
-                    console.log(`  - Buscando precio en precios dinámicos para opcionId: ${opcionId}`);
+                    // Buscar el precio directamente en los precios dinÃ¡micos del producto
+                    console.log(`  - Buscando precio en precios dinÃ¡micos para opcionId: ${opcionId}`);
 
                     if (productoActual && productoActual.precios) {
                         const precioDinamico = productoActual.precios.find(p => String(p.id) === String(opcionId));
                         if (precioDinamico && parseFloat(precioDinamico.precio) > 0) {
-                            console.log(`  - Precio encontrado en precios dinámicos: ${precioDinamico.precio}`);
+                            console.log(`  - Precio encontrado en precios dinÃ¡micos: ${precioDinamico.precio}`);
                             precioAdicionales += parseFloat(precioDinamico.precio) || 0;
-                            console.log(`  - Precio adicional acumulado desde precios dinámicos: ${precioAdicionales}`);
+                            console.log(`  - Precio adicional acumulado desde precios dinÃ¡micos: ${precioAdicionales}`);
                         } else {
-                            console.log(`  - No se encontró precio dinámico para ID ${opcionId}`);
+                            console.log(`  - No se encontrÃ³ precio dinÃ¡mico para ID ${opcionId}`);
                         }
                     } else {
-                        console.log(`  - No hay precios dinámicos disponibles en productoActual`);
+                        console.log(`  - No hay precios dinÃ¡micos disponibles en productoActual`);
                     }
 
-                    // Si no encontró precio en precios dinámicos, buscar en el DOM (para bebidas dinámicas)
+                    // Si no encontrÃ³ precio en precios dinÃ¡micos, buscar en el DOM (para bebidas dinÃ¡micas)
                     if (precioAdicionales === 0 || !productoActual.precios.some(p => String(p.id) === String(opcionId))) {
-                        // Para bebidas dinámicas, buscar el precio en el atributo data o en el texto del label
+                        // Para bebidas dinÃ¡micas, buscar el precio en el atributo data o en el texto del label
                         const precioData = input.getAttribute('data-precio');
                         if (precioData) {
                             const precio = parseFloat(precioData);
@@ -699,7 +699,7 @@ function calcularTotalModal() {
                     }
                 }
             } else {
-                console.log(`  - No se encontró input para opción ${opcionId}`);
+                console.log(`  - No se encontrÃ³ input para opciÃ³n ${opcionId}`);
             }
         });
     }
@@ -746,12 +746,12 @@ function agregarAlCarrito() {
         return;
     }
 
-    // Validar que se haya seleccionado un tamaño si hay opciones de tamaño disponibles
-    const tamanoInputs = document.querySelectorAll('input[name="grupo-tamano"], input[name="grupo-tamaño"]');
+    // Validar que se haya seleccionado un tamaÃ±o si hay opciones de tamaÃ±o disponibles
+    const tamanoInputs = document.querySelectorAll('input[name="grupo-tamano"], input[name="grupo-tamaÃ±o"]');
     if (tamanoInputs.length > 0) {
-        const tamanoSeleccionado = document.querySelector('input[name="grupo-tamano"]:checked, input[name="grupo-tamaño"]:checked');
+        const tamanoSeleccionado = document.querySelector('input[name="grupo-tamano"]:checked, input[name="grupo-tamaÃ±o"]:checked');
         if (!tamanoSeleccionado) {
-            alert('Por favor selecciona un tamaño para tu producto.');
+            alert('Por favor selecciona un tamaÃ±o para tu producto.');
             return;
         }
     }
@@ -759,19 +759,19 @@ function agregarAlCarrito() {
     const cantidad = parseInt(document.getElementById('modal-cantidad').textContent);
     const comentarios = document.getElementById('modal-comentarios').value;
 
-    // Obtener precio base dinámico (basado en tamaño seleccionado)
+    // Obtener precio base dinÃ¡mico (basado en tamaÃ±o seleccionado)
     let precioBase = 0;
-    const tamanoSeleccionado = adicionesSeleccionadas['tamano'] || adicionesSeleccionadas['tamaño'];
+    const tamanoSeleccionado = adicionesSeleccionadas['tamano'] || adicionesSeleccionadas['tamaÃ±o'];
     
-    console.log('🔍 Cálculo de precio base:');
-    console.log('  - Tamaño seleccionado:', tamanoSeleccionado);
+    console.log('ðŸ” CÃ¡lculo de precio base:');
+    console.log('  - TamaÃ±o seleccionado:', tamanoSeleccionado);
     console.log('  - Producto actual:', productoActual);
     console.log('  - Precios del producto:', productoActual?.precios);
     
     if (tamanoSeleccionado && tamanoSeleccionado.length > 0) {
-        // Buscar el precio correspondiente en productoActual.precios usando el ID del tamaño seleccionado
+        // Buscar el precio correspondiente en productoActual.precios usando el ID del tamaÃ±o seleccionado
         const tamanoId = tamanoSeleccionado[0];
-        console.log('  - Buscando precio para tamaño ID:', tamanoId);
+        console.log('  - Buscando precio para tamaÃ±o ID:', tamanoId);
         
         if (productoActual.precios) {
             const precioEncontrado = productoActual.precios.find(p => p.id == tamanoId);
@@ -783,10 +783,10 @@ function agregarAlCarrito() {
             }
         }
 
-        // Fallback: buscar en el DOM si no se encontró en los datos del producto
+        // Fallback: buscar en el DOM si no se encontrÃ³ en los datos del producto
         if (precioBase === 0) {
             const inputTamano = document.querySelector(`input[name="grupo-tamano"][value="${tamanoId}"]:checked`) ||
-                                document.querySelector(`input[name="grupo-tamaño"][value="${tamanoId}"]:checked`);
+                                document.querySelector(`input[name="grupo-tamaÃ±o"][value="${tamanoId}"]:checked`);
             if (inputTamano) {
                 const label = inputTamano.closest('label');
                 if (label) {
@@ -800,7 +800,7 @@ function agregarAlCarrito() {
         }
     }
 
-    // Fallback si no hay tamaño seleccionado
+    // Fallback si no hay tamaÃ±o seleccionado
     if (precioBase === 0 && productoActual.precios && productoActual.precios.length > 0) {
         precioBase = Math.min(...productoActual.precios.map(p => parseFloat(p.precio) || 0));
     }
@@ -811,39 +811,39 @@ function agregarAlCarrito() {
     let precioAdicionales = 0;
     let adicionesDetalle = [];
 
-    // Recopilar adiciones seleccionadas con precios correctos (excluyendo tamaños)
-    console.log('🔍 Adiciones seleccionadas:', adicionesSeleccionadas);
+    // Recopilar adiciones seleccionadas con precios correctos (excluyendo tamaÃ±os)
+    console.log('ðŸ” Adiciones seleccionadas:', adicionesSeleccionadas);
 
     for (const grupoId in adicionesSeleccionadas) {
-        if (grupoId === 'tamano' || grupoId === 'tamaño') continue; // Tamaño ya incluido en precioBase
+        if (grupoId === 'tamano' || grupoId === 'tamaÃ±o') continue; // TamaÃ±o ya incluido en precioBase
 
-        console.log(`🔍 Procesando grupo: ${grupoId}`, adicionesSeleccionadas[grupoId]);
+        console.log(`ðŸ” Procesando grupo: ${grupoId}`, adicionesSeleccionadas[grupoId]);
 
         adicionesSeleccionadas[grupoId].forEach(opcionId => {
-            console.log(`  - Procesando opción ID: ${opcionId} en grupo ${grupoId}`);
+            console.log(`  - Procesando opciÃ³n ID: ${opcionId} en grupo ${grupoId}`);
 
-            // Buscar el precio directamente en productoActual.precios (para bebidas dinámicas)
+            // Buscar el precio directamente en productoActual.precios (para bebidas dinÃ¡micas)
             let precio = 0;
-            let nombre = `Opción ${opcionId}`;
+            let nombre = `OpciÃ³n ${opcionId}`;
 
             if (productoActual && productoActual.precios) {
                 const precioDinamico = productoActual.precios.find(p => String(p.id) === String(opcionId));
                 if (precioDinamico && parseFloat(precioDinamico.precio) > 0) {
                     precio = parseFloat(precioDinamico.precio) || 0;
-                    nombre = precioDinamico.tamano_nombre || precioDinamico.nombre || `Opción ${opcionId}`;
-                    console.log(`  - Precio encontrado en precios dinámicos: ${precio} para ${nombre}`);
+                    nombre = precioDinamico.tamano_nombre || precioDinamico.nombre || `OpciÃ³n ${opcionId}`;
+                    console.log(`  - Precio encontrado en precios dinÃ¡micos: ${precio} para ${nombre}`);
                 }
             }
 
-            // Si no encontró precio en precios dinámicos, buscar en el DOM
+            // Si no encontrÃ³ precio en precios dinÃ¡micos, buscar en el DOM
             if (precio === 0) {
                 const input = document.querySelector(`input[name="grupo-${grupoId}"][value="${opcionId}"]:checked`);
                 if (input) {
                     const label = input.closest('label');
                     if (label) {
-                        // Obtener nombre de la adición
+                        // Obtener nombre de la adiciÃ³n
                         const nombreElement = label.querySelector('.font-medium, .font-semibold');
-                        nombre = nombreElement ? nombreElement.textContent.trim() : `Opción ${opcionId}`;
+                        nombre = nombreElement ? nombreElement.textContent.trim() : `OpciÃ³n ${opcionId}`;
 
                         // Buscar el precio en el label
                         const precioElement = label.querySelector('.text-green-600, .text-red-600');
@@ -871,28 +871,28 @@ function agregarAlCarrito() {
     const precioUnitario = precioBase + precioAdicionales;
     const precioTotal = precioUnitario * cantidad;
     
-    console.log('💰 Cálculo de precios:');
+    console.log('ðŸ’° CÃ¡lculo de precios:');
     console.log('  - Precio base:', precioBase);
     console.log('  - Precio adicionales:', precioAdicionales);
     console.log('  - Precio unitario:', precioUnitario);
     console.log('  - Cantidad:', cantidad);
     console.log('  - Precio total:', precioTotal);
 
-    // Crear descripción del producto con selecciones
+    // Crear descripciÃ³n del producto con selecciones
     let descripcionProducto = productoActual.nombre;
 
-    // Agregar tamaño si fue seleccionado
+    // Agregar tamaÃ±o si fue seleccionado
     if (tamanoSeleccionado && tamanoSeleccionado.length > 0) {
         const inputTamano = document.querySelector(`input[name="grupo-tamano"][value="${tamanoSeleccionado[0]}"]:checked`) ||
-                           document.querySelector(`input[name="grupo-tamaño"][value="${tamanoSeleccionado[0]}"]:checked`);
+                           document.querySelector(`input[name="grupo-tamaÃ±o"][value="${tamanoSeleccionado[0]}"]:checked`);
         if (inputTamano) {
             const label = inputTamano.closest('label');
-            const nombreTamano = label.querySelector('.font-semibold')?.textContent || 'Tamaño seleccionado';
+            const nombreTamano = label.querySelector('.font-semibold')?.textContent || 'TamaÃ±o seleccionado';
             descripcionProducto += ` (${nombreTamano})`;
         }
     }
 
-    // Agregar segundo sabor si está seleccionado
+    // Agregar segundo sabor si estÃ¡ seleccionado
     let segundoSabor = null;
     if (typeof getSegundoSaborSeleccionado === 'function') {
         segundoSabor = getSegundoSaborSeleccionado();
@@ -912,7 +912,8 @@ function agregarAlCarrito() {
         precio_total: precioTotal,
         adiciones: adicionesDetalle,
         comentarios: comentarios,
-        tamano_id: tamanoSeleccionado ? tamanoSeleccionado[0] : null
+        tamano_id: tamanoSeleccionado ? tamanoSeleccionado[0] : null,
+          segundo_sabor: segundoSabor ? { id: segundoSabor.id, nombre: segundoSabor.nombre } : null
     };
 
     carrito.push(item);
@@ -921,8 +922,8 @@ function agregarAlCarrito() {
     cerrarModalProducto();
     actualizarContadorCarrito();
 
-    // Mostrar notificación mejorada
-    mostrarNotificacionRapida(`¡${descripcionProducto} agregado al carrito!`, 'success');
+    // Mostrar notificaciÃ³n mejorada
+    mostrarNotificacionRapida(`Â¡${descripcionProducto} agregado al carrito!`, 'success');
 }
 
 // ==================== CARRITO ====================
@@ -936,7 +937,7 @@ function actualizarContadorCarrito() {
         contador.textContent = totalItems;
         contador.style.display = 'flex';
 
-        // Actualizar título del header si hay productos
+        // Actualizar tÃ­tulo del header si hay productos
         const headerText = document.querySelector('header p');
         if (headerText) {
             headerText.textContent = `${totalProductos} producto${totalProductos !== 1 ? 's' : ''} en tu carrito`;
@@ -971,8 +972,8 @@ function renderizarCarrito() {
         container.innerHTML = `
             <div class="text-center py-16 text-gray-500">
                 <i class="fas fa-shopping-cart text-6xl mb-4 text-gray-300"></i>
-                <h3 class="text-lg font-semibold mb-2">Tu carrito está vacío</h3>
-                <p class="text-gray-600">¡Agrega algunos productos deliciosos!</p>
+                <h3 class="text-lg font-semibold mb-2">Tu carrito estÃ¡ vacÃ­o</h3>
+                <p class="text-gray-600">Â¡Agrega algunos productos deliciosos!</p>
                 <button onclick="toggleCart()" class="mt-4 bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">
                     Continuar comprando
                 </button>
@@ -1055,18 +1056,18 @@ function eliminarDelCarrito(index) {
     actualizarContadorCarrito();
 }
 
-// ==================== BÚSQUEDA DE CLIENTE ====================
+// ==================== BÃšSQUEDA DE CLIENTE ====================
 
 async function buscarClientePorTelefonoInline() {
     const telefono = document.getElementById('buscar-telefono-inline').value.trim();
     
     if (!telefono) {
-        mostrarNotificacionRapida('Por favor ingresa un número de teléfono', 'warning');
+        mostrarNotificacionRapida('Por favor ingresa un nÃºmero de telÃ©fono', 'warning');
         return;
     }
 
     try {
-        // Mostrar indicador de carga en el botón
+        // Mostrar indicador de carga en el botÃ³n
         const btn = event.target;
         const textoOriginal = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Buscando...';
@@ -1083,12 +1084,12 @@ async function buscarClientePorTelefonoInline() {
             clienteActual = data.data;
             console.log('Cliente encontrado:', clienteActual);
             
-            mostrarNotificacionRapida(`¡Bienvenido de nuevo, ${clienteActual.nombre}!`, 'success');
+            mostrarNotificacionRapida(`Â¡Bienvenido de nuevo, ${clienteActual.nombre}!`, 'success');
             
             // Prellenar datos inmediatamente
             prellenaFormularioConClienteGuardado();
             
-            // Ocultar la sección de búsqueda
+            // Ocultar la secciÃ³n de bÃºsqueda
             const seccionBusqueda = document.getElementById('seccion-busqueda-cliente');
             if (seccionBusqueda) {
                 seccionBusqueda.style.display = 'none';
@@ -1096,9 +1097,9 @@ async function buscarClientePorTelefonoInline() {
         } else {
             // Cliente no encontrado
             clienteActual = null;
-            mostrarNotificacionRapida('Este número no tiene datos guardados. Por favor completa el formulario manualmente.', 'info');
+            mostrarNotificacionRapida('Este nÃºmero no tiene datos guardados. Por favor completa el formulario manualmente.', 'info');
             
-            // Copiar el teléfono buscado al campo del formulario
+            // Copiar el telÃ©fono buscado al campo del formulario
             const telefonoInput = document.getElementById('cliente-telefono');
             if (telefonoInput) {
                 telefonoInput.value = telefono;
@@ -1135,7 +1136,7 @@ function prellenaFormularioConClienteGuardado() {
         // No desactivar para permitir cambios si es necesario
     }
     
-    // Prellenar datos de ubicación si están disponibles
+    // Prellenar datos de ubicaciÃ³n si estÃ¡n disponibles
     if (clienteActual.latitud) {
         const latInput = document.getElementById('direccion-lat');
         if (latInput) latInput.value = clienteActual.latitud;
@@ -1165,20 +1166,20 @@ function prellenaFormularioConClienteGuardado() {
     // Agregar indicador visual de datos guardados
     if (nombreInput && nombreInput.parentElement) {
         const label = nombreInput.parentElement.querySelector('label');
-        if (label && !label.textContent.includes('✓')) {
-            label.innerHTML = label.innerHTML.replace('*', '✓');
+        if (label && !label.textContent.includes('âœ“')) {
+            label.innerHTML = label.innerHTML.replace('*', 'âœ“');
         }
     }
 
     if (telefonoInput && telefonoInput.parentElement) {
         const label = telefonoInput.parentElement.querySelector('label');
-        if (label && !label.textContent.includes('✓')) {
-            label.innerHTML = label.innerHTML.replace('*', '✓');
+        if (label && !label.textContent.includes('âœ“')) {
+            label.innerHTML = label.innerHTML.replace('*', 'âœ“');
         }
     }
 }
 
-// ==================== GEOCODIFICACIÓN Y GPS ====================
+// ==================== GEOCODIFICACIÃ“N Y GPS ====================
 
 let sugerenciasDireccionTimeout = null;
 
@@ -1199,11 +1200,11 @@ function toggleBusquedaDireccion() {
 
 async function obtenerUbicacionGPS() {
     if (!navigator.geolocation) {
-        mostrarNotificacionRapida('Tu navegador no soporta geolocalización', 'warning');
+        mostrarNotificacionRapida('Tu navegador no soporta geolocalizaciÃ³n', 'warning');
         return;
     }
 
-    mostrarNotificacionRapida('Obteniendo tu ubicación...', 'info');
+    mostrarNotificacionRapida('Obteniendo tu ubicaciÃ³n...', 'info');
 
     try {
         const position = await new Promise((resolve, reject) => {
@@ -1217,7 +1218,7 @@ async function obtenerUbicacionGPS() {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
 
-        console.log('Ubicación GPS obtenida:', { lat, lng });
+        console.log('UbicaciÃ³n GPS obtenida:', { lat, lng });
 
         // Hacer reverse geocoding
         const response = await fetch(API_BASE_URL + '/api/delivery/reverse-geocode', {
@@ -1230,27 +1231,27 @@ async function obtenerUbicacionGPS() {
 
         if (data.success && data.data) {
             llenarDatosDireccion(data.data);
-            mostrarNotificacionRapida('¡Ubicación obtenida exitosamente!', 'success');
+            mostrarNotificacionRapida('Â¡UbicaciÃ³n obtenida exitosamente!', 'success');
         } else {
-            mostrarNotificacionRapida('No se pudo obtener la dirección de tu ubicación', 'warning');
+            mostrarNotificacionRapida('No se pudo obtener la direcciÃ³n de tu ubicaciÃ³n', 'warning');
         }
     } catch (error) {
-        console.error('Error obteniendo ubicación GPS:', error);
+        console.error('Error obteniendo ubicaciÃ³n GPS:', error);
         
         if (error.code === 1) {
-            mostrarNotificacionRapida('Permiso de ubicación denegado', 'warning');
+            mostrarNotificacionRapida('Permiso de ubicaciÃ³n denegado', 'warning');
         } else if (error.code === 2) {
-            mostrarNotificacionRapida('No se pudo determinar tu ubicación', 'warning');
+            mostrarNotificacionRapida('No se pudo determinar tu ubicaciÃ³n', 'warning');
         } else if (error.code === 3) {
-            mostrarNotificacionRapida('Tiempo de espera agotado obteniendo ubicación', 'warning');
+            mostrarNotificacionRapida('Tiempo de espera agotado obteniendo ubicaciÃ³n', 'warning');
         } else {
-            mostrarNotificacionRapida('Error obteniendo ubicación', 'warning');
+            mostrarNotificacionRapida('Error obteniendo ubicaciÃ³n', 'warning');
         }
     }
 }
 
 async function buscarDireccionAutocompletado(query) {
-    // Debounce: esperar 500ms después de que el usuario deje de escribir
+    // Debounce: esperar 500ms despuÃ©s de que el usuario deje de escribir
     clearTimeout(sugerenciasDireccionTimeout);
     
     if (!query || query.length < 3) {
@@ -1305,7 +1306,7 @@ function ocultarSugerenciasDireccion() {
 
 async function seleccionarDireccionSugerida(placeId) {
     try {
-        mostrarNotificacionRapida('Obteniendo detalles de la dirección...', 'info');
+        mostrarNotificacionRapida('Obteniendo detalles de la direcciÃ³n...', 'info');
 
         const response = await fetch(API_BASE_URL + '/api/delivery/geocode', {
             method: 'POST',
@@ -1319,24 +1320,24 @@ async function seleccionarDireccionSugerida(placeId) {
             llenarDatosDireccion(data.data);
             ocultarSugerenciasDireccion();
             
-            // Limpiar campo de búsqueda
+            // Limpiar campo de bÃºsqueda
             const inputBuscar = document.getElementById('buscar-direccion');
             if (inputBuscar) {
                 inputBuscar.value = '';
             }
             
-            mostrarNotificacionRapida('¡Dirección seleccionada exitosamente!', 'success');
+            mostrarNotificacionRapida('Â¡DirecciÃ³n seleccionada exitosamente!', 'success');
         } else {
-            mostrarNotificacionRapida('Error obteniendo detalles de la dirección', 'warning');
+            mostrarNotificacionRapida('Error obteniendo detalles de la direcciÃ³n', 'warning');
         }
     } catch (error) {
-        console.error('Error seleccionando dirección:', error);
-        mostrarNotificacionRapida('Error al seleccionar la dirección', 'warning');
+        console.error('Error seleccionando direcciÃ³n:', error);
+        mostrarNotificacionRapida('Error al seleccionar la direcciÃ³n', 'warning');
     }
 }
 
 function actualizarResumenPrecio() {
-    // Actualizar el resumen del precio en el modal de confirmación
+    // Actualizar el resumen del precio en el modal de confirmaciÃ³n
     const subtotal = carrito.reduce((sum, item) => sum + item.precio_total, 0);
     const domicilio = window.precioDomicilio || 3000;
     const total = subtotal + domicilio;
@@ -1351,7 +1352,7 @@ function actualizarResumenPrecio() {
         confirmarTotalEl.textContent = `$${formatPrice(total)}`;
     }
     
-    console.log('📊 Resumen actualizado:', { subtotal, domicilio, total });
+    console.log('ðŸ“Š Resumen actualizado:', { subtotal, domicilio, total });
 }
 
 async function calcularPrecioDomicilio(municipio, barrio) {
@@ -1372,17 +1373,17 @@ async function calcularPrecioDomicilio(municipio, barrio) {
             window.precioDomicilio = resultado.precio;
             localStorage.setItem('precioDomicilio', resultado.precio);
             
-            // Actualizar resumen en el modal si está abierto
+            // Actualizar resumen en el modal si estÃ¡ abierto
             actualizarResumenPrecio();
             
-            console.log('💰 Precio de domicilio calculado:', {
+            console.log('ðŸ’° Precio de domicilio calculado:', {
                 precio: resultado.precio,
                 municipio: resultado.municipio,
                 barrio: resultado.barrio,
                 metodo: resultado.metodo_calculo
             });
             
-            // Mostrar notificación
+            // Mostrar notificaciÃ³n
             let mensaje = `Precio de domicilio: $${formatPrice(resultado.precio)}`;
             if (resultado.metodo_calculo === 'barrio_especifico') {
                 mensaje += ` (${barrio}, ${municipio})`;
@@ -1393,17 +1394,17 @@ async function calcularPrecioDomicilio(municipio, barrio) {
             
             return resultado.precio;
         } else {
-            console.warn('⚠️ No se pudo calcular precio:', resultado.error);
+            console.warn('âš ï¸ No se pudo calcular precio:', resultado.error);
             return window.precioDomicilio || 3000;
         }
     } catch (error) {
-        console.error('❌ Error calculando precio de domicilio:', error);
+        console.error('âŒ Error calculando precio de domicilio:', error);
         return window.precioDomicilio || 3000;
     }
 }
 
 function llenarDatosDireccion(data) {
-    console.log('Llenando datos de dirección:', data);
+    console.log('Llenando datos de direcciÃ³n:', data);
 
     // Llenar campos visibles
     const direccionInput = document.getElementById('cliente-direccion');
@@ -1422,10 +1423,10 @@ function llenarDatosDireccion(data) {
     if (latInput) latInput.value = data.lat || '';
     if (lngInput) lngInput.value = data.lng || '';
     if (barrioInput) barrioInput.value = data.neighborhood || '';
-    if (municipioInput) municipioInput.value = data.municipality || '';  // Municipio (ej: Medellín)
+    if (municipioInput) municipioInput.value = data.municipality || '';  // Municipio (ej: MedellÃ­n)
     if (ciudadInput) ciudadInput.value = data.city || '';  // Departamento (ej: Antioquia)
     
-    console.log('📍 Datos de geocodificación:', {
+    console.log('ðŸ“ Datos de geocodificaciÃ³n:', {
         barrio: data.neighborhood,
         municipio: data.municipality,
         ciudad: data.city,
@@ -1433,7 +1434,7 @@ function llenarDatosDireccion(data) {
         lng: data.lng
     });
     
-    // Calcular precio de domicilio automáticamente
+    // Calcular precio de domicilio automÃ¡ticamente
     if (data.municipality) {
         calcularPrecioDomicilio(data.municipality, data.neighborhood);
     }
@@ -1443,11 +1444,11 @@ function llenarDatosDireccion(data) {
 
 function irAConfirmar() {
     if (carrito.length === 0) {
-        alert('El carrito está vacío. ¡Agrega algunos productos primero!');
+        alert('El carrito estÃ¡ vacÃ­o. Â¡Agrega algunos productos primero!');
         return;
     }
 
-    // Cerrar carrito y abrir modal de confirmación
+    // Cerrar carrito y abrir modal de confirmaciÃ³n
     document.getElementById('carrito-modal').classList.remove('active');
 
     // Renderizar resumen detallado
@@ -1484,16 +1485,16 @@ function irAConfirmar() {
     if (resumenDomicilioEl) resumenDomicilioEl.textContent = `$${formatPrice(domicilio)}`;
     if (confirmarTotalEl) confirmarTotalEl.textContent = `$${formatPrice(total)}`;
 
-    // Resetear estado de búsqueda
+    // Resetear estado de bÃºsqueda
     clienteActual = null;
     
-    // Mostrar la sección de búsqueda
+    // Mostrar la secciÃ³n de bÃºsqueda
     const seccionBusqueda = document.getElementById('seccion-busqueda-cliente');
     if (seccionBusqueda) {
         seccionBusqueda.style.display = 'block';
     }
     
-    // Limpiar campo de búsqueda
+    // Limpiar campo de bÃºsqueda
     const buscarTelefonoInline = document.getElementById('buscar-telefono-inline');
     if (buscarTelefonoInline) {
         buscarTelefonoInline.value = '';
@@ -1554,7 +1555,8 @@ async function enviarPedido(event) {
             cantidad: item.cantidad,
             precio_unitario: item.precio_unitario,
             comentarios: item.comentarios,
-            adiciones: item.adiciones
+            adiciones: item.adiciones,
+              segundo_sabor: item.segundo_sabor
         }))
     };
     
@@ -1562,9 +1564,9 @@ async function enviarPedido(event) {
         // Si no hay cliente guardado, guardar los datos del formulario
         if (!clienteActual) {
             try {
-                console.log('💾 Guardando datos del cliente para futuras compras...');
+                console.log('ðŸ’¾ Guardando datos del cliente para futuras compras...');
                 
-                // Obtener datos de geocodificación si están disponibles
+                // Obtener datos de geocodificaciÃ³n si estÃ¡n disponibles
                 const latInput = document.getElementById('direccion-lat');
                 const lngInput = document.getElementById('direccion-lng');
                 const barrioInput = document.getElementById('direccion-barrio');
@@ -1585,7 +1587,7 @@ async function enviarPedido(event) {
                     referencias: notas
                 };
                 
-                console.log('📤 Datos a enviar:', datosCliente);
+                console.log('ðŸ“¤ Datos a enviar:', datosCliente);
 
                 const respuestaCliente = await fetch(API_BASE_URL + '/api/delivery/usuario', {
                     method: 'POST',
@@ -1595,13 +1597,13 @@ async function enviarPedido(event) {
                 
                 if (respuestaCliente.ok) {
                     const resultadoCliente = await respuestaCliente.json();
-                    console.log('✅ Cliente guardado correctamente:', resultadoCliente);
+                    console.log('âœ… Cliente guardado correctamente:', resultadoCliente);
                 } else {
                     const errorCliente = await respuestaCliente.json();
-                    console.error('⚠️ Error guardando cliente:', errorCliente);
+                    console.error('âš ï¸ Error guardando cliente:', errorCliente);
                 }
             } catch (error) {
-                console.error('❌ Error en la petición de guardado de cliente:', error);
+                console.error('âŒ Error en la peticiÃ³n de guardado de cliente:', error);
                 // No interrumpir el flujo de compra por error al guardar cliente
             }
         }
@@ -1619,10 +1621,10 @@ async function enviarPedido(event) {
         
         const resultado = await response.json();
         
-        // Pedido exitoso - mostrar mensaje con número de pedido
+        // Pedido exitoso - mostrar mensaje con nÃºmero de pedido
         const numeroPedido = resultado.numero_pedido || resultado.id;
 
-        // Mostrar notificación de éxito mejorada
+        // Mostrar notificaciÃ³n de Ã©xito mejorada
         const successModal = document.createElement('div');
         successModal.className = 'fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 p-4 flex';
         successModal.innerHTML = `
@@ -1630,9 +1632,9 @@ async function enviarPedido(event) {
                 <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                     <i class="fas fa-check-circle text-5xl text-green-600"></i>
                 </div>
-                <h3 class="text-2xl font-bold text-gray-800 mb-4">¡Pedido Enviado!</h3>
-                <p class="text-gray-600 mb-2">Número de pedido: <strong class="text-red-600">#${numeroPedido}</strong></p>
-                <p class="text-gray-600 mb-6">Recibirás confirmación por WhatsApp con el estado de tu pedido.</p>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Â¡Pedido Enviado!</h3>
+                <p class="text-gray-600 mb-2">NÃºmero de pedido: <strong class="text-red-600">#${numeroPedido}</strong></p>
+                <p class="text-gray-600 mb-6">RecibirÃ¡s confirmaciÃ³n por WhatsApp con el estado de tu pedido.</p>
                 <div class="bg-blue-50 rounded-lg p-4 mb-6">
                     <div class="flex items-center justify-center text-blue-800">
                         <i class="fas fa-clock mr-2"></i>
@@ -1651,7 +1653,7 @@ async function enviarPedido(event) {
         actualizarContadorCarrito();
         cerrarModalConfirmar();
 
-        // Auto-cerrar modal de éxito y recargar después de 3 segundos
+        // Auto-cerrar modal de Ã©xito y recargar despuÃ©s de 3 segundos
         setTimeout(() => {
             if (successModal.parentElement) {
                 successModal.remove();
@@ -1681,7 +1683,7 @@ async function enviarPedido(event) {
     }
 }
 
-// ==================== SELECTOR RÁPIDO PARA PIZZAS ====================
+// ==================== SELECTOR RÃPIDO PARA PIZZAS ====================
 
 function mostrarSelectorRapido(producto) {
     const selectorRapido = document.getElementById('selector-rapido-pizza');
@@ -1716,7 +1718,7 @@ function mostrarBotonesRapidosAdiciones(producto) {
         });
     }
 
-    // Mostrar/ocultar botones según disponibilidad
+    // Mostrar/ocultar botones segÃºn disponibilidad
     if (btnBorde) {
         if (tieneBorde) {
             btnBorde.style.display = 'block';
@@ -1733,13 +1735,13 @@ function mostrarBotonesRapidosAdiciones(producto) {
         }
     }
 
-    // Mostrar el contenedor si al menos uno de los botones está disponible
+    // Mostrar el contenedor si al menos uno de los botones estÃ¡ disponible
     if (tieneBorde || tieneSegundoSabor) {
         botonesRapidos.classList.remove('hidden');
-        console.log('Botones rápidos mostrados:', { tieneBorde, tieneSegundoSabor });
+        console.log('Botones rÃ¡pidos mostrados:', { tieneBorde, tieneSegundoSabor });
     } else {
         botonesRapidos.classList.add('hidden');
-        console.log('Botones rápidos ocultos - no hay opciones disponibles');
+        console.log('Botones rÃ¡pidos ocultos - no hay opciones disponibles');
     }
 }
 
@@ -1770,9 +1772,9 @@ function mostrarGrupoAdicion(tipo) {
         // Hacer scroll al grupo
         grupoEncontrado.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        // Mostrar notificación
+        // Mostrar notificaciÃ³n
         const tipoTexto = tipo === 'borde' ? 'bordes' : 'segundos sabores';
-        mostrarNotificacionRapida(`¡Sección de ${tipoTexto} expandida! Selecciona tus opciones.`, 'info');
+        mostrarNotificacionRapida(`Â¡SecciÃ³n de ${tipoTexto} expandida! Selecciona tus opciones.`, 'info');
     } else {
         mostrarNotificacionRapida(`No se encontraron opciones de ${tipo === 'borde' ? 'bordes' : 'segundos sabores'} para este producto.`, 'warning');
     }
@@ -1780,11 +1782,11 @@ function mostrarGrupoAdicion(tipo) {
 
 function seleccionarConfiguracionRapida(tipo) {
     if (tipo === 'hawaiana') {
-        // Configuración automática para pizza hawaiana
-        // Tamaño: Personal (asumiendo que es el primero)
-        // Adiciones: Piña y Jamón (si están disponibles)
+        // ConfiguraciÃ³n automÃ¡tica para pizza hawaiana
+        // TamaÃ±o: Personal (asumiendo que es el primero)
+        // Adiciones: PiÃ±a y JamÃ³n (si estÃ¡n disponibles)
 
-        // Buscar y seleccionar el tamaño Personal
+        // Buscar y seleccionar el tamaÃ±o Personal
         const radioPersonal = document.querySelector('input[name="grupo-tamano"][value]');
         if (radioPersonal) {
             radioPersonal.checked = true;
@@ -1792,31 +1794,31 @@ function seleccionarConfiguracionRapida(tipo) {
             radioPersonal.dispatchEvent(new Event('change'));
         }
 
-        // Buscar y seleccionar Piña
+        // Buscar y seleccionar PiÃ±a
         const pinaOption = Array.from(document.querySelectorAll('input[type="checkbox"]')).find(input => {
             const label = input.closest('label');
-            return label && label.textContent.toLowerCase().includes('piña');
+            return label && label.textContent.toLowerCase().includes('piÃ±a');
         });
         if (pinaOption) {
             pinaOption.checked = true;
             pinaOption.dispatchEvent(new Event('change'));
         }
 
-        // Buscar y seleccionar Jamón
+        // Buscar y seleccionar JamÃ³n
         const jamonOption = Array.from(document.querySelectorAll('input[type="checkbox"]')).find(input => {
             const label = input.closest('label');
-            return label && label.textContent.toLowerCase().includes('jamón');
+            return label && label.textContent.toLowerCase().includes('jamÃ³n');
         });
         if (jamonOption) {
             jamonOption.checked = true;
             jamonOption.dispatchEvent(new Event('change'));
         }
 
-        // Ocultar el selector rápido
+        // Ocultar el selector rÃ¡pido
         document.getElementById('selector-rapido-pizza').classList.add('hidden');
 
-        // Mostrar notificación
-        mostrarNotificacionRapida('¡Pizza Hawaiana configurada automáticamente!', 'success');
+        // Mostrar notificaciÃ³n
+        mostrarNotificacionRapida('Â¡Pizza Hawaiana configurada automÃ¡ticamente!', 'success');
 
         // Recalcular total
         calcularTotalModal();
@@ -1824,10 +1826,10 @@ function seleccionarConfiguracionRapida(tipo) {
 }
 
 function personalizarManualmente() {
-    // Ocultar selector rápido y mostrar opciones normales
+    // Ocultar selector rÃ¡pido y mostrar opciones normales
     document.getElementById('selector-rapido-pizza').classList.add('hidden');
 
-    // Hacer scroll a las opciones de personalización
+    // Hacer scroll a las opciones de personalizaciÃ³n
     const gruposContainer = document.getElementById('modal-grupos-adiciones');
     if (gruposContainer) {
         gruposContainer.scrollIntoView({ behavior: 'smooth' });
@@ -1835,7 +1837,7 @@ function personalizarManualmente() {
 }
 
 function mostrarNotificacionRapida(mensaje, tipo) {
-    // Crear notificación temporal
+    // Crear notificaciÃ³n temporal
     const notif = document.createElement('div');
     notif.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 ${
         tipo === 'success' ? 'bg-green-500 text-white' : 'bg-blue-500 text-white'
@@ -1852,7 +1854,7 @@ function mostrarNotificacionRapida(mensaje, tipo) {
     // Animar entrada
     setTimeout(() => notif.classList.remove('translate-x-full'), 100);
 
-    // Auto-remover después de 3 segundos
+    // Auto-remover despuÃ©s de 3 segundos
     setTimeout(() => {
         notif.classList.add('translate-x-full');
         setTimeout(() => notif.remove(), 300);
@@ -1861,7 +1863,7 @@ function mostrarNotificacionRapida(mensaje, tipo) {
 
 // ==================== UTILIDADES ====================
 
-// Función para cargar productos vinculados
+// FunciÃ³n para cargar productos vinculados
 async function cargarProductosVinculados(productoId) {
     try {
         const response = await fetch(`${API_BASE_URL}/api/productos/${productoId}/productos-vinculados`);
@@ -1874,10 +1876,10 @@ async function cargarProductosVinculados(productoId) {
             productoActual.precios = [];
         }
 
-        // Procesar cada tipo de vinculación
+        // Procesar cada tipo de vinculaciÃ³n
         Object.keys(productosVinculados).forEach(tipo => {
             productosVinculados[tipo].forEach(producto => {
-                // Agregar precio dinámico para este producto vinculado
+                // Agregar precio dinÃ¡mico para este producto vinculado
                 const precioExistente = productoActual.precios.find(p => String(p.id) === String(producto.id));
                 if (!precioExistente) {
                     productoActual.precios.push({
@@ -1898,7 +1900,7 @@ async function cargarProductosVinculados(productoId) {
     }
 }
 
-// Función para crear grupos dinámicos desde vinculaciones
+// FunciÃ³n para crear grupos dinÃ¡micos desde vinculaciones
 function crearGruposDesdeVinculaciones(vinculaciones) {
     const gruposPorTipo = {};
 
@@ -1912,7 +1914,7 @@ function crearGruposDesdeVinculaciones(vinculaciones) {
                     descripcion: `Productos ${tipo}s vinculados`,
                     tipo: tipo,
                     minimo: vinc.obligatorio ? 1 : 0,
-                    maximo: vinc.maximo_seleccion > 0 ? vinc.maximo_seleccion : 99, // Múltiples opciones
+                    maximo: vinc.maximo_seleccion > 0 ? vinc.maximo_seleccion : 99, // MÃºltiples opciones
                     orden: 10,
                     activo: true,
                     es_dinamico: true
