@@ -448,6 +448,10 @@
                                 <input type="checkbox" id="toggle-permite-dos-sabores" onchange="togglePermiteDosSabores()" class="w-5 h-5 rounded">
                                 <span>Permitir dos sabores</span>
                             </label>
+                            <label class="flex items-center gap-3 cursor-pointer mt-3">
+                                <input type="checkbox" id="toggle-permite-tres-sabores" onchange="togglePermiteTresSabores()" class="w-5 h-5 rounded">
+                                <span>Permitir tres sabores (tercios)</span>
+                            </label>
                         </div>
                         
                         <div id="seccion-agregar-sabores" class="hidden">
@@ -1644,6 +1648,8 @@
             mostrarProductos(filtro, filtroSubcategoria);
         }
 
+        
+
         function actualizarFiltrosSubcategoria() {
             const categoriaId = document.getElementById('filtro-categoria').value;
             const subcategoriaSelect = document.getElementById('filtro-subcategoria');
@@ -2103,7 +2109,7 @@
                 
                 container.innerHTML = productos.map(p => `
                     <div class="flex items-center justify-between p-3 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition ${productoDosSaboresSeleccionado?.id === p.id ? 'ring-2 ring-blue-500' : ''}"
-                         onclick="seleccionarProductoDosSabores(${p.id}, '${p.nombre.replace(/'/g, "\\'")}', ${p.permite_dos_sabores || 0})">
+                         onclick="seleccionarProductoDosSabores(${p.id}, '${p.nombre.replace(/'/g, "\\'")}', ${p.permite_dos_sabores || 0}, ${p.permite_tres_sabores || 0})">
                         <div class="flex items-center gap-3">
                             ${p.imagen_url ? 
                                 `<img src="${p.imagen_url}" class="w-10 h-10 rounded object-cover">` : 
@@ -2119,6 +2125,7 @@
                                 '<span class="bg-green-600 text-xs px-2 py-1 rounded-full"><i class="fas fa-check mr-1"></i>2 Sabores</span>' : 
                                 '<span class="bg-slate-600 text-xs px-2 py-1 rounded-full">Normal</span>'
                             }
+                            ${p.permite_tres_sabores ? '<span class="ml-2 bg-emerald-600 text-xs px-2 py-1 rounded-full">3 Sabores</span>' : ''}
                         </div>
                     </div>
                 `).join('');
@@ -2130,7 +2137,7 @@
             }
         }
 
-        async function seleccionarProductoDosSabores(productoId, nombre, permiteDosSabores) {
+        async function seleccionarProductoDosSabores(productoId, nombre, permiteDosSabores, permiteTresSabores) {
             productoDosSaboresSeleccionado = { id: productoId, nombre: nombre };
             
             // Mostrar config y ocultar placeholder
@@ -2142,6 +2149,8 @@
             
             // Actualizar checkbox
             document.getElementById('toggle-permite-dos-sabores').checked = permiteDosSabores;
+            const toggleTres = document.getElementById('toggle-permite-tres-sabores');
+            if (toggleTres) toggleTres.checked = permiteTresSabores;
             
             // Mostrar/ocultar seccion de sabores
             if (permiteDosSabores) {
@@ -2178,6 +2187,33 @@
                     }
                     cargarProductosDosSabores();
                     mostrarNotificacion(permite ? 'Dos sabores activado' : 'Dos sabores desactivado', 'success');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error al actualizar', 'error');
+            }
+        }
+
+        async function togglePermiteTresSabores() {
+            if (!productoDosSaboresSeleccionado) return;
+
+            const permite = document.getElementById('toggle-permite-tres-sabores').checked;
+
+            try {
+                const response = await fetch(API_BASE_URL + `/api/productos/${productoDosSaboresSeleccionado.id}/toggle-tres-sabores`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ permite_tres_sabores: permite })
+                });
+
+                if (response.ok) {
+                    mostrarNotificacion(permite ? 'Tres sabores activado' : 'Tres sabores desactivado', 'success');
+                    // actualizar lista y datos
+                    await cargarSaboresProducto(productoDosSaboresSeleccionado.id);
+                    cargarProductosDosSabores();
+                } else {
+                    const data = await response.json();
+                    mostrarNotificacion(data.error || 'Error al actualizar', 'error');
                 }
             } catch (error) {
                 console.error('Error:', error);
