@@ -3,6 +3,8 @@
 
 let segundoSaborSeleccionado = null;
 let saboresDisponibles = [];
+let allowedTypesForCombined = [];
+let combinadoSelections = {}; // { 'TRADICIONAL': {id,nombre}, 'ESPECIAL': {...} }
 // modo: 2 => mitad/mitad (un segundo sabor). 3 => permitir hasta 2 segundos sabores (total 3 sabores)
 let modoDosSabores = 2;
 let segundosSaboresSeleccionados = []; // para modo 3
@@ -14,7 +16,17 @@ async function cargarSaboresDisponibles(productoId) {
     try {
         const response = await fetch(`${API_BASE_URL}/api/productos/${productoId}/sabores`);
         if (response.ok) {
-            saboresDisponibles = await response.json();
+            const data = await response.json();
+            // Compatibilidad: si el endpoint devuelve objeto con {combined, allowed_types, sabores}
+            if (data && typeof data === 'object' && ('sabores' in data)) {
+                saboresDisponibles = data.sabores || [];
+                allowedTypesForCombined = data.allowed_types || [];
+                console.log('Sabores disponibles (obj):', saboresDisponibles, 'allowedTypes:', allowedTypesForCombined);
+                return data;
+            }
+            // Si devuelve array (antiguo formato)
+            saboresDisponibles = data;
+            allowedTypesForCombined = [];
             console.log('Sabores disponibles cargados:', saboresDisponibles);
             return saboresDisponibles;
         }
@@ -44,9 +56,10 @@ async function mostrarSeccionDosSabores(producto) {
     }
 
     // Cargar sabores disponibles
-    const sabores = await cargarSaboresDisponibles(producto.id);
+    const saboresResp = await cargarSaboresDisponibles(producto.id);
+    const sabores = Array.isArray(saboresResp) ? saboresResp : (saboresResp.sabores || []);
     
-    if (sabores.length === 0) {
+    if (!sabores || sabores.length === 0) {
         container.classList.add('hidden');
         container.innerHTML = '';
         return;
@@ -89,18 +102,39 @@ async function mostrarSeccionDosSabores(producto) {
             </label>
 
             <div id="selector-segundo-sabor" class="hidden">
-                <p class="text-sm text-gray-600 mb-2"><i class="fas fa-hand-pointer mr-1"></i>Selecciona el segundo sabor:</p>
-                <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto" id="lista-sabores-disponibles">
-                    ${sabores.map(sabor => `
-                        <div class="sabor-opcion p-2 border border-gray-200 rounded-lg cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition flex items-center gap-2"
-                             onclick="seleccionarSegundoSabor(${sabor.sabor_producto_id}, '${sabor.nombre.replace(/'/g, "\\'")}', this, '${(sabor.tipo||'').replace(/'/g, "\\'")}')">
-                            ${sabor.imagen_url ? 
-                                `<img src="${sabor.imagen_url}" class="w-10 h-10 rounded object-cover">` : 
-                                `<div class="w-10 h-10 rounded bg-gray-200 flex items-center justify-center"><i class="fas fa-pizza-slice text-gray-400"></i></div>`
-                            }
-                            <span class="text-sm font-medium text-gray-700 truncate">${sabor.nombre}</span>
-                        </div>
-                    `).join('')}
+                <p class="text-sm text-gray-600 mb-2"><i class="fas fa-hand-pointer mr-1"></i>Selecciona el/los sabores:</p>
+                <div id="lista-sabores-disponibles">
+                    <!-- Si el producto es combinada y allowedTypesForCombined tiene tipos, renderizar selectores por tipo -->
+                    ${ (allowedTypesForCombined && allowedTypesForCombined.length >= 2) ? (
+                        allowedTypesForCombined.map((tipo) => {
+                            const tipoLower = tipo.toLowerCase();
+                            const opciones = sabores.filter(s => (s.tipo_canonico || '').toString().toUpperCase() === tipo.toUpperCase());
+                            return `
+                                <div class="mb-3">
+                                    <p class="font-medium text-gray-700 mb-2">Sabor para ${tipo}:</p>
+                                    <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto" data-tipo="${tipo}">
+                                        ${opciones.map(sabor => `
+                                            <div class="sabor-opcion p-2 border border-gray-200 rounded-lg cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition flex items-center gap-2"
+                                                onclick="seleccionarSegundoSaborCombinado(${sabor.sabor_producto_id}, '${sabor.nombre.replace(/'/g, "\\'")}', this, '${tipo}')">
+                                                ${sabor.imagen_url ? `<img src="${sabor.imagen_url}" class="w-10 h-10 rounded object-cover">` : `<div class="w-10 h-10 rounded bg-gray-200 flex items-center justify-center"><i class="fas fa-pizza-slice text-gray-400"></i></div>`}
+                                                <span class="text-sm font-medium text-gray-700 truncate">${sabor.nombre}</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `
+                        }).join('')
+                    ) : (
+                        // Forma antigua: mostrar lista plana
+                        `<div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">` +
+                        sabores.map(sabor => `
+                            <div class="sabor-opcion p-2 border border-gray-200 rounded-lg cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition flex items-center gap-2"
+                                 onclick="seleccionarSegundoSabor(${sabor.sabor_producto_id}, '${sabor.nombre.replace(/'/g, "\\'")}', this, '${(sabor.tipo||'').replace(/'/g, "\\'")}')">
+                                ${sabor.imagen_url ? `<img src="${sabor.imagen_url}" class="w-10 h-10 rounded object-cover">` : `<div class="w-10 h-10 rounded bg-gray-200 flex items-center justify-center"><i class="fas fa-pizza-slice text-gray-400"></i></div>`}
+                                <span class="text-sm font-medium text-gray-700 truncate">${sabor.nombre}</span>
+                            </div>
+                        `).join('') + `</div>`
+                    )}
                 </div>
                 <div id="sabor-seleccionado-info" class="hidden mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
                     <div class="flex items-center justify-between">
@@ -128,6 +162,27 @@ async function mostrarSeccionDosSabores(producto) {
             </div>
         </div>
     `;
+}
+
+// Selección específica cuando el producto es combinada (por tipo)
+function seleccionarSegundoSaborCombinado(saborId, saborNombre, elemento, tipo) {
+    // marcar visualmente dentro del contenedor del tipo
+    const container = elemento.closest('[data-tipo]') || elemento.parentElement;
+    // deselect previous in this tipo
+    const siblings = container.querySelectorAll('.sabor-opcion');
+    siblings.forEach(s => s.classList.remove('border-orange-500', 'bg-orange-100'));
+    elemento.classList.add('border-orange-500', 'bg-orange-100');
+
+    combinadoSelections[tipo] = { id: saborId, nombre: saborNombre };
+
+    // mostrar info compacta
+    const infoContainer = document.getElementById('sabores-seleccionados-info');
+    const nombresSpan = document.getElementById('nombres-sabores-seleccionados');
+    if (infoContainer && nombresSpan) {
+        const names = Object.keys(combinadoSelections).map(k => combinadoSelections[k].nombre);
+        nombresSpan.textContent = names.join(', ');
+        if (names.length > 0) infoContainer.classList.remove('hidden'); else infoContainer.classList.add('hidden');
+    }
 }
 
 /**
@@ -261,6 +316,11 @@ function getSegundoSaborSeleccionado() {
     if (!checkbox || !checkbox.checked) return null;
 
     if (modoDosSabores === 2) {
+        // Si es producto combinada con tipos, devolver las selecciones por tipo
+        if (allowedTypesForCombined && allowedTypesForCombined.length > 0) {
+            // devolver array en el orden de allowedTypesForCombined
+            return allowedTypesForCombined.map(t => combinadoSelections[t] || null);
+        }
         return segundoSaborSeleccionado || null;
     }
     // modo 3 -> devolver array (puede ser vacio)
@@ -274,6 +334,8 @@ function resetearDosSabores() {
     segundoSaborSeleccionado = null;
     saboresDisponibles = [];
     segundosSaboresSeleccionados = [];
+    combinadoSelections = {};
+    allowedTypesForCombined = [];
     
     const container = document.getElementById('seccion-dos-sabores');
     if (container) {
