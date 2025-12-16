@@ -1556,7 +1556,7 @@ async function enviarPedido(event) {
             precio_unitario: item.precio_unitario,
             comentarios: item.comentarios,
             adiciones: item.adiciones,
-              segundo_sabor: item.segundo_sabor
+            segundo_sabor: item.segundo_sabor || item.segundos_sabores || null
         }))
     };
     
