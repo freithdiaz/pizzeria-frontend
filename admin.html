@@ -1022,7 +1022,29 @@
                 const itemsHtml = pedido.items.map(item => {
                     let detalles = [];
                     if (item.tamano) detalles.push(`<span class="text-blue-300">${item.tamano}</span>`);
-                    if (item.segundo_sabor) detalles.push(`<span class="text-orange-300">mitad ${item.segundo_sabor}</span>`);
+                    // Resolver segundo(s) sabor(es) de forma robusta: puede venir en 'segundo_sabor' (string)
+                    // o en 'segundos_sabores' (lista de objetos {nombre}). Evitar mostrar 'undefined'.
+                    let segundoDisplay = '';
+                    try {
+                        if (item.segundos_sabores && Array.isArray(item.segundos_sabores) && item.segundos_sabores.length > 0) {
+                            const names = item.segundos_sabores.map(s => (s && (s.nombre || s.name)) || s).filter(x => x && String(x).trim() !== '');
+                            if (names.length) segundoDisplay = names.join(', ');
+                        }
+                        if (!segundoDisplay && (item.segundo_sabor || item.segundo)) {
+                            // puede venir como string o como objeto
+                            const ss = item.segundo_sabor || item.segundo;
+                            if (typeof ss === 'string') segundoDisplay = ss;
+                            else if (Array.isArray(ss)) {
+                                const names = ss.map(s => (s && (s.nombre || s.name)) || s).filter(x => x && String(x).trim() !== '');
+                                if (names.length) segundoDisplay = names.join(', ');
+                            } else if (typeof ss === 'object' && ss !== null) {
+                                segundoDisplay = ss.nombre || ss.name || '';
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('Error resolving segundos sabores display', e);
+                    }
+                    if (segundoDisplay) detalles.push(`<span class="text-orange-300">mitad ${segundoDisplay}</span>`);
                     const detallesStr = detalles.length > 0 ? `<div class="text-xs ml-4 text-gray-400">${detalles.join(' | ')}</div>` : '';
                     return `
                     <div class="py-2 border-b border-slate-600">
