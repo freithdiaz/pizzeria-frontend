@@ -1498,6 +1498,11 @@ async function enviarPedido(event) {
 
             // Volver al inicio suavemente
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Restaurar estado del botón de enviar
+            if (btn) {
+                btn.innerHTML = textoOriginal;
+                btn.disabled = false;
+            }
         } else {
             throw new Error('No se recibió el ID del pedido');
         }
