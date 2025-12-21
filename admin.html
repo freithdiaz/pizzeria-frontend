@@ -2868,6 +2868,77 @@
             const numPrice = typeof price === 'string' ? parseFloat(price) : price;
             return Math.round(numPrice).toLocaleString('es-CO');
         }
+        // ============= SISTEMA DE CAJA =============
+
+        function inicializarEstadoCaja() {
+            const cajaStart = localStorage.getItem('cajaSesionStart');
+            const btnAbrir = document.getElementById('btn-abrir-caja');
+            const btnCerrar = document.getElementById('btn-cerrar-caja');
+            const estadoInfo = document.getElementById('caja-info');
+            const usuarioOpen = localStorage.getItem('cajaUsuario');
+
+            if (cajaStart) {
+                // Caja Abierta
+                if (btnAbrir) btnAbrir.classList.add('hidden');
+                if (btnCerrar) btnCerrar.classList.remove('hidden');
+                if (estadoInfo) estadoInfo.innerHTML = `<span class="text-green-400 font-bold">ABIERTA</span> desde ${new Date(cajaStart).toLocaleTimeString()} por ${usuarioOpen || 'Admin'}`;
+            } else {
+                // Caja Cerrada
+                if (btnAbrir) btnAbrir.classList.remove('hidden');
+                if (btnCerrar) btnCerrar.classList.add('hidden');
+                if (estadoInfo) estadoInfo.innerHTML = `<span class="text-red-400 font-bold">CERRADA</span>`;
+            }
+        }
+
+        function mostrarModalAbrirCaja() {
+            const modal = document.getElementById('modal-abrir-caja');
+            modal.classList.add('show');
+            document.getElementById('monto-inicial-caja').value = '';
+            document.getElementById('usuario-apertura').value = '';
+        }
+
+        function cerrarModalAbrirCaja() {
+            document.getElementById('modal-abrir-caja').classList.remove('show');
+        }
+
+        function abrirCaja() {
+            const usuario = document.getElementById('usuario-apertura').value || 'Admin';
+            const monto = document.getElementById('monto-inicial-caja').value || 0;
+
+            // Guardar inicio de sesion (clave compartida con app.js)
+            const startTime = new Date().toISOString();
+            localStorage.setItem('cajaSesionStart', startTime);
+            localStorage.setItem('cajaUsuario', usuario);
+            localStorage.setItem('cajaMontoInicial', monto);
+
+            cerrarModalAbrirCaja();
+            inicializarEstadoCaja();
+            showNotification('Caja abierta exitosamente. Los pedidos se filtrarán a partir de ahora.', 'success');
+        }
+
+        function cerrarCaja() {
+            if (confirm('¿Seguro que deseas CERRAR CAJA? Esto finalizará la sesion actual.')) {
+                // Calcular total ventas (mock por ahora)
+                const ventas = document.getElementById('dashboard-ventas-dia')?.innerText || '$0';
+                alert(`Caja Cerrada.\nVentas registradas: ${ventas}`);
+
+                // Limpiar sesion
+                localStorage.removeItem('cajaSesionStart');
+                localStorage.removeItem('cajaUsuario');
+                localStorage.removeItem('cajaMontoInicial');
+
+                inicializarEstadoCaja();
+                showNotification('Caja cerrada correctamente.', 'info');
+            }
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            inicializarEstadoCaja();
+            // ... resto de inicializaciones ...
+        });
+
+        // ... (resto de funciones existentes)
     </script>
 </body>
 

@@ -862,19 +862,26 @@ function formatStatusForBackend(displayStatus) {
     return statusBackendMapping[displayStatus] || displayStatus;
 }
 
+// Iniciar nueva sesión de caja (SOLO PARA ADMIN - Esta función se invoca desde admin.html, pero mantenemos compatibilidad por si acaso)
+/*
+function startNewShift() {
+    // Deprecated: Usar sistema de admin.html
+}
+*/
+
 async function loadOrderManagement() {
     try {
         const orders = await db.getPedidos();
 
-        // Filtrar por sesión de caja si existe
-        const cajaStart = localStorage.getItem('cajaStartTime');
+        // Filtrar por sesión de caja si existe (establecida desde Admin)
+        const cajaStart = localStorage.getItem('cajaSesionStart'); // Clave unificada con Admin
         let sessionOrders = orders;
 
         if (cajaStart) {
             const startTime = new Date(cajaStart).getTime();
             sessionOrders = orders.filter(order => {
-                const orderDate = order.created_at || order.fecha; // Usar created_at (ideal) o fecha
-                if (!orderDate) return false; // Ocultar pedidos sin fecha (viejos)
+                const orderDate = order.created_at || order.fecha;
+                if (!orderDate) return false;
                 return new Date(orderDate).getTime() >= startTime;
             });
         }
@@ -890,15 +897,6 @@ async function loadOrderManagement() {
         if (container) {
             container.innerHTML = '<p class="text-center text-red-400">Error al cargar pedidos</p>';
         }
-    }
-}
-
-// Iniciar nueva sesión de caja
-function startNewShift() {
-    if (confirm('¿Deseas reiniciar la vista de pedidos para una nueva jornada/caja?\nEsto ocultará los pedidos anteriores de esta pantalla.')) {
-        localStorage.setItem('cajaStartTime', new Date().toISOString());
-        loadOrderManagement();
-        showNotification('Nueva sesión de caja iniciada', 'success');
     }
 }
 
