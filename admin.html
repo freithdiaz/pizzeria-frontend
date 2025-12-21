@@ -2872,18 +2872,23 @@
 
         function inicializarEstadoCaja() {
             const cajaStart = localStorage.getItem('cajaSesionStart');
+            console.log('Verificando estado de caja. Fecha inicio:', cajaStart);
+
             const btnAbrir = document.getElementById('btn-abrir-caja');
             const btnCerrar = document.getElementById('btn-cerrar-caja');
             const estadoInfo = document.getElementById('caja-info');
             const usuarioOpen = localStorage.getItem('cajaUsuario');
 
-            if (cajaStart) {
+            if (cajaStart && cajaStart !== 'undefined' && cajaStart !== 'null') {
                 // Caja Abierta
                 if (btnAbrir) btnAbrir.classList.add('hidden');
                 if (btnCerrar) btnCerrar.classList.remove('hidden');
                 if (estadoInfo) estadoInfo.innerHTML = `<span class="text-green-400 font-bold">ABIERTA</span> desde ${new Date(cajaStart).toLocaleTimeString()} por ${usuarioOpen || 'Admin'}`;
             } else {
                 // Caja Cerrada
+                // Si llegamos aqui, nos aseguramos que las claves no existan
+                if (localStorage.getItem('cajaSesionStart')) localStorage.removeItem('cajaSesionStart');
+
                 if (btnAbrir) btnAbrir.classList.remove('hidden');
                 if (btnCerrar) btnCerrar.classList.add('hidden');
                 if (estadoInfo) estadoInfo.innerHTML = `<span class="text-red-400 font-bold">CERRADA</span>`;
@@ -2920,15 +2925,19 @@
             if (confirm('¿Seguro que deseas CERRAR CAJA? Esto finalizará la sesion actual.')) {
                 // Calcular total ventas (mock por ahora)
                 const ventas = document.getElementById('dashboard-ventas-dia')?.innerText || '$0';
-                alert(`Caja Cerrada.\nVentas registradas: ${ventas}`);
 
-                // Limpiar sesion
+                // Limpieza Profunda de Sesión
+                console.log('Cerrando caja y limpiando sesión...');
                 localStorage.removeItem('cajaSesionStart');
                 localStorage.removeItem('cajaUsuario');
                 localStorage.removeItem('cajaMontoInicial');
+                localStorage.removeItem('cajaStartTime'); // Limpiar clave legacy por seguridad
 
+                // Forzar UI a estado cerrado
                 inicializarEstadoCaja();
-                showNotification('Caja cerrada correctamente.', 'info');
+
+                alert(`Caja Cerrada Exitosamente.\nVentas registradas: ${ventas}`);
+                console.log('Caja cerrada. Claves eliminadas.');
             }
         }
 

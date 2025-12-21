@@ -721,12 +721,25 @@ function removeFromCart(index) {
 
 // Confirmar y enviar pedido (función de respaldo)
 async function confirmAndSendOrder() {
+    // Validar Sesión de Caja Abierta
+    const cajaOpen = localStorage.getItem('cajaSesionStart');
+    if (!cajaOpen) {
+        showNotification('⛔ CAJA CERRADA: Debe abrir caja en Administración para hacer pedidos.', 'error');
+        return;
+    }
+
     // Usar el modal de descuentos por defecto
     showDiscountModal();
 }
 
 // Función para enviar pedido (respaldo o modal) usando Supabase
 async function submitOrderToAPI() {
+    // Validar Sesión de Caja Abierta (Doble comprobación)
+    if (!localStorage.getItem('cajaSesionStart')) {
+        showNotification('⛔ CAJA CERRADA: No se pueden procesar pedidos.', 'error');
+        return;
+    }
+
     try {
         const total = calculateTotal();
         const items = currentCart.map(item => {
