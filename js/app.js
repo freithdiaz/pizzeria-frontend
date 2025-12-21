@@ -865,7 +865,21 @@ function formatStatusForBackend(displayStatus) {
 async function loadOrderManagement() {
     try {
         const orders = await db.getPedidos();
-        allOrders = orders.map(order => ({
+
+        // Filtrar por sesión de caja si existe
+        const cajaStart = localStorage.getItem('cajaStartTime');
+        let sessionOrders = orders;
+
+        if (cajaStart) {
+            const startTime = new Date(cajaStart).getTime();
+            sessionOrders = orders.filter(order => {
+                const orderDate = order.created_at || order.fecha; // Usar created_at (ideal) o fecha
+                if (!orderDate) return false; // Ocultar pedidos sin fecha (viejos)
+                return new Date(orderDate).getTime() >= startTime;
+            });
+        }
+
+        allOrders = sessionOrders.map(order => ({
             ...order,
             status: formatStatusForDisplay(order.estado)
         }));
@@ -876,6 +890,15 @@ async function loadOrderManagement() {
         if (container) {
             container.innerHTML = '<p class="text-center text-red-400">Error al cargar pedidos</p>';
         }
+    }
+}
+
+// Iniciar nueva sesión de caja
+function startNewShift() {
+    if (confirm('¿Deseas reiniciar la vista de pedidos para una nueva jornada/caja?\nEsto ocultará los pedidos anteriores de esta pantalla.')) {
+        localStorage.setItem('cajaStartTime', new Date().toISOString());
+        loadOrderManagement();
+        showNotification('Nueva sesión de caja iniciada', 'success');
     }
 }
 
