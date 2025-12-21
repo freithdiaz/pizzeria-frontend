@@ -3,7 +3,10 @@
  * =================================
  * Este archivo gestiona la conexión directa con Supabase y toda la lógica
  * que anteriormente residía en el backend (CRUD, Inventario, etc.)
+ * Versión: 2.1.2
  */
+const CLIENT_VERSION = '2.1.2';
+console.log(`Supabase Client Version: ${CLIENT_VERSION}`);
 
 // Importar SDK de Supabase desde CDN
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
@@ -91,7 +94,7 @@ export const db = {
             // 3. Unir manualmente
             return prods.map(p => ({
                 ...p,
-                categoria: cats.find(c => c.id === p.categoria_config_id)
+                categoria: cats.find(c => c.id === p.categoria_id)
             }));
         } catch (error) {
             console.error('Error in getAdiciones:', error);
@@ -183,9 +186,7 @@ export const db = {
                         tamano_id: item.size_id || item.tamano_id,
                         cantidad: item.quantity || item.cantidad,
                         precio_unitario: item.unit_price || item.precio_unitario,
-                        comentarios: item.comentarios || '',
-                        adiciones: item.additions || item.adicionales || [],
-                        segundo_sabor: item.segundo_sabor || null
+                        adiciones: item.additions || item.adicionales || []
                     };
 
                     const { error: errDetalle } = await supabase
@@ -212,22 +213,46 @@ export const db = {
 
     async getPedidos(limit = 50) {
         try {
-            // 1. Obtener pedidos y usuarios por separado
-            const [pedidosRes, usuariosRes] = await Promise.all([
+            // 1. Obtener todos los datos necesarios por separado (Zero Join)
+            const [pedidosRes, usuariosRes, detallesRes, productosRes, preciosRes] = await Promise.all([
                 supabase.from('pedidos').select('*').order('fecha', { ascending: false }).limit(limit),
-                supabase.from('usuarios_domicilio').select('*')
+                supabase.from('usuarios_domicilio').select('*'),
+                supabase.from('detalle_pedido').select('*'),
+                supabase.from('productos').select('*'),
+                supabase.from('producto_precios_dinamicos').select('*')
             ]);
 
             if (pedidosRes.error) throw pedidosRes.error;
 
             const pedidos = pedidosRes.data || [];
             const usuarios = usuariosRes.data || [];
+            const detalles = detallesRes.data || [];
+            const productos = productosRes.data || [];
+            const precios = preciosRes.data || [];
 
             // 2. Unir en JavaScript
-            return pedidos.map(p => ({
-                ...p,
-                usuario_domicilio: usuarios.find(u => u.id === p.usuario_domicilio_id) || null
-            }));
+            return pedidos.map(p => {
+                // Filtrar detalles del pedido
+                const itemsDelPedido = detalles.filter(d => d.pedido_id === p.id).map(d => {
+                    const prod = productos.find(pr => pr.id === d.producto_id);
+                    const precioDinamico = precios.find(pd => pd.id === d.tamano_id);
+
+                    return {
+                        ...d,
+                        name: prod ? prod.nombre : 'Producto no encontrado',
+                        tamano: precioDinamico ? precioDinamico.nombre_precio : '',
+                        quantity: d.cantidad,
+                        price: d.precio_unitario,
+                        additions: typeof d.adiciones === 'string' ? JSON.parse(d.adiciones) : (d.adiciones || [])
+                    };
+                });
+
+                return {
+                    ...p,
+                    items: itemsDelPedido,
+                    usuario_domicilio: usuarios.find(u => u.id === p.usuario_domicilio_id) || null
+                };
+            });
         } catch (error) {
             console.error('Error in getPedidos (Zero Joins):', error);
             throw error;
