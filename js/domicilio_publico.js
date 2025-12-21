@@ -1447,18 +1447,28 @@ async function enviarPedido(event) {
 
             mostrarNotificacionRapida('¡Pedido enviado exitosamente!', 'success');
 
-            // Limpiar carrito y cerrar modal
+            // Limpiar carrito y cerrar modal de compra
             if (typeof vaciarCarrito === 'function') vaciarCarrito();
             if (typeof cerrarModalFinalizar === 'function') cerrarModalFinalizar();
 
-            // Redirigir a confirmación
+            // Mostrar Modal de Éxito en la misma página
             if (orderId) {
-                setTimeout(() => {
-                    window.location.href = `confirmacion.html?id=${orderId}`;
-                }, 1500); // Pequeña pausa para ver la notificación
-            } else {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                const modal = document.getElementById('modal-exito-pedido');
+                const content = document.getElementById('modal-exito-content');
+                document.getElementById('exito-order-id').textContent = `#${orderId}`;
+
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    // Animación de entrada
+                    setTimeout(() => {
+                        content.classList.remove('scale-95', 'opacity-0');
+                        content.classList.add('scale-100', 'opacity-100');
+                    }, 50);
+                }
             }
+
+            // Volver al inicio suavemente
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
             throw new Error('No se recibió el ID del pedido');
         }

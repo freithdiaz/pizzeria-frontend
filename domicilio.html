@@ -101,6 +101,51 @@
             overflow-wrap: break-word;
         }
     </style>
+    <!-- MODAL PEDIDO EXITOSO -->
+    <div id="modal-exito-pedido"
+        class="modal fixed inset-0 bg-black bg-opacity-75 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full border border-gray-700 overflow-hidden transform scale-95 opacity-0 transition-all duration-300"
+            id="modal-exito-content">
+            <div class="bg-green-600 p-6 text-center relative overflow-hidden">
+                <div class="relative z-10">
+                    <div
+                        class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg animate-bounce">
+                        <i class="fas fa-check text-green-600 text-3xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white mb-1">¡Pedido Confirmado!</h2>
+                    <p class="text-green-100 text-sm">Tu orden ha sido recibida con éxito</p>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <!-- Info Ticket -->
+                <div class="bg-gray-700/50 rounded-xl p-4 mb-6 border border-gray-600 border-dashed relative">
+                    <div class="absolute -left-2 top-1/2 w-4 h-4 bg-gray-800 rounded-full"></div>
+                    <div class="absolute -right-2 top-1/2 w-4 h-4 bg-gray-800 rounded-full"></div>
+
+                    <div class="text-center">
+                        <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">ID del Pedido</p>
+                        <p id="exito-order-id" class="text-3xl font-mono font-bold text-orange-400 tracking-wider">#---
+                        </p>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-t border-gray-600/50 text-center">
+                        <p class="text-gray-300 text-sm">
+                            <i class="fas fa-motorcycle text-yellow-500 mr-2"></i>
+                            Tu pedido llegará en aprox. <span class="font-bold text-white">30-45 min</span>
+                        </p>
+                    </div>
+                </div>
+
+                <button onclick="cerrarModalExito()"
+                    class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-[1.02] shadow-lg">
+                    Entendido, ¡Gracias!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script src="./js/config.js" defer></script>
     <script type="module" src="./js/supabase-client.js?v=4.1"></script>
 </head>
