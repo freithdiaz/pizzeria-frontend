@@ -1463,13 +1463,18 @@ async function enviarPedido(event) {
             const pedidoCreado = result.data;
             const orderId = pedidoCreado ? pedidoCreado.id : null;
 
-            // Intentar notificar al backend para WhatsApp
+            // Intentar notificar al backend para WhatsApp (await para capturar errores de CORS/net)
             if (orderId) {
-                fetch(`${API_BASE_URL}/api/notifications/notify-order`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ order_id: orderId })
-                }).catch(e => console.error('Error notificando pedido:', e));
+                try {
+                    await fetch(`${API_BASE_URL}/api/notifications/notify-order`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ order_id: orderId })
+                    });
+                } catch (e) {
+                    console.error('Error notificando pedido:', e);
+                    mostrarNotificacionRapida('No fue posible enviar la notificación externa.', 'warning');
+                }
             }
 
             mostrarNotificacionRapida('¡Pedido enviado exitosamente!', 'success');
@@ -1477,6 +1482,8 @@ async function enviarPedido(event) {
             // Limpiar carrito y cerrar modal de compra
             if (typeof vaciarCarrito === 'function') vaciarCarrito();
             if (typeof cerrarModalFinalizar === 'function') cerrarModalFinalizar();
+            // Asegurar cierre del modal de confirmación
+            if (typeof cerrarModalConfirmar === 'function') cerrarModalConfirmar();
 
             // Mostrar Modal de Éxito en la misma página
             if (orderId) {
@@ -1498,17 +1505,14 @@ async function enviarPedido(event) {
 
             // Volver al inicio suavemente
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            // Restaurar estado del botón de enviar
-            if (btn) {
-                btn.innerHTML = textoOriginal;
-                btn.disabled = false;
-            }
         } else {
             throw new Error('No se recibió el ID del pedido');
         }
     } catch (error) {
         console.error('Error enviando pedido:', error);
         alert('Hubo un error al procesar tu pedido. Por favor intenta de nuevo.');
+    } finally {
+        // Restaurar estado del botón de enviar en todos los casos
         if (btn) {
             btn.innerHTML = textoOriginal;
             btn.disabled = false;
