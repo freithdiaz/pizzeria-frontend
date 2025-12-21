@@ -1451,8 +1451,14 @@ async function enviarPedido(event) {
             if (typeof vaciarCarrito === 'function') vaciarCarrito();
             if (typeof cerrarModalFinalizar === 'function') cerrarModalFinalizar();
 
-            // Desplazar al inicio para mostrar que se limpió
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Redirigir a confirmación
+            if (orderId) {
+                setTimeout(() => {
+                    window.location.href = `confirmacion.html?id=${orderId}`;
+                }, 1500); // Pequeña pausa para ver la notificación
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         } else {
             throw new Error('No se recibió el ID del pedido');
         }
