@@ -2012,9 +2012,7 @@ async function submitOrderWithDiscount(totalWithDiscount, discountPercentage) {
             }).catch(e => console.warn('Error enviando notificación al backend (CORS esperado en local):', e));
         }
     } catch (e) { }
-} catch (e) { }
-
-return result;
+    return result;
 }
 
 
