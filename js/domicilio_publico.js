@@ -113,7 +113,7 @@ async function inicializarApp() {
             mostrarNotificacionRapida(`Precio de domicilio actualizado: $${formatPrice(window.precioDomicilio)}`, 'info');
         }
     }
-});
+};
 
 // ==================== CARGAR DATOS ====================
 
