@@ -195,7 +195,7 @@ export const db = {
         try {
             // 1. Obtener todos los datos necesarios por separado (Zero Join)
             const [pedidosRes, usuariosRes, detallesRes, productosRes, preciosRes] = await Promise.all([
-                supabase.from('pedidos').select('*').order('fecha', { ascending: false }).limit(limit),
+                supabase.from('pedidos').select('*').order('created_at', { ascending: false }).limit(limit),
                 supabase.from('usuarios_domicilio').select('*'),
                 supabase.from('detalle_pedido').select('*'),
                 supabase.from('productos').select('*'),
