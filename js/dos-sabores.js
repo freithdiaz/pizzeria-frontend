@@ -12,27 +12,73 @@ let segundosSaboresSeleccionados = []; // para modo 3
 /**
  * Cargar los sabores disponibles para un producto
  */
-async function cargarSaboresDisponibles(productoId) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/productos/${productoId}/sabores`);
-        if (response.ok) {
-            const data = await response.json();
-            // Compatibilidad: si el endpoint devuelve objeto con {combined, allowed_types, sabores}
-            if (data && typeof data === 'object' && ('sabores' in data)) {
-                saboresDisponibles = data.sabores || [];
-                allowedTypesForCombined = data.allowed_types || [];
-                console.log('Sabores disponibles (obj):', saboresDisponibles, 'allowedTypes:', allowedTypesForCombined);
-                return data;
-            }
-            // Si devuelve array (antiguo formato)
-            saboresDisponibles = data;
-            allowedTypesForCombined = [];
-            console.log('Sabores disponibles cargados:', saboresDisponibles);
-            return saboresDisponibles;
-        }
+async function cargarSaboresDisponibles(producto) {
+    if (!window.supabaseClient) {
+        console.error('supabaseClient no disponible');
         return [];
+    }
+
+    try {
+        const sabores = await window.supabaseClient.getSabores(producto.id);
+
+        // Determinar si es una pizza combinada y qué tipos permite
+        // Lógica portada del backend (api_routes.py)
+        let isCombinada = false;
+        let allowedTypes = [];
+
+        const prodNombre = (producto.nombre || '').toUpperCase();
+        const prodCategoria = (producto.categoria?.nombre || '').toUpperCase();
+
+        if (prodCategoria.includes('COMBINAD') || prodNombre.includes('/')) {
+            isCombinada = true;
+
+            // Extraer tipos del nombre (ej: Pizza Especial / Premium -> [ESPECIAL, PREMIUM])
+            const parts = prodNombre.split(/[\/\\-]/);
+            const mapTipo = (token) => {
+                const t = token.trim();
+                if (t.includes('ESPECIAL')) return 'ESPECIAL';
+                if (t.includes('PREMI')) return 'PREMIUM';
+                if (t.includes('TRADIC')) return 'TRADICIONAL';
+                return null;
+            };
+
+            parts.forEach(p => {
+                const m = mapTipo(p);
+                if (m && !allowedTypes.includes(m)) allowedTypes.push(m);
+            });
+        }
+
+        // Enriquecer los sabores con su tipo canónico para el renderizado
+        const saboresEnriquecidos = sabores.map(s => {
+            const catNombre = (s.categoria?.nombre || s.sabor_categoria || '').toUpperCase();
+            let tipoCanonico = null;
+            if (catNombre.includes('ESPECIAL')) tipoCanonico = 'ESPECIAL';
+            else if (catNombre.includes('PREMI')) tipoCanonico = 'PREMIUM';
+            else if (catNombre.includes('TRADIC')) tipoCanonico = 'TRADICIONAL';
+            else {
+                // Por nombre
+                const n = s.nombre.toUpperCase();
+                if (n.includes('ESPECIAL')) tipoCanonico = 'ESPECIAL';
+                else if (n.includes('PREMI')) tipoCanonico = 'PREMIUM';
+                else if (n.includes('TRADIC')) tipoCanonico = 'TRADICIONAL';
+            }
+            return { ...s, tipo_canonico: tipoCanonico };
+        });
+
+        const data = {
+            combined: isCombinada,
+            allowed_types: allowedTypes,
+            sabores: saboresEnriquecidos
+        };
+
+        saboresDisponibles = data.sabores;
+        allowedTypesForCombined = data.allowed_types;
+
+        console.log('Sabores cargados vía Supabase:', data);
+        return data;
+
     } catch (error) {
-        console.error('Error cargando sabores:', error);
+        console.error('Error cargando sabores vía Supabase:', error);
         return [];
     }
 }
@@ -55,10 +101,10 @@ async function mostrarSeccionDosSabores(producto) {
         return;
     }
 
-    // Cargar sabores disponibles
-    const saboresResp = await cargarSaboresDisponibles(producto.id);
+    // Cargar sabores disponibles - pasando el objeto producto para la lógica combinada
+    const saboresResp = await cargarSaboresDisponibles(producto);
     const sabores = Array.isArray(saboresResp) ? saboresResp : (saboresResp.sabores || []);
-    
+
     if (!sabores || sabores.length === 0) {
         container.classList.add('hidden');
         container.innerHTML = '';
@@ -105,11 +151,11 @@ async function mostrarSeccionDosSabores(producto) {
                 <p class="text-sm text-gray-600 mb-2"><i class="fas fa-hand-pointer mr-1"></i>Selecciona el/los sabores:</p>
                 <div id="lista-sabores-disponibles">
                     <!-- Si el producto es combinada y allowedTypesForCombined tiene tipos, renderizar selectores por tipo -->
-                    ${ (allowedTypesForCombined && allowedTypesForCombined.length >= 2) ? (
-                        allowedTypesForCombined.map((tipo) => {
-                            const tipoLower = tipo.toLowerCase();
-                            const opciones = sabores.filter(s => (s.tipo_canonico || '').toString().toUpperCase() === tipo.toUpperCase());
-                            return `
+                    ${(allowedTypesForCombined && allowedTypesForCombined.length >= 2) ? (
+            allowedTypesForCombined.map((tipo) => {
+                const tipoLower = tipo.toLowerCase();
+                const opciones = sabores.filter(s => (s.tipo_canonico || '').toString().toUpperCase() === tipo.toUpperCase());
+                return `
                                 <div class="mb-3">
                                     <p class="font-medium text-gray-700 mb-2">Sabor para ${tipo}:</p>
                                     <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto" data-tipo="${tipo}">
@@ -123,18 +169,18 @@ async function mostrarSeccionDosSabores(producto) {
                                     </div>
                                 </div>
                             `
-                        }).join('')
-                    ) : (
-                        // Forma antigua: mostrar lista plana
-                        `<div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">` +
-                        sabores.map(sabor => `
+            }).join('')
+        ) : (
+            // Forma antigua: mostrar lista plana
+            `<div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">` +
+            sabores.map(sabor => `
                             <div class="sabor-opcion p-2 border border-gray-200 rounded-lg cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition flex items-center gap-2"
-                                 onclick="seleccionarSegundoSabor(${sabor.sabor_producto_id}, '${sabor.nombre.replace(/'/g, "\\'")}', this, '${(sabor.tipo||'').replace(/'/g, "\\'")}')">
+                                 onclick="seleccionarSegundoSabor(${sabor.sabor_producto_id}, '${sabor.nombre.replace(/'/g, "\\'")}', this, '${(sabor.tipo || '').replace(/'/g, "\\'")}')">
                                 ${sabor.imagen_url ? `<img src="${sabor.imagen_url}" class="w-10 h-10 rounded object-cover">` : `<div class="w-10 h-10 rounded bg-gray-200 flex items-center justify-center"><i class="fas fa-pizza-slice text-gray-400"></i></div>`}
                                 <span class="text-sm font-medium text-gray-700 truncate">${sabor.nombre}</span>
                             </div>
                         `).join('') + `</div>`
-                    )}
+        )}
                 </div>
                 <div id="sabor-seleccionado-info" class="hidden mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
                     <div class="flex items-center justify-between">
@@ -191,7 +237,7 @@ function seleccionarSegundoSaborCombinado(saborId, saborNombre, elemento, tipo) 
 function toggleDosSabores() {
     const checkbox = document.getElementById('checkbox-dos-sabores');
     const selector = document.getElementById('selector-segundo-sabor');
-    
+
     if (checkbox && checkbox.checked) {
         selector.classList.remove('hidden');
     } else {
@@ -250,9 +296,9 @@ function seleccionarSegundoSabor(saborId, saborNombre, elemento, saborTipo) {
                 const t1 = segundosSaboresSeleccionados[0].tipo || '';
                 const t2 = segundosSaboresSeleccionados[1].tipo || '';
                 const allowed = new Set([
-                    'especial|premium','premium|especial',
-                    'tradicional|especial','especial|tradicional',
-                    'tradicional|premium','premium|tradicional'
+                    'especial|premium', 'premium|especial',
+                    'tradicional|especial', 'especial|tradicional',
+                    'tradicional|premium', 'premium|tradicional'
                 ]);
                 const pair = `${t1}|${t2}`;
                 if (!allowed.has(pair)) {
@@ -336,7 +382,7 @@ function resetearDosSabores() {
     segundosSaboresSeleccionados = [];
     combinadoSelections = {};
     allowedTypesForCombined = [];
-    
+
     const container = document.getElementById('seccion-dos-sabores');
     if (container) {
         container.classList.add('hidden');

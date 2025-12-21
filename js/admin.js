@@ -12,35 +12,35 @@ function formatPrice(price) {
 }
 
 // Initialize app
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('DOM loaded, initializing admin app...');
-    
+
     // Ensure all modals are closed on page load
     closeAllModals();
-    
+
     // Dashboard deshabilitado - admin_dinamico.html usa su propio sistema
     // showDashboard();
     // loadDashboard();
-    
+
     // Initialize modal event listeners
     initializeModalEvents();
     initializeFormEvents();
-    
+
     // Start automatic updates
     startAutoUpdates();
 });
 
 function initializeModalEvents() {
     console.log('Initializing modal events...');
-    
+
     // Close modals when clicking outside or with Escape key
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (e.target.classList.contains('modal')) {
             closeAllModals();
         }
     });
-    
-    document.addEventListener('keydown', function(e) {
+
+    document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
             closeAllModals();
         }
@@ -96,7 +96,7 @@ function updateActiveNavItem(section) {
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
     });
-    
+
     // Add active class to current section
     const activeItem = document.querySelector(`[onclick="show${section.charAt(0).toUpperCase() + section.slice(1)}()"]`);
     if (activeItem) {
@@ -107,13 +107,13 @@ function updateActiveNavItem(section) {
 // ============= DASHBOARD =============
 async function loadDashboard() {
     try {
-        const response = await fetch(API_BASE_URL + '/api/dashboard/stats');
-        const data = await response.json();
-        dashboardData = data;
+        if (!window.supabaseClient) return;
+        const stats = await window.supabaseClient.getDashboardStats();
+        dashboardData = stats;
         renderDashboard();
     } catch (error) {
-        console.error('Error loading dashboard:', error);
-        showError('Error al cargar el dashboard');
+        console.error('Error loading dashboard via Supabase:', error);
+        // Fallback or error display
     }
 }
 
@@ -250,22 +250,32 @@ function renderDashboard() {
 // ============= INVENTARIO =============
 async function loadInventory() {
     try {
-        const [doughResponse, beverageResponse] = await Promise.all([
-            fetch(API_BASE_URL + '/api/pizza-dough-inventory'),
-            fetch(API_BASE_URL + '/api/beverage-inventory')
-        ]);
-        
-        const doughData = await doughResponse.json();
-        const beverageData = await beverageResponse.json();
-        
+        if (!window.supabaseClient) return;
+        const products = await window.supabaseClient.getProductos();
+
+        // Categorizar productos según el esquema (usando flags es_pizza, es_bebida)
         inventoryData = {
-            doughs: doughData,
-            beverages: beverageData
+            doughs: products.filter(p => p.es_pizza === 1).map(p => ({
+                id: p.id,
+                size: p.nombre, // En este esquema, el nombre suele ser el tamaño para masas
+                current_stock: p.stock_actual,
+                min_stock: p.stock_minimo,
+                max_stock: p.stock_maximo || 100,
+                status: p.stock_actual <= p.stock_minimo ? 'low' : 'normal'
+            })),
+            beverages: products.filter(p => p.es_bebida === 1).map(p => ({
+                id: p.id,
+                name: p.nombre,
+                size: p.unidad_medida || '',
+                current_stock: p.stock_actual,
+                min_stock: p.stock_minimo,
+                status: p.stock_actual <= p.stock_minimo ? 'low' : 'normal'
+            }))
         };
-        
+
         renderInventory();
     } catch (error) {
-        console.error('Error loading inventory:', error);
+        console.error('Error loading inventory via Supabase:', error);
         showError('Error al cargar el inventario');
     }
 }
@@ -412,7 +422,7 @@ function renderInventoryModals() {
         </div>
         
         <!-- Modal para agregar bebida -->
-        <div id="add-beverage-modal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div id="add-beverage-modal" class="modal fixed inset-0 bg-black bg-opacity50 hidden items-center justify-center z-50">
             <div class="bg-white rounded-lg p-6 w-full max-w-md">
                 <h3 class="text-lg font-semibold mb-4">Agregar Bebida</h3>
                 <form id="add-beverage-form">
@@ -488,35 +498,35 @@ function showAddDoughModal() {
     console.log('showAddDoughModal called');
     const modal = document.getElementById('add-dough-modal');
     console.log('Modal found:', modal);
-    
+
     if (!modal) {
         console.error('Modal add-dough-modal not found');
         alert('Error: Modal no encontrado');
         return;
     }
-    
+
     modal.classList.add('show');
-    
+
     // Agregar event listener al formulario
     const form = document.getElementById('add-dough-form');
     if (!form) {
         console.error('Form add-dough-form not found');
         return;
     }
-    
-    form.onsubmit = async function(e) {
+
+    form.onsubmit = async function (e) {
         e.preventDefault();
         const formData = new FormData(form);
         const data = Object.fromEntries(formData);
         console.log('Form data:', data);
-        
+
         try {
             const response = await fetch(API_BASE_URL + '/api/pizza-dough-inventory', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
-            
+
             if (response.ok) {
                 closeAllModals();
                 loadInventory();
@@ -534,35 +544,35 @@ function showAddBeverageModal() {
     console.log('showAddBeverageModal called');
     const modal = document.getElementById('add-beverage-modal');
     console.log('Modal found:', modal);
-    
+
     if (!modal) {
         console.error('Modal add-beverage-modal not found');
         alert('Error: Modal no encontrado');
         return;
     }
-    
+
     modal.classList.add('show');
-    
+
     // Agregar event listener al formulario
     const form = document.getElementById('add-beverage-form');
     if (!form) {
         console.error('Form add-beverage-form not found');
         return;
     }
-    
-    form.onsubmit = async function(e) {
+
+    form.onsubmit = async function (e) {
         e.preventDefault();
         const formData = new FormData(form);
         const data = Object.fromEntries(formData);
         console.log('Form data:', data);
-        
+
         try {
             const response = await fetch(API_BASE_URL + '/api/beverage-inventory', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
-            
+
             if (response.ok) {
                 closeAllModals();
                 loadInventory();
@@ -589,37 +599,32 @@ function adjustBeverageStock(beverageId) {
 function showAdjustStockModal(itemId, itemType, currentStock) {
     const modal = document.getElementById('adjust-stock-modal');
     modal.classList.add('show');
-    
+
     // Llenar el formulario
     document.getElementById('adjust-item-id').value = itemId;
     document.getElementById('adjust-item-type').value = itemType;
     document.getElementById('adjust-current-stock').value = currentStock;
-    
+
     const form = document.getElementById('adjust-stock-form');
-    form.onsubmit = async function(e) {
+    form.onsubmit = async function (e) {
         e.preventDefault();
         const formData = new FormData(form);
         const data = Object.fromEntries(formData);
-        
+
+        const newStock = parseFloat(data.current_stock);
+        const diff = newStock - currentStock;
+
         try {
-            const endpoint = itemType === 'dough' ? 
-                `/api/pizza-dough-inventory/${itemId}` : 
-                `/api/beverage-inventory/${itemId}`;
-                
-            const response = await fetch(endpoint, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            
-            if (response.ok) {
-                closeAllModals();
-                loadInventory();
-                showSuccess('Stock ajustado exitosamente');
-            } else {
-                throw new Error('Error al ajustar stock');
-            }
+            if (!window.supabaseClient) return;
+
+            // Usar updateStock con la diferencia
+            await window.supabaseClient.updateStock(itemId, diff);
+
+            closeAllModals();
+            loadInventory();
+            showSuccess('Stock ajustado exitosamente en Supabase');
         } catch (error) {
+            console.error('Error adjusting stock via Supabase:', error);
             showError('Error al ajustar stock');
         }
     };
@@ -666,19 +671,19 @@ function renderRecipes(recipes) {
                                     <td class="py-3 px-4 font-medium text-white">${recipe.name}</td>
                                     <td class="py-3 px-4 text-gray-300 capitalize">${recipe.size || 'N/A'}</td>
                                     <td class="py-3 px-4 text-gray-300">
-                                        ${recipe.ingredients && recipe.ingredients.length > 0 ? 
-                                            `<div class="space-y-1">
-                                                ${recipe.ingredients.map(ing => 
-                                                    `<div class="text-sm">
+                                        ${recipe.ingredients && recipe.ingredients.length > 0 ?
+            `<div class="space-y-1">
+                                                ${recipe.ingredients.map(ing =>
+                `<div class="text-sm">
                                                         <span class="text-blue-400">${ing.product_name}</span>: 
                                                         <span class="text-yellow-400">${ing.quantity} ${ing.unit}</span>
                                                     </div>`
-                                                ).join('')}
-                                            </div>` 
-                                            : '<span class="text-red-400 italic">Sin ingredientes</span>'
-                                        }
+            ).join('')}
+                                            </div>`
+            : '<span class="text-red-400 italic">Sin ingredientes</span>'
+        }
                                     </td>
-                                    <td class="py-3 px-4 text-right font-semibold text-green-400">$${formatPrice(recipe.sale_price )}</td>
+                                    <td class="py-3 px-4 text-right font-semibold text-green-400">$${formatPrice(recipe.sale_price)}</td>
                                     <td class="py-3 px-4 text-center">
                                         <button onclick="editRecipe(${recipe.id})" class="text-blue-400 hover:text-blue-300 mr-3 transition-colors">
                                             <i class="fas fa-edit"></i> Editar
@@ -693,14 +698,14 @@ function renderRecipes(recipes) {
                     </table>
                 </div>
                 
-                ${recipes.length === 0 ? 
-                    `<div class="text-center py-8">
+                ${recipes.length === 0 ?
+            `<div class="text-center py-8">
                         <i class="fas fa-utensils text-4xl text-gray-500 mb-4"></i>
                         <p class="text-gray-400 text-lg">No hay recetas registradas</p>
                         <p class="text-gray-500">Agrega tu primera receta para comenzar</p>
-                    </div>` 
-                    : ''
-                }
+                    </div>`
+            : ''
+        }
             </div>
         </div>
     `;
@@ -710,39 +715,39 @@ function renderRecipes(recipes) {
 function showAddRecipeModal() {
     console.log('showAddRecipeModal called');
     const modal = document.getElementById('add-recipe-modal');
-    
+
     if (!modal) {
         console.error('Modal add-recipe-modal not found');
         alert('Error: Modal no encontrado');
         return;
     }
-    
+
     // Limpiar el formulario
     document.getElementById('add-recipe-form').reset();
     document.getElementById('recipe-ingredients').innerHTML = '';
-    
+
     modal.classList.add('show');
-    
+
     // Agregar al menos un ingrediente por defecto
     addIngredientRow();
-    
+
     // Agregar event listener al formulario
     const form = document.getElementById('add-recipe-form');
-    form.onsubmit = async function(e) {
+    form.onsubmit = async function (e) {
         e.preventDefault();
-        
+
         // Recopilar datos del formulario
         const recipeName = document.getElementById('recipe-name').value;
         const recipePrice = parseFloat(document.getElementById('recipe-price').value);
-        
+
         // Recopilar ingredientes
         const ingredients = [];
         const ingredientRows = document.querySelectorAll('.ingredient-row');
-        
+
         ingredientRows.forEach(row => {
             const productSelect = row.querySelector('.ingredient-product');
             const quantityInput = row.querySelector('.ingredient-quantity');
-            
+
             if (productSelect.value && quantityInput.value) {
                 ingredients.push({
                     product_id: parseInt(productSelect.value),
@@ -752,22 +757,22 @@ function showAddRecipeModal() {
                 });
             }
         });
-        
+
         const recipeData = {
             name: recipeName,
             sale_price: recipePrice,
             ingredients: ingredients
         };
-        
+
         console.log('Recipe data:', recipeData);
-        
+
         try {
             const response = await fetch(API_BASE_URL + '/api/recipes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(recipeData)
             });
-            
+
             if (response.ok) {
                 closeAllModals();
                 loadRecipes();
@@ -786,7 +791,7 @@ function showAddRecipeModal() {
 function addIngredientRow() {
     const container = document.getElementById('recipe-ingredients');
     const rowId = Date.now(); // ID único para la fila
-    
+
     // Crear nueva fila de ingrediente
     const row = document.createElement('div');
     row.className = 'ingredient-row flex gap-3 items-center';
@@ -807,7 +812,7 @@ function addIngredientRow() {
             <i class="fas fa-trash"></i>
         </button>
     `;
-    
+
     container.appendChild(row);
 }
 
@@ -821,65 +826,65 @@ function closeAddRecipeModal() {
 
 function editRecipe(recipeId) {
     console.log('editRecipe called with ID:', recipeId);
-    
+
     // Por ahora, simplificar la edición - solo permitir cambiar nombre y precio
     const newName = prompt('Nuevo nombre de la receta:');
     if (!newName) return;
-    
+
     const newPrice = parseFloat(prompt('Nuevo precio de venta:'));
     if (isNaN(newPrice) || newPrice <= 0) {
         showError('Precio inválido');
         return;
     }
-    
+
     const recipeData = {
         name: newName,
         sale_price: newPrice
     };
-    
+
     fetch(`${API_BASE_URL}/api/recipes/${recipeId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(recipeData)
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            loadRecipes();
-            showSuccess('Receta actualizada exitosamente');
-        } else {
-            throw new Error(data.error || 'Error al actualizar receta');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showError('Error al actualizar receta: ' + error.message);
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                loadRecipes();
+                showSuccess('Receta actualizada exitosamente');
+            } else {
+                throw new Error(data.error || 'Error al actualizar receta');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('Error al actualizar receta: ' + error.message);
+        });
 }
 
 function deleteRecipe(recipeId) {
     if (!confirm('¿Estás seguro de que quieres eliminar esta receta?')) {
         return;
     }
-    
+
     console.log('deleteRecipe called with ID:', recipeId);
-    
+
     fetch(`${API_BASE_URL}/api/recipes/${recipeId}`, {
         method: 'DELETE'
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            loadRecipes();
-            showSuccess('Receta eliminada exitosamente');
-        } else {
-            throw new Error(data.error || 'Error al eliminar receta');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showError('Error al eliminar receta: ' + error.message);
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                loadRecipes();
+                showSuccess('Receta eliminada exitosamente');
+            } else {
+                throw new Error(data.error || 'Error al eliminar receta');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('Error al eliminar receta: ' + error.message);
+        });
 }
 
 // ============= REPORTES =============
@@ -927,11 +932,11 @@ function renderReports() {
             </div>
         </div>
     `;
-    
+
     // Establecer fechas por defecto
     const today = new Date();
     const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-    
+
     document.getElementById('start-date').value = lastWeek.toISOString().split('T')[0];
     document.getElementById('end-date').value = today.toISOString().split('T')[0];
 }
@@ -940,17 +945,17 @@ async function generateSalesReport() {
     const period = document.getElementById('report-period').value;
     const startDate = document.getElementById('start-date').value;
     const endDate = document.getElementById('end-date').value;
-    
+
     try {
         const params = new URLSearchParams({
             period,
             start_date: startDate,
             end_date: endDate
         });
-        
+
         const response = await fetch(`${API_BASE_URL}/api/reports/sales?${params}`);
         const data = await response.json();
-        
+
         renderSalesReport(data);
     } catch (error) {
         console.error('Error generating report:', error);
@@ -1037,11 +1042,11 @@ function renderSalesReport(data) {
 // ============= PEDIDOS =============
 async function loadOrders() {
     try {
-        const response = await fetch(API_BASE_URL + '/api/orders');
-        const data = await response.json();
-        renderOrders(data);
+        if (!window.supabaseClient) return;
+        const orders = await window.supabaseClient.getPedidos(50);
+        renderOrders(orders);
     } catch (error) {
-        console.error('Error loading orders:', error);
+        console.error('Error loading orders via Supabase:', error);
         showError('Error al cargar los pedidos');
     }
 }
@@ -1120,30 +1125,30 @@ function editDough(doughId) {
         showError('Masa no encontrada');
         return;
     }
-    
+
     const modal = document.getElementById('edit-dough-modal');
     modal.classList.add('show');
-    
+
     // Llenar el formulario con los datos actuales
     document.getElementById('edit-dough-id').value = dough.id;
     document.getElementById('edit-dough-size').value = dough.size;
     document.getElementById('edit-dough-current-stock').value = dough.current_stock;
     document.getElementById('edit-dough-min-stock').value = dough.min_stock;
-    
+
     // Agregar event listener al formulario
     const form = document.getElementById('edit-dough-form');
-    form.onsubmit = async function(e) {
+    form.onsubmit = async function (e) {
         e.preventDefault();
         const formData = new FormData(form);
         const data = Object.fromEntries(formData);
-        
+
         try {
             const response = await fetch(`${API_BASE_URL}/api/pizza-dough-inventory/${doughId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
-            
+
             if (response.ok) {
                 closeAllModals();
                 loadInventory();
@@ -1163,10 +1168,10 @@ function editBeverage(beverageId) {
         showError('Bebida no encontrada');
         return;
     }
-    
+
     const modal = document.getElementById('edit-beverage-modal');
     modal.classList.add('show');
-    
+
     // Llenar el formulario con los datos actuales
     document.getElementById('edit-beverage-id').value = beverage.id;
     document.getElementById('edit-beverage-name').value = beverage.name;
@@ -1174,21 +1179,21 @@ function editBeverage(beverageId) {
     document.getElementById('edit-beverage-price').value = beverage.sale_price;
     document.getElementById('edit-beverage-current-stock').value = beverage.current_stock;
     document.getElementById('edit-beverage-min-stock').value = beverage.min_stock || '';
-    
+
     // Agregar event listener al formulario
     const form = document.getElementById('edit-beverage-form');
-    form.onsubmit = async function(e) {
+    form.onsubmit = async function (e) {
         e.preventDefault();
         const formData = new FormData(form);
         const data = Object.fromEntries(formData);
-        
+
         try {
             const response = await fetch(`${API_BASE_URL}/api/beverage-inventory/${beverageId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
-            
+
             if (response.ok) {
                 closeAllModals();
                 loadInventory();
@@ -1225,7 +1230,7 @@ function showError(message) {
 }
 
 // Cleanup on page unload
-window.addEventListener('beforeunload', function() {
+window.addEventListener('beforeunload', function () {
     if (updateInterval) {
         clearInterval(updateInterval);
     }

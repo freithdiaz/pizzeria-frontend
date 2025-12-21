@@ -8,7 +8,7 @@ let configuracion = null;
 
 // ==================== INICIALIZACIÓN ====================
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     if (document.getElementById('modal-precios-zona')) {
         inicializarGestionPrecios();
     }
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function inicializarGestionPrecios() {
     cargarConfiguracion();
     cargarZonasPrecios();
-    
+
     // Event listeners
     document.getElementById('btn-agregar-zona')?.addEventListener('click', mostrarModalNuevaZona);
     document.getElementById('btn-guardar-zona')?.addEventListener('click', guardarZona);
@@ -28,13 +28,10 @@ function inicializarGestionPrecios() {
 
 async function cargarConfiguracion() {
     try {
-        const response = await fetch(API_BASE_URL + '/api/delivery/config');
-        const resultado = await response.json();
-        
-        if (resultado.success) {
-            configuracion = resultado.data;
-            mostrarConfiguracion();
-        }
+        if (!window.supabaseClient) return;
+        const data = await window.supabaseClient.getPreciosZonaConfig();
+        configuracion = data;
+        mostrarConfiguracion();
     } catch (error) {
         console.error('Error cargando configuración:', error);
         mostrarNotificacion('Error al cargar configuración', 'error');
@@ -43,13 +40,10 @@ async function cargarConfiguracion() {
 
 async function cargarZonasPrecios() {
     try {
-        const response = await fetch(API_BASE_URL + '/api/delivery/precios-zona');
-        const resultado = await response.json();
-        
-        if (resultado.success) {
-            zonasPrecios = resultado.data;
-            renderizarTablaZonas();
-        }
+        if (!window.supabaseClient) return;
+        const data = await window.supabaseClient.getZonasPrecios();
+        zonasPrecios = data;
+        renderizarTablaZonas();
     } catch (error) {
         console.error('Error cargando zonas:', error);
         mostrarNotificacion('Error al cargar zonas de precio', 'error');
@@ -60,10 +54,10 @@ async function cargarZonasPrecios() {
 
 function mostrarConfiguracion() {
     if (!configuracion) return;
-    
+
     document.getElementById('precio-default').value = configuracion.precio_default;
     document.getElementById('usar-precios-zona').checked = configuracion.usar_precios_zona;
-    
+
     // Actualizar estado visual
     const estadoTexto = document.getElementById('estado-sistema');
     if (estadoTexto) {
@@ -80,7 +74,7 @@ function mostrarConfiguracion() {
 function renderizarTablaZonas() {
     const tbody = document.getElementById('tabla-zonas-body');
     if (!tbody) return;
-    
+
     if (zonasPrecios.length === 0) {
         tbody.innerHTML = `
             <tr>
@@ -96,7 +90,7 @@ function renderizarTablaZonas() {
         `;
         return;
     }
-    
+
     // Agrupar por municipio
     const zonasPorMunicipio = {};
     zonasPrecios.forEach(zona => {
@@ -105,25 +99,25 @@ function renderizarTablaZonas() {
         }
         zonasPorMunicipio[zona.municipio].push(zona);
     });
-    
+
     tbody.innerHTML = '';
-    
+
     Object.keys(zonasPorMunicipio).sort().forEach(municipio => {
         const zonas = zonasPorMunicipio[municipio];
-        
+
         zonas.forEach((zona, index) => {
             const tr = document.createElement('tr');
             tr.className = zona.activo ? 'hover:bg-slate-700' : 'bg-slate-900 opacity-60';
-            
+
             tr.innerHTML = `
                 <td class="px-6 py-4 whitespace-nowrap">
                     ${index === 0 ? `<span class="font-semibold text-white">${zona.municipio}</span>` : ''}
                 </td>
                 <td class="px-6 py-4">
-                    ${zona.barrio ? 
-                        `<span class="text-white">${zona.barrio}</span>` : 
-                        `<span class="text-gray-400 italic">Todos los barrios</span>`
-                    }
+                    ${zona.barrio ?
+                    `<span class="text-white">${zona.barrio}</span>` :
+                    `<span class="text-gray-400 italic">Todos los barrios</span>`
+                }
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <span class="text-lg font-bold text-green-400">$${formatPrice(zona.precio)}</span>
@@ -142,7 +136,7 @@ function renderizarTablaZonas() {
                     </button>
                 </td>
             `;
-            
+
             tbody.appendChild(tr);
         });
     });
@@ -154,35 +148,34 @@ function mostrarModalNuevaZona() {
     const modal = document.getElementById('modal-zona');
     const titulo = document.getElementById('modal-zona-titulo');
     const form = document.getElementById('form-zona');
-    
+
     titulo.textContent = 'Nueva Zona de Precio';
     form.reset();
     form.dataset.zonaId = '';
-    
+
     modal.classList.remove('hidden');
     modal.classList.add('flex');
 }
 
 async function editarZona(zonaId) {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/delivery/precios-zona/${zonaId}`);
-        const resultado = await response.json();
-        
-        if (resultado.success) {
-            const zona = resultado.data;
+        if (!window.supabaseClient) return;
+        const zona = await window.supabaseClient.getZonaPrecioById(zonaId);
+
+        if (zona) {
             const modal = document.getElementById('modal-zona');
             const titulo = document.getElementById('modal-zona-titulo');
             const form = document.getElementById('form-zona');
-            
+
             titulo.textContent = 'Editar Zona de Precio';
             form.dataset.zonaId = zonaId;
-            
+
             document.getElementById('zona-municipio').value = zona.municipio;
             document.getElementById('zona-barrio').value = zona.barrio || '';
             document.getElementById('zona-precio').value = zona.precio;
             document.getElementById('zona-observaciones').value = zona.observaciones || '';
-            document.getElementById('zona-activo').checked = zona.activo;
-            
+            document.getElementById('zona-activo').checked = (zona.activo == 1 || zona.activo === true);
+
             modal.classList.remove('hidden');
             modal.classList.add('flex');
         }
@@ -201,54 +194,39 @@ function cerrarModalZona() {
 async function guardarZona() {
     const form = document.getElementById('form-zona');
     const zonaId = form.dataset.zonaId;
-    
+
     const datos = {
         municipio: document.getElementById('zona-municipio').value.trim(),
         barrio: document.getElementById('zona-barrio').value.trim() || null,
         precio: parseInt(document.getElementById('zona-precio').value),
         observaciones: document.getElementById('zona-observaciones').value.trim(),
-        activo: document.getElementById('zona-activo')?.checked ?? true
+        activo: document.getElementById('zona-activo')?.checked ? 1 : 0
     };
-    
+
     // Validaciones
     if (!datos.municipio) {
         mostrarNotificacion('El municipio es requerido', 'warning');
         return;
     }
-    
-    if (!datos.precio || datos.precio < 0) {
+
+    if (isNaN(datos.precio) || datos.precio < 0) {
         mostrarNotificacion('El precio debe ser un valor válido', 'warning');
         return;
     }
-    
+
     try {
-        let response;
-        
+        if (!window.supabaseClient) return;
+
         if (zonaId) {
-            // Actualizar
-            response = await fetch(`${API_BASE_URL}/api/delivery/precios-zona/${zonaId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(datos)
-            });
+            await window.supabaseClient.updateZonaPrecio(zonaId, datos);
+            mostrarNotificacion('Zona actualizada correctamente', 'success');
         } else {
-            // Crear
-            response = await fetch(API_BASE_URL + '/api/delivery/precios-zona', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(datos)
-            });
+            await window.supabaseClient.createZonaPrecio(datos);
+            mostrarNotificacion('Zona creada correctamente', 'success');
         }
-        
-        const resultado = await response.json();
-        
-        if (resultado.success) {
-            mostrarNotificacion(resultado.mensaje, 'success');
-            cerrarModalZona();
-            cargarZonasPrecios();
-        } else {
-            mostrarNotificacion(resultado.error, 'error');
-        }
+
+        cerrarModalZona();
+        cargarZonasPrecios();
     } catch (error) {
         console.error('Error guardando zona:', error);
         mostrarNotificacion('Error al guardar la zona', 'error');
@@ -259,20 +237,12 @@ async function eliminarZona(zonaId) {
     if (!confirm('¿Estás seguro de eliminar esta zona de precio?')) {
         return;
     }
-    
+
     try {
-        const response = await fetch(`${API_BASE_URL}/api/delivery/precios-zona/${zonaId}`, {
-            method: 'DELETE'
-        });
-        
-        const resultado = await response.json();
-        
-        if (resultado.success) {
-            mostrarNotificacion('Zona eliminada correctamente', 'success');
-            cargarZonasPrecios();
-        } else {
-            mostrarNotificacion(resultado.error, 'error');
-        }
+        if (!window.supabaseClient) return;
+        await window.supabaseClient.deleteZonaPrecio(zonaId);
+        mostrarNotificacion('Zona eliminada correctamente', 'success');
+        cargarZonasPrecios();
     } catch (error) {
         console.error('Error eliminando zona:', error);
         mostrarNotificacion('Error al eliminar la zona', 'error');
@@ -283,31 +253,22 @@ async function eliminarZona(zonaId) {
 
 async function guardarConfiguracion() {
     const datos = {
+        id: configuracion?.id || 1,
         precio_default: parseInt(document.getElementById('precio-default').value),
-        usar_precios_zona: document.getElementById('usar-precios-zona').checked
+        usar_precios_zona: document.getElementById('usar-precios-zona').checked ? 1 : 0
     };
-    
-    if (!datos.precio_default || datos.precio_default < 0) {
+
+    if (isNaN(datos.precio_default) || datos.precio_default < 0) {
         mostrarNotificacion('El precio por defecto debe ser un valor válido', 'warning');
         return;
     }
-    
+
     try {
-        const response = await fetch(API_BASE_URL + '/api/delivery/config', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(datos)
-        });
-        
-        const resultado = await response.json();
-        
-        if (resultado.success) {
-            configuracion = resultado.data;
-            mostrarConfiguracion();
-            mostrarNotificacion('Configuración guardada correctamente', 'success');
-        } else {
-            mostrarNotificacion(resultado.error, 'error');
-        }
+        if (!window.supabaseClient) return;
+        const data = await window.supabaseClient.updatePreciosZonaConfig(datos);
+        configuracion = data || datos;
+        mostrarConfiguracion();
+        mostrarNotificacion('Configuración guardada correctamente', 'success');
     } catch (error) {
         console.error('Error guardando configuración:', error);
         mostrarNotificacion('Error al guardar la configuración', 'error');

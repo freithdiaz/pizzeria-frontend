@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pedidos a Domicilio - Nissi Pizza</title>
-<link rel="icon" type="image/x-icon" href="./niss.ico">
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="./css/domicilio-images.css">
-<style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos a Domicilio - Nissi Pizza</title>
+    <link rel="icon" type="image/x-icon" href="./niss.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./css/domicilio-images.css">
+    <style>
         .cart-badge {
             position: absolute;
             top: -6px;
             right: -6px;
-            background: #f97316; /* amber-500 */
-            color: #7f1d1d; /* red-900 for contrast */
+            background: #f97316;
+            /* amber-500 */
+            color: #7f1d1d;
+            /* red-900 for contrast */
             border-radius: 50%;
             width: 26px;
             height: 26px;
@@ -23,30 +26,30 @@
             justify-content: center;
             font-size: 13px;
             font-weight: 700;
-            box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
         }
-        
+
         .product-card {
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        
+
         .product-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
         }
-        
+
         .modal {
             display: none;
         }
-        
+
         .modal.active {
             display: flex;
         }
-        
+
         .option-card {
             transition: all 0.2s;
         }
-        
+
         .option-card.selected {
             border-color: #10b981;
             background-color: #ecfdf5;
@@ -66,7 +69,7 @@
                 font-size: 1rem;
                 line-height: 1.3;
             }
-            
+
             .product-card .text-lg {
                 font-size: 0.95rem;
             }
@@ -85,7 +88,7 @@
 
         /* Ajustar modal en pantallas pequeñas */
         @media (max-width: 640px) {
-            .modal > div {
+            .modal>div {
                 max-height: 95vh;
                 margin: 0.5rem;
             }
@@ -98,7 +101,10 @@
             overflow-wrap: break-word;
         }
     </style>
-<script src="./js/config.js"></script></head>
+    <script src="./js/config.js"></script>
+    <script type="module" src="./js/supabase-client.js"></script>
+</head>
+
 <body class="bg-gray-50">
     <!-- Header con carrito -->
     <header class="bg-gradient-to-r from-yellow-400 via-red-500 to-red-600 text-white sticky top-0 z-50 shadow-lg">
@@ -111,7 +117,9 @@
                         <p class="text-sm text-red-100">Pedidos a domicilio</p>
                     </div>
                 </div>
-                <button onclick="toggleCart()" class="relative bg-white text-red-600 px-4 py-2 rounded-full font-semibold hover:bg-red-50 transition shadow-lg hidden" id="header-cart-btn">
+                <button onclick="toggleCart()"
+                    class="relative bg-white text-red-600 px-4 py-2 rounded-full font-semibold hover:bg-red-50 transition shadow-lg hidden"
+                    id="header-cart-btn">
                     <i class="fas fa-shopping-cart mr-2"></i>
                     Carrito
                 </button>
@@ -134,13 +142,9 @@
 
                 <!-- Buscador -->
                 <div class="relative max-w-md w-full">
-                    <input
-                        type="text"
-                        id="search-input"
-                        placeholder="Buscar productos..."
+                    <input type="text" id="search-input" placeholder="Buscar productos..."
                         class="w-full px-4 py-2 pl-10 pr-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        oninput="filtrarProductos()"
-                    >
+                        oninput="filtrarProductos()">
                     <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                 </div>
             </div>
@@ -153,7 +157,8 @@
             <i class="fas fa-utensils mr-3 text-yellow-500"></i>
             ¿Qué deseas ordenar?
         </h2>
-        <div id="categorias-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+        <div id="categorias-container"
+            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
             <!-- Categorías se cargan aquí -->
         </div>
     </div>
@@ -169,7 +174,8 @@
                 <!-- Contador de productos -->
             </div>
         </div>
-        <div id="productos-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        <div id="productos-container"
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             <!-- Productos se cargan aquí -->
         </div>
     </div>
@@ -182,11 +188,13 @@
                     <h3 id="modal-producto-nombre" class="text-2xl font-bold text-gray-800"></h3>
                     <p class="text-sm text-gray-600 mt-1" id="modal-producto-descripcion-corta"></p>
                 </div>
-                <button onclick="cerrarModalProducto()" class="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors" title="Cerrar">
+                <button onclick="cerrarModalProducto()"
+                    class="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors"
+                    title="Cerrar">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            
+
             <div class="flex-1 overflow-y-auto p-6">
                 <!-- Imagen del producto -->
                 <div id="modal-producto-imagen" class="mb-6"></div>
@@ -202,22 +210,27 @@
                         <i class="fas fa-info-circle mr-2 text-yellow-500"></i>
                         Información
                     </h4>
-                    <p class="text-sm text-blue-700">Producto fresco preparado con ingredientes de calidad. Tiempo de preparación: 15-20 minutos.</p>
+                    <p class="text-sm text-blue-700">Producto fresco preparado con ingredientes de calidad. Tiempo de
+                        preparación: 15-20 minutos.</p>
                 </div>
 
                 <!-- Botones rápidos para bordes y segundos sabores -->
-                <div id="botones-rapidos-adiciones" class="hidden bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4 mb-6">
+                <div id="botones-rapidos-adiciones"
+                    class="hidden bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4 mb-6">
                     <h4 class="font-semibold text-green-800 mb-3 flex items-center">
                         <i class="fas fa-plus-circle mr-2"></i>
                         Agregar Adiciones Rápidas
                     </h4>
-                    <p class="text-sm text-green-700 mb-4">Haz clic en los botones para agregar bordes o segundos sabores disponibles:</p>
+                    <p class="text-sm text-green-700 mb-4">Haz clic en los botones para agregar bordes o segundos
+                        sabores disponibles:</p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <button onclick="mostrarGrupoAdicion('borde')" id="btn-agregar-borde" class="bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-md">
+                        <button onclick="mostrarGrupoAdicion('borde')" id="btn-agregar-borde"
+                            class="bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-md">
                             <i class="fas fa-circle mr-2"></i>
                             Agregar Borde de Queso
                         </button>
-                        <button onclick="mostrarGrupoAdicion('segundo_sabor')" id="btn-agregar-segundo-sabor" class="bg-purple-500 hover:bg-purple-600 text-white py-3 px-4 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-md">
+                        <button onclick="mostrarGrupoAdicion('segundo_sabor')" id="btn-agregar-segundo-sabor"
+                            class="bg-purple-500 hover:bg-purple-600 text-white py-3 px-4 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-md">
                             <i class="fas fa-pizza-slice mr-2"></i>
                             Agregar Segundo Sabor
                         </button>
@@ -225,7 +238,8 @@
                 </div>
 
                 <!-- Selector rápido de pizza popular -->
-                <div id="selector-rapido-pizza" class="hidden bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg p-4 mb-6">
+                <div id="selector-rapido-pizza"
+                    class="hidden bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg p-4 mb-6">
                     <!-- <h4 class="font-semibold text-orange-800 mb-3 flex items-center">
                         <i class="fas fa-star mr-2"></i>
                         ¿Pizza Hawaiana? ¡Te ayudamos!
@@ -242,12 +256,12 @@
                         </button>
                     </div> -->
                 </div>
-                
+
                 <!-- Grupos de adiciones -->
                 <div id="modal-grupos-adiciones" class="space-y-6">
                     <!-- Grupos se cargan aquí -->
                 </div>
-                
+
                 <!-- Sección de Dos Sabores -->
                 <div id="seccion-dos-sabores" class="hidden">
                     <!-- Se llena dinámicamente por dos-sabores.js -->
@@ -268,35 +282,36 @@
                 </div>
 
                 <!-- Selector rápido de pizza popular -->
-                <div id="selector-rapido-pizza" class="hidden bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg p-4 mb-6">
+                <div id="selector-rapido-pizza"
+                    class="hidden bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg p-4 mb-6">
                     <h4 class="font-semibold text-orange-800 mb-3 flex items-center">
                         <i class="fas fa-star mr-2"></i>
                         ¿Pizza Hawaiana? ¡Te ayudamos!
                     </h4>
-                    <p class="text-sm text-orange-700 mb-4">Selecciona rápidamente las opciones más populares para pizza hawaiana:</p>
+                    <p class="text-sm text-orange-700 mb-4">Selecciona rápidamente las opciones más populares para pizza
+                        hawaiana:</p>
                     <div class="grid grid-cols-1 gap-3">
-                        <button onclick="seleccionarConfiguracionRapida('hawaiana')" class="bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-md">
+                        <button onclick="seleccionarConfiguracionRapida('hawaiana')"
+                            class="bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-md">
                             <i class="fas fa-magic mr-2"></i>
                             Configuración Rápida Hawaiana
                         </button>
-                        <button onclick="personalizarManualmente()" class="bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-lg font-semibold transition-all">
+                        <button onclick="personalizarManualmente()"
+                            class="bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-lg font-semibold transition-all">
                             <i class="fas fa-cog mr-2"></i>
                             Personalizar Manualmente
                         </button>
                     </div>
                 </div>
-                
+
                 <!-- Comentarios -->
                 <div class="mb-6">
                     <label class="block text-sm font-semibold mb-2">Comentarios especiales</label>
-                    <textarea 
-                        id="modal-comentarios"
-                        rows="3"
+                    <textarea id="modal-comentarios" rows="3"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                        placeholder="Ej: Sin cebolla, bien cocida, etc."
-                    ></textarea>
+                        placeholder="Ej: Sin cebolla, bien cocida, etc."></textarea>
                 </div>
-                
+
                 <!-- Cantidad -->
                 <div class="bg-gray-50 rounded-lg p-4 mb-6">
                     <div class="flex items-center justify-between">
@@ -305,11 +320,15 @@
                             <p class="text-sm text-gray-600">Selecciona la cantidad deseada</p>
                         </div>
                         <div class="flex items-center gap-3 bg-white rounded-lg p-2 border">
-                            <button onclick="cambiarCantidad(-1)" class="w-8 h-8 bg-red-500 text-white rounded-full hover:bg-red-600 flex items-center justify-center transition-colors" title="Disminuir">
+                            <button onclick="cambiarCantidad(-1)"
+                                class="w-8 h-8 bg-red-500 text-white rounded-full hover:bg-red-600 flex items-center justify-center transition-colors"
+                                title="Disminuir">
                                 <i class="fas fa-minus text-xs"></i>
                             </button>
                             <span id="modal-cantidad" class="text-xl font-bold w-10 text-center text-gray-800">1</span>
-                            <button onclick="cambiarCantidad(1)" class="w-8 h-8 bg-green-500 text-white rounded-full hover:bg-green-600 flex items-center justify-center transition-colors" title="Aumentar">
+                            <button onclick="cambiarCantidad(1)"
+                                class="w-8 h-8 bg-green-500 text-white rounded-full hover:bg-green-600 flex items-center justify-center transition-colors"
+                                title="Aumentar">
                                 <i class="fas fa-plus text-xs"></i>
                             </button>
                         </div>
@@ -319,14 +338,11 @@
                 <!-- Comentarios -->
                 <div class="bg-gray-50 rounded-lg p-4 mb-6">
                     <label class="font-semibold text-gray-700 block mb-2">Comentarios adicionales:</label>
-                    <textarea
-                        id="modal-comentarios"
-                        rows="2"
+                    <textarea id="modal-comentarios" rows="2"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Ej: Sin cebolla, extra queso, etc."
-                    ></textarea>
+                        placeholder="Ej: Sin cebolla, extra queso, etc."></textarea>
                 </div>
-                
+
                 <!-- Total y botón agregar -->
                 <div class="sticky bottom-0 bg-white border-t pt-4 mt-6 px-6 pb-6">
                     <div class="bg-gray-50 rounded-lg p-4 mb-4">
@@ -338,7 +354,8 @@
                             <span id="modal-total" class="text-4xl font-bold text-red-600"></span>
                         </div>
                     </div>
-                    <button onclick="agregarAlCarrito()" class="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-4 rounded-lg font-bold text-lg hover:from-red-600 hover:to-red-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                    <button onclick="agregarAlCarrito()"
+                        class="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-4 rounded-lg font-bold text-lg hover:from-red-600 hover:to-red-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                         <i class="fas fa-cart-plus mr-2"></i>
                         Agregar al Carrito
                     </button>
@@ -358,11 +375,13 @@
                     <h3 class="text-2xl font-bold text-gray-800">Tu Carrito</h3>
                     <p class="text-sm text-gray-600" id="carrito-items-count">0 productos</p>
                 </div>
-                <button onclick="toggleCart()" class="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors" title="Cerrar">
+                <button onclick="toggleCart()"
+                    class="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors"
+                    title="Cerrar">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            
+
             <div id="carrito-items" class="flex-1 overflow-y-auto p-6">
                 <!-- Items del carrito -->
             </div>
@@ -382,7 +401,8 @@
                         <span id="carrito-total" class="text-red-600">$0</span>
                     </div>
                 </div>
-                <button onclick="irAConfirmar()" class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-lg font-bold text-lg hover:from-green-600 hover:to-green-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                <button onclick="irAConfirmar()"
+                    class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-lg font-bold text-lg hover:from-green-600 hover:to-green-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                     <i class="fas fa-credit-card mr-2"></i>
                     Continuar con el Pedido
                 </button>
@@ -401,38 +421,36 @@
                     <h3 class="text-2xl font-bold text-gray-800">Confirmar tu Pedido</h3>
                     <p class="text-sm text-gray-600">Revisa los detalles y completa tu información</p>
                 </div>
-                <button onclick="cerrarModalConfirmar()" class="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors" title="Cerrar">
+                <button onclick="cerrarModalConfirmar()"
+                    class="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors"
+                    title="Cerrar">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            
+
             <div class="flex-1 overflow-y-auto p-6">
                 <form id="form-confirmar" onsubmit="enviarPedido(event)">
-                    
+
                     <!-- Sección de búsqueda de cliente -->
-                    <div id="seccion-busqueda-cliente" class="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-300 rounded-lg p-5">
+                    <div id="seccion-busqueda-cliente"
+                        class="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-300 rounded-lg p-5">
                         <div class="flex items-start mb-4">
-                            <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                            <div
+                                class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
                                 <i class="fas fa-phone text-white text-xl"></i>
                             </div>
                             <div class="flex-1">
                                 <h4 class="text-lg font-bold text-blue-900 mb-1">¿Ya has comprado aquí antes?</h4>
-                                <p class="text-sm text-blue-700">Ingresa tu número de celular para autocompletar tus datos</p>
+                                <p class="text-sm text-blue-700">Ingresa tu número de celular para autocompletar tus
+                                    datos</p>
                             </div>
                         </div>
-                        
+
                         <div class="flex flex-col sm:flex-row gap-2">
-                            <input
-                                type="tel"
-                                id="buscar-telefono-inline"
-                                placeholder="Ej: 3001234567"
-                                class="flex-1 px-4 py-3 border-2 border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-                            >
-                            <button 
-                                type="button"
-                                onclick="buscarClientePorTelefonoInline()"
-                                class="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition shadow-md hover:shadow-lg whitespace-nowrap flex items-center justify-center gap-2"
-                            >
+                            <input type="tel" id="buscar-telefono-inline" placeholder="Ej: 3001234567"
+                                class="flex-1 px-4 py-3 border-2 border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base">
+                            <button type="button" onclick="buscarClientePorTelefonoInline()"
+                                class="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition shadow-md hover:shadow-lg whitespace-nowrap flex items-center justify-center gap-2">
                                 <i class="fas fa-search"></i>
                                 <span>Buscar</span>
                             </button>
@@ -453,24 +471,16 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
                                 <label class="block text-sm font-semibold mb-2 text-gray-700">Nombre completo *</label>
-                                <input
-                                    type="text"
-                                    id="cliente-nombre"
-                                    required
+                                <input type="text" id="cliente-nombre" required
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                                    placeholder="Juan Pérez"
-                                >
+                                    placeholder="Juan Pérez">
                             </div>
 
                             <div>
                                 <label class="block text-sm font-semibold mb-2 text-gray-700">Teléfono/Celular *</label>
-                                <input
-                                    type="tel"
-                                    id="cliente-telefono"
-                                    required
+                                <input type="tel" id="cliente-telefono" required
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                                    placeholder="3001234567"
-                                >
+                                    placeholder="3001234567">
                             </div>
                         </div>
                     </div>
@@ -484,20 +494,13 @@
 
                         <!-- Opciones de búsqueda de dirección -->
                         <div class="mb-4 flex gap-2">
-                            <button 
-                                type="button"
-                                onclick="obtenerUbicacionGPS()"
-                                class="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition shadow-md hover:shadow-lg"
-                            >
+                            <button type="button" onclick="obtenerUbicacionGPS()"
+                                class="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition shadow-md hover:shadow-lg">
                                 <i class="fas fa-location-arrow mr-2"></i>
                                 Usar Ubicación Actual
                             </button>
-                            <button 
-                                type="button"
-                                onclick="toggleBusquedaDireccion()"
-                                id="btn-toggle-busqueda"
-                                class="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-purple-600 hover:to-purple-700 transition shadow-md hover:shadow-lg"
-                            >
+                            <button type="button" onclick="toggleBusquedaDireccion()" id="btn-toggle-busqueda"
+                                class="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-purple-600 hover:to-purple-700 transition shadow-md hover:shadow-lg">
                                 <i class="fas fa-search mr-2"></i>
                                 Buscar Dirección
                             </button>
@@ -510,14 +513,11 @@
                                 Buscar dirección
                             </label>
                             <div class="relative">
-                                <input
-                                    type="text"
-                                    id="buscar-direccion"
-                                    placeholder="Ej: Calle 10 #20-30, Medellín"
+                                <input type="text" id="buscar-direccion" placeholder="Ej: Calle 10 #20-30, Medellín"
                                     class="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                    oninput="buscarDireccionAutocompletado(this.value)"
-                                >
-                                <div id="sugerencias-direccion" class="absolute z-10 w-full mt-1 bg-white border-2 border-purple-200 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto">
+                                    oninput="buscarDireccionAutocompletado(this.value)">
+                                <div id="sugerencias-direccion"
+                                    class="absolute z-10 w-full mt-1 bg-white border-2 border-purple-200 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto">
                                     <!-- Sugerencias de direcciones -->
                                 </div>
                             </div>
@@ -532,13 +532,9 @@
 
                         <div class="mb-4">
                             <label class="block text-sm font-semibold mb-2 text-gray-700">Dirección completa *</label>
-                            <textarea
-                                id="cliente-direccion"
-                                required
-                                rows="3"
+                            <textarea id="cliente-direccion" required rows="3"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                                placeholder="Calle 123 #45-67, Apto 101, Edificio XYZ"
-                            ></textarea>
+                                placeholder="Calle 123 #45-67, Apto 101, Edificio XYZ"></textarea>
                             <p class="text-xs text-gray-500 mt-1">
                                 <i class="fas fa-info-circle mr-1"></i>
                                 Puedes editar manualmente después de usar GPS o búsqueda
@@ -547,12 +543,9 @@
 
                         <div class="mb-4">
                             <label class="block text-sm font-semibold mb-2 text-gray-700">Notas adicionales</label>
-                            <textarea
-                                id="notas-entrega"
-                                rows="2"
+                            <textarea id="notas-entrega" rows="2"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                                placeholder="Ej: Casa azul con portón negro, timbre 101, etc."
-                            ></textarea>
+                                placeholder="Ej: Casa azul con portón negro, timbre 101, etc."></textarea>
                         </div>
                     </div>
 
@@ -564,28 +557,20 @@
                         </h4>
 
                         <div class="space-y-3">
-                            <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-red-300 transition-colors">
-                                <input
-                                    type="radio"
-                                    name="medio-pago"
-                                    value="efectivo"
-                                    required
-                                    class="w-4 h-4 text-red-600 focus:ring-red-500"
-                                >
+                            <label
+                                class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-red-300 transition-colors">
+                                <input type="radio" name="medio-pago" value="efectivo" required
+                                    class="w-4 h-4 text-red-600 focus:ring-red-500">
                                 <div class="ml-3">
                                     <div class="font-semibold text-gray-800">💵 Efectivo</div>
                                     <div class="text-sm text-gray-600">Paga cuando llegue tu pedido</div>
                                 </div>
                             </label>
 
-                            <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-red-300 transition-colors">
-                                <input
-                                    type="radio"
-                                    name="medio-pago"
-                                    value="transferencia"
-                                    required
-                                    class="w-4 h-4 text-red-600 focus:ring-red-500"
-                                >
+                            <label
+                                class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-red-300 transition-colors">
+                                <input type="radio" name="medio-pago" value="transferencia" required
+                                    class="w-4 h-4 text-red-600 focus:ring-red-500">
                                 <div class="ml-3">
                                     <div class="font-semibold text-gray-800">🏦 Transferencia/Nequi</div>
                                     <div class="text-sm text-gray-600">Paga ahora y recibe confirmación inmediata</div>
@@ -593,7 +578,7 @@
                             </label>
                         </div>
                     </div>
-                    
+
                     <!-- Resumen del pedido -->
                     <div class="bg-gray-50 rounded-lg p-6 mb-6">
                         <h4 class="font-bold mb-4 text-gray-800 flex items-center">
@@ -634,7 +619,8 @@
                     </div>
 
                     <div class="sticky bottom-0 bg-white border-t pt-6 mt-6 -mx-6 px-6">
-                        <button type="submit" class="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-4 rounded-lg font-bold text-lg hover:from-yellow-600 hover:to-orange-600 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        <button type="submit"
+                            class="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-4 rounded-lg font-bold text-lg hover:from-yellow-600 hover:to-orange-600 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                             <i class="fas fa-check-circle mr-2"></i>
                             Confirmar y Enviar Pedido
                         </button>
@@ -651,11 +637,13 @@
     <script src="./js/dos-sabores.js"></script>
     <script src="./js/domicilio_publico.js"></script>
     <!-- Floating cart button (resaltado y más grande) -->
-    <button id="floating-cart-btn" onclick="toggleCart()" class="fixed bottom-6 right-6 z-50 w-16 h-16 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-full shadow-2xl hover:scale-105 transform transition-all flex items-center justify-center" aria-label="Abrir carrito">
+    <button id="floating-cart-btn" onclick="toggleCart()"
+        class="fixed bottom-6 right-6 z-50 w-16 h-16 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-full shadow-2xl hover:scale-105 transform transition-all flex items-center justify-center"
+        aria-label="Abrir carrito">
         <i class="fas fa-shopping-cart text-2xl" aria-hidden="true"></i>
         <span class="sr-only">Abrir carrito</span>
         <span id="cart-count" class="cart-badge" style="display: none;">0</span>
     </button>
 </body>
-</html>
 
+</html>

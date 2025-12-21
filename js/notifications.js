@@ -22,81 +22,73 @@ class NotificationSystem {
         if ('Notification' in window && Notification.permission === 'default') {
             await Notification.requestPermission();
         }
-        
+
         // Obtener el último ID de pedido
         await this.updateLastOrderId();
-        
+
         // Iniciar el monitoreo
         this.startMonitoring();
     }
 
     async updateLastOrderId() {
         try {
-            const response = await fetch(API_BASE_URL + '/api/orders');
-            const data = await response.json();
-            
-            if (data.success && data.data.length > 0) {
-                this.lastOrderId = Math.max(...data.data.map(order => order.id));
+            if (!window.supabaseClient) return;
+            const orders = await window.supabaseClient.getPedidos(1);
+            if (orders && orders.length > 0) {
+                this.lastOrderId = orders[0].id;
             }
         } catch (error) {
-            console.error('Error al obtener último ID de pedido:', error);
+            console.error('Error al obtener último ID de pedido vía Supabase:', error);
         }
     }
 
     startMonitoring() {
-        if (this.isRunning) return;
-        
+        if (this.isRunning || !window.supabaseClient) return;
+
         this.isRunning = true;
-        this.monitorInterval = setInterval(() => {
-            this.checkForNewOrders();
-        }, this.checkInterval);
-        
-        console.log('Sistema de notificaciones iniciado');
+
+        // Usar Supabase Realtime en lugar de polling
+        const channel = window.supabaseClient.db
+            .channel('pedidos-realtime')
+            .on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'pedidos'
+            }, payload => {
+                console.log('Nuevo pedido detectado vía Realtime:', payload.new);
+                this.handleNewOrder(payload.new);
+            })
+            .subscribe();
+
+        this.realtimeChannel = channel;
+        console.log('Sistema de notificaciones Realtime iniciado');
     }
 
     stopMonitoring() {
-        if (this.monitorInterval) {
-            clearInterval(this.monitorInterval);
+        if (this.realtimeChannel) {
+            this.realtimeChannel.unsubscribe();
             this.isRunning = false;
-            console.log('Sistema de notificaciones detenido');
+            console.log('Sistema de notificaciones Realtime detenido');
         }
     }
 
-    async checkForNewOrders() {
-        try {
-            const response = await fetch(API_BASE_URL + '/api/orders');
-            const data = await response.json();
-            
-            if (data.success && data.data.length > 0) {
-                const newOrders = data.data.filter(order => order.id > this.lastOrderId);
-                
-                if (newOrders.length > 0) {
-                    // Actualizar el último ID
-                    this.lastOrderId = Math.max(...data.data.map(order => order.id));
-                    
-                    // Mostrar notificaciones para cada nuevo pedido
-                    newOrders.forEach(order => {
-                        this.showNotification(order);
-                    });
-                    
-                    // Reproducir sonido
-                    this.playNotificationSound();
-                    
-                    // Actualizar la interfaz si estamos en la página de admin
-                    if (typeof loadOrders === 'function') {
-                        loadOrders();
-                    }
-                }
+    async handleNewOrder(order) {
+        if (order.id > this.lastOrderId) {
+            this.lastOrderId = order.id;
+            this.showNotification(order);
+            this.playNotificationSound();
+
+            // Actualizar la interfaz si estamos en la página de admin
+            if (typeof loadOrders === 'function') {
+                loadOrders();
             }
-        } catch (error) {
-            console.error('Error al verificar nuevos pedidos:', error);
         }
     }
 
     showNotification(order) {
         const title = `Nuevo Pedido #${order.numero_pedido || order.id}`;
         const message = `Mesa ${order.table_number || order.mesa} - Total: $${formatPrice(order.total_amount || order.total_precio)}`;
-        
+
         // Notificación del navegador
         if ('Notification' in window && Notification.permission === 'granted') {
             const notification = new Notification(title, {
@@ -106,7 +98,7 @@ class NotificationSystem {
                 tag: `order-${order.id}`,
                 requireInteraction: true
             });
-            
+
             notification.onclick = () => {
                 window.focus();
                 notification.close();
@@ -115,13 +107,13 @@ class NotificationSystem {
                     window.location.href = '/admin';
                 }
             };
-            
+
             // Auto-cerrar después de 10 segundos
             setTimeout(() => {
                 notification.close();
             }, 10000);
         }
-        
+
         // Notificación visual en la página
         this.showInPageNotification(title, message, order);
     }
@@ -143,17 +135,17 @@ class NotificationSystem {
                 </button>
             </div>
         `;
-        
+
         // Agregar al DOM
         document.body.appendChild(notification);
-        
+
         // Auto-remover después de 8 segundos
         setTimeout(() => {
             if (notification.parentElement) {
                 notification.remove();
             }
         }, 8000);
-        
+
         // Efecto de entrada
         setTimeout(() => {
             notification.classList.remove('animate-bounce');
@@ -180,14 +172,14 @@ class NotificationSystem {
             'warning': 'bg-yellow-600',
             'info': 'bg-blue-600'
         };
-        
+
         const icons = {
             'success': 'fas fa-check-circle',
             'error': 'fas fa-exclamation-circle',
             'warning': 'fas fa-exclamation-triangle',
             'info': 'fas fa-info-circle'
         };
-        
+
         const notification = document.createElement('div');
         notification.className = `fixed top-4 right-4 ${colors[type]} text-white p-4 rounded-lg shadow-lg z-50 max-w-sm`;
         notification.innerHTML = `
@@ -202,9 +194,9 @@ class NotificationSystem {
                 </button>
             </div>
         `;
-        
+
         document.body.appendChild(notification);
-        
+
         setTimeout(() => {
             if (notification.parentElement) {
                 notification.remove();

@@ -6,7 +6,7 @@ let currentCart = [];
 let tableOrders = {}; // Almacenar pedidos por mesa
 
 // Función para obtener el carrito actual (expuesta globalmente)
-window.getCurrentCart = function() {
+window.getCurrentCart = function () {
     return currentCart;
 };
 
@@ -38,70 +38,70 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// Cargar todas las recetas desde la API
+// Cargar todas las recetas desde Supabase
 async function loadRecipes() {
     try {
-        // Usar el endpoint de productos dinÃ¡micos en lugar de recipes obsoleto
-        const response = await fetch(API_BASE_URL + '/api/productos-publicos');
-        if (!response.ok) throw new Error('Error al cargar productos');
-        const result = await response.json();
-        
-        // Convertir productos dinÃ¡micos a formato compatible con el cÃ©Â³digo existente
+        const { data: prodsWithPrices, error } = await supabase
+            .from('productos')
+            .select('*, precios:producto_precios(*), categorias_config(nombre)')
+            .eq('activo', true);
+
+        if (error) throw error;
+
         allRecipes = [];
-        if (result.success && result.data) {
-            result.data.forEach(producto => {
-                // Crear una "receta" por cada precio/tamaÃ©Â±o del producto
-                if (producto.precios && producto.precios.length > 0) {
-                    producto.precios.forEach(precio => {
-                        allRecipes.push({
-                            id: `${producto.id}_${precio.id}`,
-                            product_id: producto.id,
-                              size_id: precio.id,
-                            name: producto.nombre,
-                            description: producto.descripcion || '',
-                            size: precio.tamano_nombre || 'única',
-                            sale_price: parseFloat(precio.precio) || 0,
-                            category: producto.categoria_nombre,
-                            image_url: producto.imagen_url,
-                            permite_dos_sabores: producto.permite_dos_sabores
-                        });
-                    });
-                } else {
-                    // Producto sin precios dinÃ¡micos
+        prodsWithPrices.forEach(producto => {
+            if (producto.precios && producto.precios.length > 0) {
+                producto.precios.forEach(precio => {
                     allRecipes.push({
-                        id: producto.id,
+                        id: `${producto.id}_${precio.id}`,
                         product_id: producto.id,
+                        size_id: precio.id,
                         name: producto.nombre,
                         description: producto.descripcion || '',
-                        size: 'única',
-                        sale_price: producto.precio_base || 0,
-                        category: producto.categoria_nombre,
+                        size: precio.tamano_nombre || 'única',
+                        sale_price: parseFloat(precio.precio) || 0,
+                        category: producto.categorias_config ? producto.categorias_config.nombre : '',
                         image_url: producto.imagen_url,
                         permite_dos_sabores: producto.permite_dos_sabores
                     });
-                }
-            });
-        }
-        console.log('Productos cargados:', allRecipes.length);
+                });
+            } else {
+                allRecipes.push({
+                    id: producto.id,
+                    product_id: producto.id,
+                    name: producto.nombre,
+                    description: producto.descripcion || '',
+                    size: 'única',
+                    sale_price: producto.precio_base || 0,
+                    category: producto.categorias_config ? producto.categorias_config.nombre : '',
+                    image_url: producto.imagen_url,
+                    permite_dos_sabores: producto.permite_dos_sabores
+                });
+            }
+        });
+
+        console.log('Productos cargados desde Supabase:', allRecipes.length);
     } catch (error) {
-        console.error('Error cargando productos:', error);
+        console.error('Error cargando productos desde Supabase:', error);
         allRecipes = [];
     }
 }
 
 // Helper function to switch views
 function showView(viewId) {
-    stopOrderManagementUpdates();
-    
+    if (typeof stopOrderManagementUpdates === 'function') {
+        stopOrderManagementUpdates();
+    }
+
     document.querySelectorAll('.view-section').forEach(section => {
         section.style.display = 'none';
     });
-    
+
     const targetView = document.getElementById(viewId);
     if (targetView) {
         targetView.style.display = 'block';
     }
-    
+
     if (navBar) navBar.classList.remove('hidden');
     if (checkoutBtn) checkoutBtn.style.display = 'none';
 
@@ -120,8 +120,7 @@ function showTableView() {
 
 function startOrder(orderType) {
     currentTable = orderType;
-    
-    // Inicializar pedido para la mesa si no existe
+
     if (!tableOrders[currentTable]) {
         tableOrders[currentTable] = {
             cart: [],
@@ -130,13 +129,11 @@ function startOrder(orderType) {
             created_at: new Date().toISOString()
         };
     }
-    
-    // Cargar el carrito existente para esta mesa
+
     currentCart = [...(tableOrders[currentTable].cart || [])];
-    
+
     showView('main-menu-view');
-    
-    // Actualizar display de mesa actual
+
     const currentTableDisplay = document.getElementById('current-table-display');
     if (currentTableDisplay) {
         currentTableDisplay.textContent = (typeof currentTable === 'number') ? `Mesa ${currentTable}` : currentTable;
@@ -144,8 +141,7 @@ function startOrder(orderType) {
     if (headerText) {
         headerText.textContent = (typeof currentTable === 'number') ? `Tu pedido para la Mesa ${currentTable}.` : `Tu pedido "Para Llevar".`;
     }
-    
-    // Actualizar el botón del carrito con los items existentes
+
     updateCartDisplay();
 }
 
@@ -153,8 +149,7 @@ function startOrder(orderType) {
 async function toggleCategory(categoryId) {
     const content = document.getElementById(`${categoryId}-content`);
     const icon = document.getElementById(`${categoryId}-icon`);
-    
-    // Cerrar todas las otras categorÃ©Â­as
+
     document.querySelectorAll('.category-content').forEach(cat => {
         if (cat.id !== `${categoryId}-content`) {
             cat.style.display = 'none';
@@ -164,8 +159,7 @@ async function toggleCategory(categoryId) {
             }
         }
     });
-    
-    // Alternar la categorÃ©Â­a actual
+
     if (content.style.display === 'none' || content.style.display === '') {
         content.style.display = 'block';
         icon.classList.add('rotate-180');
@@ -176,41 +170,27 @@ async function toggleCategory(categoryId) {
     }
 }
 
-// Cargar todas las categorÃ©Â­as al inicio
+// Cargar todas las categorÃ©Â­as con Supabase
 async function loadAllCategories() {
     try {
-        // Obtener categorías activas desde la API
-        const response = await fetch(API_BASE_URL + '/api/categorias-activas');
-        if (!response.ok) throw new Error('Error al cargar categorías');
+        const categorias = await db.getCategorias();
 
-        const result = await response.json();
-        if (!result.success) throw new Error('Error en respuesta de categorías');
-
-        const categorias = result.data;
-
-        // Limpiar contenedor de categorías
         const menuContainer = document.getElementById('main-menu-view');
         if (!menuContainer) return;
 
-        // Encontrar el contenedor específico donde se renderizan las categorías
-        // (en la plantilla existe un <div class="space-y-6"> para esto)
         const categoriesWrapper = menuContainer.querySelector('.space-y-6');
         if (!categoriesWrapper) return;
 
-        // Limpiar contenido previo para evitar duplicados cuando se vuelve a cargar la vista
         categoriesWrapper.innerHTML = '';
 
-        // Crear categorÃ©Â­as dinÃ¡micamente
         categorias.forEach(categoria => {
             const categoryDiv = document.createElement('div');
             categoryDiv.className = 'menu-category bg-gray-700 rounded-2xl shadow-sm border border-gray-600 overflow-hidden';
 
-            // Usar el nombre de la categorÃ©Â­a directamente como identificador
             const tipoCategoria = categoria.nombre.toLowerCase();
 
             categoryDiv.innerHTML = `
                 <div class="category-header p-6 flex items-center space-x-6 cursor-pointer" onclick="toggleCategory('${tipoCategoria}')">
-                    <!-- Mostrar icono definido en la categoría; si no hay, usar emoji como fallback -->
                     <div class="w-24 h-24 rounded-full shadow-lg flex items-center justify-center text-white text-3xl" style="background:#FF4500">
                         <i class="${categoria.icono || 'fas fa-pizza-slice'}"></i>
                     </div>
@@ -228,135 +208,37 @@ async function loadAllCategories() {
                 </div>
             `;
 
-            // Agregar la tarjeta de categorÃ©Â­a dentro del wrapper limpiado
             categoriesWrapper.appendChild(categoryDiv);
         });
 
-        console.log(`Categorías cargadas dinámicamente: ${categorias.length}`);
-
     } catch (error) {
         console.error('Error cargando categorías:', error);
-        // Fallback: mostrar mensaje de error
-        const menuContainer = document.getElementById('main-menu-view');
-        if (menuContainer) {
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'bg-red-900 bg-opacity-50 border border-red-500 rounded-lg p-4 m-4';
-            errorDiv.innerHTML = '<p class="text-red-300">Error al cargar categorías. Intente recargar la página.</p>';
-            menuContainer.appendChild(errorDiv);
-        }
     }
 }
 
-// Cargar pizzas por tipo específico desde la nueva API
-async function loadPizzasByType(tipoPizza, gridId) {
-    try {
-        console.log(`Cargando pizzas tipo: ${tipoPizza}`);
-        const response = await fetch(`${API_BASE_URL}/api/productos/tipo/${tipoPizza}`);
-        if (!response.ok) throw new Error(`Error al cargar pizzas ${tipoPizza}`);
-        
-        const productos = await response.json();
-        console.log(`Pizzas ${tipoPizza} encontradas:`, productos.length);
-        
-        // Convertir productos a formato recipe para compatibilidad
-        const recipes = [];
-        productos.forEach(producto => {
-            // Incluir todos los productos que tengan precios (pizzas, calzones, bebidas, etc.)
-            if (producto.precios && producto.precios.length > 0) {
-                producto.precios.forEach(precio => {
-                    // Determinar el prefijo según el tipo de producto
-                    // IMPORTANTE: El orden importa - verificar primero los casos mÃ¡s específicos
-                    let prefix = '';
-                    if (producto.categoria_nombre === 'Calzone') {
-                        prefix = 'Calzone ';
-                    } else if (producto.categoria_nombre === 'Pastas') {  // Plural en la BD
-                        prefix = '';  // Las pastas no necesitan prefijo, ya tienen nombre completo
-                    } else if (producto.categoria_nombre === 'Pasta') {   // Por si acaso tambiÃ©Â©n singular
-                        prefix = '';
-                    } else if (producto.categoria_nombre === 'Maicitos') {
-                        prefix = '';
-                    } else if (producto.categoria_nombre === 'Lasana') {
-                        prefix = '';
-                    } else if (producto.es_bebida) {
-                        prefix = '';
-                    } else if (producto.es_pizza) {
-                        prefix = 'Pizza ';
-                    } else if (producto.es_adicion) {
-                        prefix = 'Adicional ';
-                    } else {
-                        prefix = '';
-                    }
-                    
-                    // Para bebidas y productos sin tamaÃ©Â±o, usar precio Ã©Âºnico
-                    const size = precio.tamano_nombre ? precio.tamano_nombre.toLowerCase() : 'unico';
-                    const displayName = precio.tamano_nombre ? 
-                        `${prefix}${producto.nombre}` : 
-                        `${prefix}${producto.nombre}`;
-                    
-                    recipes.push({
-                        id: precio.tamano_id ? `${producto.id}_${precio.tamano_id}` : `${producto.id}_unico`,
-                        name: displayName,
-                        size: size,
-                        description: producto.descripcion || 'Delicioso producto',
-                        sale_price: parseFloat(precio.precio) || 0,
-                        category: tipoPizza,
-                        tipo_producto: producto.es_pizza ? 'pizza' : (producto.es_bebida ? 'bebida' : 'otro'),
-                        producto_id: producto.id,
-                        tamano_id: precio.tamano_id,
-                        es_bebida: producto.es_bebida
-                    });
-                });
-
-
-            }
-        });
-        
-        renderPizzaCategory(recipes, gridId);
-        return recipes;
-    } catch (error) {
-        console.error(`Error cargando pizzas ${tipoPizza}:`, error);
-        return [];
-    }
-}
-
-// Cargar productos por categorÃ©Â­a
+// Cargar productos por categorÃ©Â­a desde Supabase
 async function loadCategoryProducts(categoryId) {
-    // El categoryId ahora viene del nombre de la categorÃ©Â­a (ej: "pizza", "bebidas", "adiciones")
-    // Necesitamos mapearlo al tipo correcto para la API
-    const categoryTypeMap = {
-        'pizza': 'especial', // Por defecto para pizzas
-        'bebidas': 'bebidas',
-        'adiciones': 'adiciones'
-    };
-
-    const tipoPizza = categoryTypeMap[categoryId] || categoryId;
     const gridId = `${categoryId}-grid`;
-
-    // Para categorÃ©Â­as dinÃ¡micas, cargar productos directamente desde la API de productos pÃ©Âºblicos
-    // filtrando por categorÃ©Â­a
     try {
-        // Primero necesitamos obtener el ID numérico de la categoría desde el nombre
-        const categoriasResponse = await fetch(API_BASE_URL + '/api/categorias-activas');
-        if (!categoriasResponse.ok) throw new Error('Error al obtener categorías');
+        // Encontrar la categoría por nombre (slug/id de texto)
+        const categorias = await db.getCategorias();
+        const categoria = categorias.find(cat => cat.nombre.toLowerCase() === categoryId.toLowerCase());
 
-        const categoriasResult = await categoriasResponse.json();
-        if (!categoriasResult.success) throw new Error('Error en respuesta de categorías');
-
-        // Encontrar la categoría por nombre
-        const categoria = categoriasResult.data.find(cat => cat.nombre.toLowerCase() === categoryId.toLowerCase());
         if (!categoria) {
             console.warn(`Categoría ${categoryId} no encontrada`);
             return;
         }
 
-        const response = await fetch(`${API_BASE_URL}/api/productos-publicos?categoria_id=${categoria.id}`);
-        if (!response.ok) throw new Error('Error al cargar productos de categoría');
+        // Obtener productos de esta categoría con sus precios
+        const { data: productos, error } = await supabase
+            .from('productos')
+            .select('*, precios:producto_precios(*), categorias_config(nombre)')
+            .eq('categoria_id', categoria.id)
+            .eq('activo', true);
 
-        const result = await response.json();
-        if (!result.success) throw new Error('Error en respuesta de productos');
+        if (error) throw error;
 
-        const productos = result.data;
-
-        // Convertir productos a formato recipe para compatibilidad
+        // Convertir productos a formato compatible con el código existente
         const recipes = [];
         productos.forEach(producto => {
             if (producto.precios && producto.precios.length > 0) {
@@ -366,12 +248,12 @@ async function loadCategoryProducts(categoryId) {
                         product_id: producto.id,
                         name: producto.nombre,
                         description: producto.descripcion || '',
-                        size: precio.nombre_precio || 'única',
+                        size: precio.tamano_nombre || 'única',
                         sale_price: parseFloat(precio.precio) || 0,
-                        category: producto.categoria_nombre,
+                        category: producto.categorias_config ? producto.categorias_config.nombre : '',
                         image_url: producto.imagen_url,
                         permite_dos_sabores: producto.permite_dos_sabores,
-                        es_bebida: producto.categoria_nombre.toLowerCase().includes('bebida'),
+                        es_bebida: (producto.categorias_config && producto.categorias_config.nombre.toLowerCase().includes('bebida')),
                         tamano_id: precio.id
                     });
                 });
@@ -383,22 +265,20 @@ async function loadCategoryProducts(categoryId) {
                     description: producto.descripcion || '',
                     size: 'única',
                     sale_price: producto.precio_base || 0,
-                    category: producto.categoria_nombre,
+                    category: producto.categorias_config ? producto.categorias_config.nombre : '',
                     image_url: producto.imagen_url,
                     permite_dos_sabores: producto.permite_dos_sabores,
-                    es_bebida: producto.categoria_nombre.toLowerCase().includes('bebida'),
+                    es_bebida: (producto.categorias_config && producto.categorias_config.nombre.toLowerCase().includes('bebida')),
                     tamano_id: null
                 });
             }
         });
 
         renderPizzaCategory(recipes, gridId);
-        console.log(`Productos cargados para categoría ${categoryId} (ID: ${categoria.id}): ${recipes.length}`);
+        console.log(`Productos cargados para categoría ${categoryId} desde Supabase: ${recipes.length}`);
 
     } catch (error) {
         console.error(`Error cargando productos para categoría ${categoryId}:`, error);
-        // Fallback: intentar con el método anterior
-        await loadPizzasByType(tipoPizza, gridId);
     }
 }
 
@@ -406,7 +286,7 @@ async function loadCategoryProducts(categoryId) {
 function renderPizzaCategory(recipes, gridId) {
     const grid = document.getElementById(gridId);
     grid.innerHTML = '';
-    
+
     // Solo las bebidas usan renderizado simple (botón directo)
     // Verificar si la categoría es específicamente "bebidas"
     const esCategoriaBebidasDedicada = gridId === 'bebidas-grid';
@@ -414,7 +294,7 @@ function renderPizzaCategory(recipes, gridId) {
         renderBebidasCategory(recipes, gridId);
         return;
     }
-    
+
     // Agrupar recetas por nombre base - para pizzas y productos con tamaÃ©Â±o
     const groupedRecipes = {};
     recipes.forEach(recipe => {
@@ -426,18 +306,18 @@ function renderPizzaCategory(recipes, gridId) {
         }
         groupedRecipes[baseName].push(recipe);
     });
-    
+
     Object.keys(groupedRecipes).forEach(baseName => {
         const recipeGroup = groupedRecipes[baseName];
         const card = document.createElement('div');
         card.className = 'bg-gray-600 rounded-xl p-4 border border-gray-500';
-        
+
         // Ordenar por tamaño
         const sizeOrder = ['personal', 'ejecutiva', 'mediana', 'grande', 'familiar', 'extra familiar'];
         recipeGroup.sort((a, b) => {
             return sizeOrder.indexOf(a.size.toLowerCase()) - sizeOrder.indexOf(b.size.toLowerCase());
         });
-        
+
         card.innerHTML = `
             <h4 class="text-white font-bold mb-3">${baseName}</h4>
             <p class="text-gray-300 text-sm mb-3">${recipeGroup[0].description || 'Deliciosa pizza'}</p>
@@ -447,17 +327,17 @@ function renderPizzaCategory(recipes, gridId) {
             </button>
             <div id="sizes-${baseName.replace(/\s+/g, '-')}" class="mt-3 space-y-2 hidden">
                 ${recipeGroup.map(recipe => {
-                    const sizeDisplay = recipe.size.charAt(0).toUpperCase() + recipe.size.slice(1);
-                    // Pasar siempre el ID como string para evitar que el motor de templates lo trate como
-                    // un literal numÃ©Â©rico (por ejemplo 75_61) y produzca valores inesperados.
-                    return `
+            const sizeDisplay = recipe.size.charAt(0).toUpperCase() + recipe.size.slice(1);
+            // Pasar siempre el ID como string para evitar que el motor de templates lo trate como
+            // un literal numÃ©Â©rico (por ejemplo 75_61) y produzca valores inesperados.
+            return `
                         <button onclick="showPizzaAdicionales('${recipe.id}', '${recipe.name}', ${recipe.sale_price}, '${sizeDisplay}')" 
                                 class="w-full bg-gray-700 hover:bg-green-600 text-white py-2 px-3 rounded-lg transition-colors flex justify-between items-center">
                             <span>${sizeDisplay}</span>
                             <span>$${formatPrice(recipe.sale_price)}</span>
                         </button>
                     `;
-                }).join('')}
+        }).join('')}
             </div>
         `;
         grid.appendChild(card);
@@ -468,22 +348,22 @@ function renderPizzaCategory(recipes, gridId) {
 function renderBebidasCategory(recipes, gridId) {
     const grid = document.getElementById(gridId);
     grid.innerHTML = '';
-    
+
     recipes.forEach(recipe => {
         const card = document.createElement('div');
         card.className = 'bg-gray-600 rounded-xl p-4 border border-gray-500';
-        
+
         card.innerHTML = `
             <h4 class="text-white font-bold mb-3">${recipe.name}</h4>
             <p class="text-gray-300 text-sm mb-3">${recipe.description || 'Deliciosa bebida'}</p>
             <div class="flex justify-between items-center">
-                <span class="text-xl font-bold text-green-400">$${formatPrice(recipe.sale_price )}</span>
+                <span class="text-xl font-bold text-green-400">$${formatPrice(recipe.sale_price)}</span>
                 <button class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition-colors font-semibold add-to-cart-btn">
                     Agregar
                 </button>
             </div>
         `;
-        
+
         // Agregar event listener al botón
         const button = card.querySelector('.add-to-cart-btn');
         button.addEventListener('click', () => {
@@ -512,18 +392,18 @@ function showPizzaSizes(pizzaName, recipeGroup) {
 function renderSimpleCategory(recipes, gridId) {
     const grid = document.getElementById(gridId);
     grid.innerHTML = '';
-    
+
     recipes.forEach(recipe => {
         const card = document.createElement('div');
         card.className = 'bg-gray-600 rounded-xl p-4 border border-gray-500';
-        
+
         card.innerHTML = `
             <h4 class="text-white font-bold mb-2">${recipe.name}</h4>
             <p class="text-gray-300 text-sm mb-3">${recipe.description || 'Delicioso producto'}</p>
         <button onclick="addToCart('${recipe.id}', '${recipe.name}', ${recipe.sale_price})" 
             class="w-full bg-gray-700 hover:bg-orange-600 text-white py-2 px-3 rounded-lg transition-colors flex justify-between items-center">
                 <span>Agregar</span>
-                <span>$${formatPrice(recipe.sale_price )}</span>
+                <span>$${formatPrice(recipe.sale_price)}</span>
             </button>
         `;
         grid.appendChild(card);
@@ -536,13 +416,13 @@ function addToCart(recipeId, name, price) {
         showNotification('Por favor selecciona una mesa primero', 'error');
         return;
     }
-    
+
     console.log('Adding to cart:', { recipeId, name, price });
     console.log('Available recipes:', allRecipes.length);
-    
+
     // Buscar la receta completa para obtener información adicional
     const recipe = allRecipes.find(r => r.id === recipeId);
-    
+
     // Crear el item con la información disponible
     const item = {
         id: recipeId,
@@ -550,7 +430,7 @@ function addToCart(recipeId, name, price) {
         price: price,
         quantity: 1
     };
-    
+
     // Si encontramos la receta, agregar información adicional
     if (recipe) {
         item.product_id = recipe.product_id;
@@ -575,7 +455,7 @@ function addToCart(recipeId, name, price) {
         }
         item.sale_price = price;
     }
-    
+
     // Verificar si el item ya existe en el carrito
     const existingItem = currentCart.find(cartItem => cartItem.id === recipeId);
     if (existingItem) {
@@ -585,13 +465,13 @@ function addToCart(recipeId, name, price) {
         currentCart.push(item);
         console.log('Added new item to cart:', item);
     }
-    
+
     console.log('Current cart after adding:', currentCart);
-    
+
     // Actualizar el pedido de la mesa
     tableOrders[currentTable].cart = [...currentCart];
     tableOrders[currentTable].total = currentCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
+
     updateCartDisplay();
     showNotification(`${name} agregado al carrito de ${typeof currentTable === 'number' ? 'Mesa ' + currentTable : currentTable}`);
 }
@@ -599,10 +479,10 @@ function addToCart(recipeId, name, price) {
 // Actualizar botón del carrito
 function updateCartDisplay() {
     if (!checkoutBtn) return; // Modo domicilio no tiene este botón
-    
+
     const cartCount = currentCart.reduce((sum, item) => sum + item.quantity, 0);
     const cartTotal = currentCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
+
     if (cartCount > 0) {
         checkoutBtn.classList.add('pulse-active');
         checkoutBtn.innerHTML = `
@@ -624,11 +504,11 @@ function showCart() {
         showNotification('Tu carrito está vacío. ¡Añade algunos productos!', 'error');
         return;
     }
-    
+
     // Check if we're in modal mode (domicilio) or view mode (mesa)
     const cartModal = document.getElementById('cart-modal');
     const cartView = document.getElementById('cart-view');
-    
+
     if (cartModal) {
         // Modal mode (domicilio)
         cartModal.classList.remove('hidden');
@@ -636,13 +516,13 @@ function showCart() {
     } else if (cartView) {
         // View mode (mesa)
         showView('cart-view');
-        
+
         // Actualizar la información de la mesa
         const cartTableDisplay = document.getElementById('cart-table-display');
         if (cartTableDisplay) {
             cartTableDisplay.textContent = currentTable;
         }
-        
+
         renderCartItems();
     }
 }
@@ -651,15 +531,15 @@ function showCart() {
 function renderCartItems() {
     const cartItemsList = document.getElementById('cart-items-list');
     const cartTotalDisplay = document.getElementById('cart-total-display');
-    
+
     if (!cartItemsList || !cartTotalDisplay) {
         console.error('Elementos del carrito no encontrados');
         return;
     }
-    
+
     let cartHTML = '';
     let totalPrice = 0;
-    
+
     currentCart.forEach((item, index) => {
         const itemTotal = item.price * item.quantity;
         totalPrice += itemTotal;
@@ -669,7 +549,7 @@ function renderCartItems() {
             const adicionalesNames = item.adicionales.map(a => a.name).join(', ');
             adicionalesText = `<p class="text-yellow-300 text-xs mt-1">+ ${adicionalesNames}</p>`;
         }
-        
+
         cartHTML += `
             <div class="flex justify-between items-center p-4 bg-gray-600 rounded-xl">
                 <div class="flex-1">
@@ -698,7 +578,7 @@ function renderCartItems() {
             </div>
         `;
     });
-    
+
     cartItemsList.innerHTML = cartHTML;
     cartTotalDisplay.textContent = `$${formatPrice(totalPrice)}`;
 }
@@ -708,31 +588,31 @@ function renderCartItemsModal() {
     const cartItems = document.getElementById('cart-items');
     const totalPrice = document.getElementById('total-price');
     const modalCustomerName = document.getElementById('modal-customer-name');
-    
+
     if (!cartItems || !totalPrice) {
         console.error('Elementos del modal del carrito no encontrados');
         return;
     }
-    
+
     // Set customer name if available
     if (modalCustomerName && currentTable) {
         modalCustomerName.textContent = currentTable;
     }
-    
+
     let cartHTML = '';
     let total = 0;
-    
+
     currentCart.forEach((item, index) => {
         const itemTotal = item.price * item.quantity;
         total += itemTotal;
-        
+
         // Mostrar adicionales si los hay
         let adicionalesText = '';
         if (item.adicionales && item.adicionales.length > 0) {
             const adicionalesNames = item.adicionales.map(a => a.name).join(', ');
             adicionalesText = `<p class="text-yellow-300 text-xs mt-1">+ ${adicionalesNames}</p>`;
         }
-        
+
         cartHTML += `
             <div class="flex justify-between items-center p-4 bg-gray-700 rounded-xl">
                 <div class="flex-1">
@@ -761,7 +641,7 @@ function renderCartItemsModal() {
             </div>
         `;
     });
-    
+
     cartItems.innerHTML = cartHTML;
     totalPrice.textContent = `$${formatPrice(total)}`;
 }
@@ -772,15 +652,15 @@ function updateCartItemQuantity(index, newQuantity) {
         removeFromCart(index);
         return;
     }
-    
+
     currentCart[index].quantity = newQuantity;
-    
+
     // Actualizar el carrito de la mesa si existe tableOrders
     if (typeof tableOrders !== 'undefined' && tableOrders[currentTable]) {
         tableOrders[currentTable].cart = [...currentCart];
         tableOrders[currentTable].total = currentCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     }
-    
+
     // Re-render based on mode
     const cartModal = document.getElementById('cart-modal');
     if (cartModal && !cartModal.classList.contains('hidden')) {
@@ -794,13 +674,13 @@ function updateCartItemQuantity(index, newQuantity) {
 // Eliminar item del carrito
 function removeFromCart(index) {
     currentCart.splice(index, 1);
-    
+
     // Actualizar el carrito de la mesa si existe tableOrders
     if (typeof tableOrders !== 'undefined' && tableOrders[currentTable]) {
         tableOrders[currentTable].cart = [...currentCart];
         tableOrders[currentTable].total = currentCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     }
-    
+
     if (currentCart.length === 0) {
         // Close modal or go back to menu
         const cartModal = document.getElementById('cart-modal');
@@ -828,84 +708,71 @@ async function confirmAndSendOrder() {
     showDiscountModal();
 }
 
-// Enviar pedido a la API
+// Función para enviar pedido (respaldo o modal) usando Supabase
 async function submitOrderToAPI() {
-    console.log('Current cart:', currentCart);
-    console.log('All recipes:', allRecipes);
-    
-    const orderData = {
-        cliente_nombre: typeof currentTable === 'string' ? currentTable : '',
-        mesa: typeof currentTable === 'number' ? currentTable.toString() : 'Para Llevar',
-        total_precio: calculateTotal(),
-        total_amount: calculateTotal(),
-        items: currentCart.map(item => {
-            console.log('Processing cart item:', item);
-            
-            // Usar la información del item del carrito o intentar extraerla
+    try {
+        const total = calculateTotal();
+        const items = currentCart.map(item => {
             let product_id = item.product_id;
             let size_id = item.size_id;
-            
-            // Si no tiene product_id, intentar extraerlo del ID compuesto
+
             if (!product_id && item.id) {
                 const parts = item.id.toString().split('_');
                 if (parts.length >= 2) {
                     product_id = parseInt(parts[0]);
                     size_id = parseInt(parts[1]);
-                    // Si size_id es 0, convertir a null
                     if (size_id === 0) size_id = null;
-                    console.log('Extracted IDs from composite ID:', { product_id, size_id });
-                }
-            }
-            
-            // Ã©Å¡ltimo intento: si aÃ©Âºn no hay product_id, intentar otras formas
-            if (!product_id) {
-                // Si el ID es solo un nÃ©Âºmero, usarlo como product_id
-                const numericId = parseInt(item.id);
-                if (!isNaN(numericId)) {
-                    product_id = numericId;
+                } else if (!isNaN(parseInt(item.id))) {
+                    product_id = parseInt(item.id);
                     size_id = null;
-                    console.log('Using numeric ID as product_id:', product_id);
                 }
             }
-            
-            // Validar que tengamos un product_id válido
-            if (!product_id) {
-                console.error(`Item sin product_id válido después de todos los intentos:`, item);
-                // En lugar de tirar error, usar un producto por defecto o saltar
-                product_id = 1; // ID de producto por defecto
-                size_id = null;
-                console.warn(`Usando product_id por defecto para: ${item.name}`);
-            }
-            
-            const orderItem = {
+
+            return {
                 product_id: product_id,
                 size_id: size_id,
                 quantity: item.quantity,
-                unit_price: item.sale_price || item.price,
-                additions: item.adicionales || [],
-                segundo_sabor: item.segundo_sabor || null
+                unit_price: item.price,
+                additions: (item.adicionales || []).map(a => ({
+                    id: a.id,
+                    name: a.name || a.nombre,
+                    price: a.price
+                })),
+                segundo_sabor: item.segundo_sabor ? {
+                    id: item.segundo_sabor.id,
+                    nombre: item.segundo_sabor.name || item.segundo_sabor.nombre
+                } : null
             };
-            console.log('Created order item:', orderItem);
-            return orderItem;
-        })
-    };
-    
-    console.log('Enviando pedido:', orderData); // Para debug
-    
-    const response = await fetch(API_BASE_URL + '/api/orders', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderData)
-    });
-    
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Error al enviar pedido');
+        }).filter(item => item.product_id);
+
+        const orderData = {
+            mesa: typeof currentTable === 'number' ? currentTable.toString() : currentTable,
+            total_amount: total,
+            discount_percentage: 0,
+            total_with_discount: total,
+            items: items,
+            tipo_pedido: (typeof currentTable === 'number' || currentTable === 'Para Llevar') ? 'mesa' : 'domicilio',
+            estado: 'pendiente',
+            metodo_pago: 'pendiente'
+        };
+
+        const result = await db.createPedido(orderData);
+        if (!result.success) throw new Error(result.error);
+
+        // Notificar al backend para WhatsApp
+        try {
+            fetch(`${API_BASE_URL}/api/notify-order`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ order_id: result.id })
+            }).catch(e => console.warn('Error enviando notificación al backend:', e));
+        } catch (e) { }
+
+        return result;
+    } catch (error) {
+        console.error('Error in submitOrderToAPI:', error);
+        throw error;
     }
-    
-    return await response.json();
 }
 
 // Función para calcular el total del carrito
@@ -920,7 +787,7 @@ function showNotification(message, type = 'success') {
     notification.className = `fixed top-4 right-4 ${bgColor} text-white px-4 py-2 rounded-lg shadow-lg z-50`;
     notification.textContent = message;
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
         if (document.body.contains(notification)) {
             document.body.removeChild(notification);
@@ -941,7 +808,7 @@ async function showOrderManagement() {
     startOrderManagementUpdates();
 }
 
-// Función para recargar pedidos despuÃ©Â©s de crear uno nuevo
+// Función para recargar pedidos después de crear uno nuevo
 function reloadOrderManagement() {
     if (document.getElementById('order-management-view').style.display !== 'none') {
         loadOrderManagement();
@@ -980,10 +847,8 @@ function formatStatusForBackend(displayStatus) {
 
 async function loadOrderManagement() {
     try {
-        const response = await fetch(API_BASE_URL + '/api/orders');
-        const orders = await response.json();
-        // Convertir los estados del backend a formato legible
-        allOrders = (orders.data || orders).map(order => ({
+        const orders = await db.getPedidos();
+        allOrders = orders.map(order => ({
             ...order,
             status: formatStatusForDisplay(order.estado)
         }));
@@ -1003,26 +868,26 @@ function renderOrderManagement() {
         console.error('Elemento order-management-container no encontrado');
         return;
     }
-    
+
     // Actualizar contadores en los botones de filtro
     updateFilterButtonCounts();
-    
+
     let filteredOrders = allOrders;
     if (currentStatusFilter !== 'all') {
         filteredOrders = allOrders.filter(order => order.estado === currentStatusFilter);
     }
-    
+
     if (filteredOrders.length === 0) {
         container.innerHTML = '<p class="text-center text-gray-400">No hay pedidos para mostrar</p>';
         return;
     }
-    
+
     container.innerHTML = '';
-    
+
     filteredOrders.forEach(order => {
         const orderCard = document.createElement('div');
         orderCard.className = 'bg-gray-700 p-6 rounded-2xl shadow-md border-l-4';
-        
+
         // Color del borde según el estado
         const borderColor = {
             'pendiente': 'border-yellow-500',
@@ -1035,11 +900,11 @@ function renderOrderManagement() {
             'Listo': 'border-green-500',
             'Entregado': 'border-gray-500'
         }[order.estado] || 'border-blue-500';
-        
+
         orderCard.classList.add(borderColor);
-        
+
         const tableInfo = order.tipo_pedido === 'domicilio' ? 'Domicilio' : (order.mesa || 'Para Llevar');
-        
+
         // Información del cliente para domicilios
         let clienteInfo = '';
         if (order.tipo_pedido === 'domicilio') {
@@ -1052,7 +917,7 @@ function renderOrderManagement() {
                 </div>
             `;
         }
-        
+
         // Crear HTML detallado para cada item
         const itemsHTML = order.items.map(item => {
             // Obtener tamaño del item
@@ -1073,10 +938,10 @@ function renderOrderManagement() {
                                     <p class="text-yellow-400 text-sm mt-1">
                                         <i class="fas fa-plus-circle mr-1"></i>
                                         : ${(() => {
-                                            // Manejar diferentes shapes: {name}, {nombre} o strings
-                                            const names = item.additions.map(a => (a && (a.name || a.nombre)) || a).filter(x => x && String(x).trim() !== '');
-                                            return names.length ? names.join(', ') : '';
-                                        })()}
+                        // Manejar diferentes shapes: {name}, {nombre} o strings
+                        const names = item.additions.map(a => (a && (a.name || a.nombre)) || a).filter(x => x && String(x).trim() !== '');
+                        return names.length ? names.join(', ') : '';
+                    })()}
                                     </p>
                                 ` : ''}
                             </div>
@@ -1090,7 +955,7 @@ function renderOrderManagement() {
             `;
             return itemHTML;
         }).join('');
-        
+
         orderCard.innerHTML = `
             <div class="flex justify-between items-start mb-4">
                 <div>
@@ -1144,7 +1009,7 @@ function renderOrderManagement() {
                 </button>
             </div>
         `;
-        
+
         container.appendChild(orderCard);
     });
 }
@@ -1173,7 +1038,7 @@ function updateFilterButtonCounts() {
         listo: allOrders.filter(o => o.estado === 'listo').length,
         entregado: allOrders.filter(o => o.estado === 'entregado').length
     };
-    
+
     // Actualizar cada botón con su contador
     Object.keys(counts).forEach(status => {
         const button = document.getElementById(`filter-${status}`);
@@ -1181,7 +1046,7 @@ function updateFilterButtonCounts() {
             const icon = button.querySelector('i');
             const iconHTML = icon ? icon.outerHTML : '';
             const text = button.textContent.replace(/\d+/g, '').trim();
-            
+
             // Actualizar contenido del botón con badge de contador
             if (counts[status] > 0) {
                 button.innerHTML = `
@@ -1200,25 +1065,25 @@ function updateFilterButtonCounts() {
 
 function filterOrdersByStatus(status) {
     currentStatusFilter = status;
-    
+
     // Actualizar estilos de los botones de filtro
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.classList.remove('ring-4', 'ring-white', 'ring-opacity-50', 'scale-105');
     });
-    
+
     // Destacar el botón activo
     const activeButton = document.getElementById(`filter-${status}`);
     if (activeButton) {
         activeButton.classList.add('ring-4', 'ring-white', 'ring-opacity-50', 'scale-105');
     }
-    
+
     renderOrderManagement();
 }
 
 function handleStatusChange(orderId, selectElement) {
     const newStatus = selectElement.value;
     console.log('handleStatusChange llamada con:', { orderId, newStatus });
-    
+
     if (newStatus) {
         updateOrderStatus(orderId, newStatus);
         // Resetear el select despuÃ©Â©s de un breve delay
@@ -1229,34 +1094,19 @@ function handleStatusChange(orderId, selectElement) {
 }
 
 async function updateOrderStatus(orderId, newStatus) {
-    console.log('updateOrderStatus llamada con:', { orderId, newStatus });
-    
     if (!orderId || !newStatus) {
-        console.error('ID de pedido o estado faltante:', { orderId, newStatus });
         showNotification('Error: Datos incompletos', 'error');
         return;
     }
 
-    console.log('Enviando estado al backend:', newStatus);
-
     try {
-        const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/status`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ status: newStatus })
-        });
+        const result = await db.updateOrderStatus(orderId, newStatus);
 
-        console.log('Respuesta del servidor:', response.status);
-
-        if (response.ok) {
+        if (result.success) {
             showNotification('Estado del pedido actualizado exitosamente', 'success');
-            loadOrderManagement(); // Recargar la lista de pedidos
+            loadOrderManagement();
         } else {
-            const errorData = await response.json();
-            console.error('Error del servidor:', errorData);
-            showNotification(`Error: ${errorData.error || 'No se pudo actualizar el estado'}`, 'error');
+            showNotification(`Error: ${result.error || 'No se pudo actualizar el estado'}`, 'error');
         }
     } catch (error) {
         console.error('Error al actualizar estado:', error);
@@ -1300,33 +1150,33 @@ async function printOrder(orderId) {
             orderId = lastCreatedOrderId;
             console.log(`Usando último pedido creado: #${orderId}`);
         }
-        
+
         if (!orderId) {
             showNotification('No hay pedido para imprimir', 'error');
             return;
         }
-        
+
         console.log(`Iniciando impresión para pedido #${orderId}`);
-        
-        // Obtener los detalles del pedido para impresión
-        const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}`);
-        if (!response.ok) {
-            throw new Error('Error al obtener detalles del pedido');
+
+        // Obtener los detalles del pedido para impresión desde Supabase
+        const result = await db.getPedidoById(orderId);
+        if (!result.success) {
+            throw new Error(result.error || 'Error al obtener detalles del pedido');
         }
-        
-        const order = await response.json();
-        console.log('Detalles del pedido obtenidos:', order);
-        
+
+        const order = result.data;
+        console.log('Detalles del pedido obtenidos de Supabase:', order);
+
         // Crear ventana de impresión con formato específico
         const printWindow = window.open('', '_blank', 'width=400,height=600');
-        
+
         if (!printWindow) {
             // Si la ventana emergente fue bloqueada, mostrar alternativa
             console.warn('Ventana emergente bloqueada, usando impresión alternativa');
             printAlternative(order);
             return;
         }
-        
+
         const printContent = `
             <html>
                 <head>
@@ -1430,14 +1280,14 @@ async function printOrder(orderId) {
                     <div class="items">
                         <h4>PRODUCTOS:</h4>
                         ${order.items.map(item => {
-                            const tamano = item.tamano || item.size || '';
-                            const segundoSabor = item.segundo_sabor || '';
-                            let additionsText = '';
-                            if (item.additions && item.additions.length > 0) {
-                                const names = item.additions.map(a => (a && (a.name || a.nombre)) || a).filter(x => x && String(x).trim() !== '');
-                                if (names.length) additionsText = `<div class="item-additions">+ ${names.join(', ')}</div>`;
-                            }
-                            return `
+            const tamano = item.tamano || item.size || '';
+            const segundoSabor = item.segundo_sabor || '';
+            let additionsText = '';
+            if (item.additions && item.additions.length > 0) {
+                const names = item.additions.map(a => (a && (a.name || a.nombre)) || a).filter(x => x && String(x).trim() !== '');
+                if (names.length) additionsText = `<div class="item-additions">+ ${names.join(', ')}</div>`;
+            }
+            return `
                             <div class="item">
                                 <div class="item-desc">
                                     ${item.quantity}x ${item.name}
@@ -1449,7 +1299,7 @@ async function printOrder(orderId) {
                                     $${formatPrice(item.unit_price * item.quantity)}
                                 </div>
                             </div>`;
-                        }).join('')}
+        }).join('')}
                     </div>
                     
                     <div class="separator"></div>
@@ -1465,10 +1315,10 @@ async function printOrder(orderId) {
                 </body>
             </html>
         `;
-        
+
         printWindow.document.write(printContent);
         printWindow.document.close();
-        
+
         // Esperar un momento y luego imprimir
         setTimeout(() => {
             try {
@@ -1481,7 +1331,7 @@ async function printOrder(orderId) {
                 showNotification('Error al imprimir - verifique la configuración de su navegador', 'error');
             }
         }, 500);
-        
+
     } catch (error) {
         console.error('Error al imprimir pedido:', error);
         showNotification('Error al enviar a impresión', 'error');
@@ -1591,14 +1441,14 @@ function printAlternative(order) {
             <div class="print-items">
                 <h4>PRODUCTOS:</h4>
                 ${order.items.map(item => {
-                    const tamano = item.tamano || item.size || '';
-                    const segundoSabor = item.segundo_sabor || '';
-                    let additionsText = '';
-                    if (item.additions && item.additions.length > 0) {
-                        const names = item.additions.map(a => (a && (a.name || a.nombre)) || a).filter(x => x && String(x).trim() !== '');
-                        if (names.length) additionsText = `<div style="font-size: 0.8em; color: #666;">+ ${names.join(', ')}</div>`;
-                    }
-                    return `
+        const tamano = item.tamano || item.size || '';
+        const segundoSabor = item.segundo_sabor || '';
+        let additionsText = '';
+        if (item.additions && item.additions.length > 0) {
+            const names = item.additions.map(a => (a && (a.name || a.nombre)) || a).filter(x => x && String(x).trim() !== '');
+            if (names.length) additionsText = `<div style="font-size: 0.8em; color: #666;">+ ${names.join(', ')}</div>`;
+        }
+        return `
                     <div class="print-item">
                         <div class="print-item-desc">
                             ${item.quantity}x ${item.name}
@@ -1610,7 +1460,7 @@ function printAlternative(order) {
                             $${formatPrice(item.unit_price * item.quantity)}
                         </div>
                     </div>`;
-                }).join('')}
+    }).join('')}
             </div>
             
             <div class="print-separator"></div>
@@ -1625,20 +1475,20 @@ function printAlternative(order) {
             </div>
         </div>
     `;
-    
+
     // Agregar al body temporalmente
     document.body.appendChild(printDiv);
-    
+
     // Ocultar el resto del contenido
     const originalContent = document.body.innerHTML;
     document.body.innerHTML = printDiv.innerHTML;
-    
+
     // Imprimir
     window.print();
-    
+
     // Restaurar contenido original
     document.body.innerHTML = originalContent;
-    
+
     console.log(`Pedido #${order.id} enviado a impresión (método alternativo)`);
     showNotification('Pedido enviado a impresión', 'success');
 }
@@ -1658,14 +1508,14 @@ async function showPizzaAdicionales(recipeId, pizzaName, basePrice, sizeDisplay)
         basePrice: basePrice,
         sizeDisplay: sizeDisplay
     };
-    
+
     // Extraer el tamaÃ©Â±o base del sizeDisplay (ej: "Personal ($25.900)" -> "Personal")
     currentPizzaSize = sizeDisplay.split(' ')[0];
-    
+
     // Actualizar información de la pizza seleccionada
-    document.getElementById('pizzaSeleccionada').textContent = 
+    document.getElementById('pizzaSeleccionada').textContent =
         `${pizzaName} - ${sizeDisplay} - $${formatPrice(basePrice)}`;
-    
+
     // Cargar adicionales disponibles
     await loadAdicionales();
 
@@ -1680,12 +1530,12 @@ async function showPizzaAdicionales(recipeId, pizzaName, basePrice, sizeDisplay)
     } catch (e) {
         console.warn('Error cargando vinculados para el producto en mesa:', e);
     }
-    
+
     // Limpiar selección anterior
     selectedAdicionales = [];
     updateTotalPrice();
-    
-    
+
+
     // Cargar seccion de dos sabores si aplica
     await mostrarSeccionDosSaboresMesa(recipeId);
 
@@ -1693,13 +1543,11 @@ async function showPizzaAdicionales(recipeId, pizzaName, basePrice, sizeDisplay)
     document.getElementById('adicionalesModal').classList.remove('hidden');
 }
 
-// Cargar adicionales desde la API
+// Cargar adicionales desde Supabase
 async function loadAdicionales() {
     try {
-        const response = await fetch(API_BASE_URL + '/api/adiciones');
-        if (!response.ok) throw new Error('Error al cargar adicionales');
-        
-        availableAdicionales = await response.json();
+        const adicionales = await db.getAdiciones();
+        availableAdicionales = adicionales;
         renderAdicionales();
     } catch (error) {
         console.error('Error cargando adicionales:', error);
@@ -1707,32 +1555,21 @@ async function loadAdicionales() {
     }
 }
 
-// Cargar productos vinculados para mostrarlos como adicionales en el modal de mesa
+// Cargar productos vinculados desde Supabase
 async function loadVinculadosForProduct(productId) {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/productos/${productId}/productos-vinculados`);
-        if (!response.ok) {
-            console.warn('No se encontraron productos vinculados o error en la petición', response.status);
-            return;
-        }
+        const productosVinculados = await db.getVinculaciones(productId);
 
-        const productosVinculados = await response.json();
-
-        // productosVinculados puede tener claves por tipo -> arrays de productos
         const nuevos = [];
-
         if (productosVinculados && typeof productosVinculados === 'object') {
             Object.keys(productosVinculados).forEach(tipo => {
                 const lista = productosVinculados[tipo] || [];
                 lista.forEach(prod => {
-                    // Crear un objeto compatible con la estructura esperada por renderAdicionales
-                    // Usamos un id Ã©Âºnico prefijado para evitar colisiones con adiciones normales
                     const precioVal = parseFloat(prod.precio) || parseFloat(prod.precio_venta) || 0;
                     const adicional = {
                         id: `vinc-${prod.id}`,
                         nombre: prod.nombre || prod.titulo || `Producto ${prod.id}`,
                         descripcion: prod.descripcion || prod.categoria || '',
-                        // estructura de precios por tamaÃ©Â±o (fallback simple)
                         precios: {
                             [currentPizzaSize]: { precio: precioVal },
                             'Personal': { precio: precioVal }
@@ -1744,18 +1581,13 @@ async function loadVinculadosForProduct(productId) {
         }
 
         if (nuevos.length > 0) {
-            // AÃ©Â±adir al listado global de adiciones para que renderAdicionales los muestre
-            // Evitar duplicados por id
             nuevos.forEach(n => {
                 if (!availableAdicionales.some(a => String(a.id) === String(n.id))) {
                     availableAdicionales.push(n);
                 }
             });
-
-            // Re-renderizar las adiciones para incluir los vinculados
             renderAdicionales();
         }
-
     } catch (error) {
         console.error('Error cargando vinculados del producto:', error);
     }
@@ -1765,15 +1597,15 @@ async function loadVinculadosForProduct(productId) {
 function renderAdicionales() {
     const grid = document.getElementById('adicionalesGrid');
     grid.innerHTML = '';
-    
+
     if (availableAdicionales.length === 0) {
         grid.innerHTML = '<p class="text-gray-400 col-span-2 text-center">No hay adicionales disponibles</p>';
         return;
     }
-    
+
     availableAdicionales.forEach(adicional => {
         const isSelected = selectedAdicionales.some(sel => sel.id === adicional.id);
-        
+
         // Obtener el precio para el tamaÃ©Â±o actual
         let precio = 0;
         try {
@@ -1795,16 +1627,15 @@ function renderAdicionales() {
             console.warn('Error leyendo precios de adicional', adicional, e);
             precio = 0;
         }
-        
+
         if (precio === 0) return; // Skip if no price available
-        
+
         const card = document.createElement('div');
-        card.className = `border rounded-lg p-3 cursor-pointer transition-colors ${
-            isSelected 
-                ? 'border-green-500 bg-green-900/30' 
-                : 'border-gray-600 bg-gray-700 hover:border-gray-500'
-        }`;
-        
+        card.className = `border rounded-lg p-3 cursor-pointer transition-colors ${isSelected
+            ? 'border-green-500 bg-green-900/30'
+            : 'border-gray-600 bg-gray-700 hover:border-gray-500'
+            }`;
+
         card.innerHTML = `
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
@@ -1822,7 +1653,7 @@ function renderAdicionales() {
                 </span>
             </div>
         `;
-        
+
         card.onclick = () => toggleAdicional(adicional.id);
         grid.appendChild(card);
     });
@@ -1832,16 +1663,16 @@ function renderAdicionales() {
 function toggleAdicional(adicionalId) {
     const adicional = availableAdicionales.find(a => a.id === adicionalId);
     if (!adicional) return;
-    
-        // Obtener el precio para el tamaÃ©Â±o actual (cuando se hace toggle)
+
+    // Obtener el precio para el tamaÃ©Â±o actual (cuando se hace toggle)
     let precioData = null;
     if (adicional.precios && typeof adicional.precios === 'object') {
         precioData = adicional.precios[currentPizzaSize] || adicional.precios['Personal'] || adicional.precios[Object.keys(adicional.precios)[0]];
     }
     if (!precioData) return;
-    
+
     const existingIndex = selectedAdicionales.findIndex(sel => sel.id === adicionalId);
-    
+
     if (existingIndex >= 0) {
         // Remover adicional
         selectedAdicionales.splice(existingIndex, 1);
@@ -1853,7 +1684,7 @@ function toggleAdicional(adicionalId) {
             price: parseFloat(precioData.precio) || 0
         });
     }
-    
+
     renderAdicionales();
     updateTotalPrice();
 }
@@ -1863,21 +1694,21 @@ function updateTotalPrice() {
     const basePrice = currentPizzaData ? currentPizzaData.basePrice : 0;
     const adicionalesPrice = selectedAdicionales.reduce((total, adicional) => total + adicional.price, 0);
     const totalPrice = basePrice + adicionalesPrice;
-    
+
     document.getElementById('totalPrecio').textContent = `$${formatPrice(totalPrice)}`;
 }
 
 // Confirmar pizza con adicionales
 function confirmarPizzaConAdicionales() {
     if (!currentPizzaData) return;
-    
+
     const basePrice = currentPizzaData.basePrice;
     const adicionalesPrice = selectedAdicionales.reduce((total, adicional) => total + adicional.price, 0);
     const totalPrice = basePrice + adicionalesPrice;
-    
+
     // Crear nombre descriptivo con adicionales y segundo sabor
     let itemName = currentPizzaData.pizzaName;
-    
+
     // Agregar segundo sabor si existe
     if (segundoSaborMesa) {
         itemName += ` (mitad ${segundoSaborMesa.nombre})`;
@@ -1886,16 +1717,16 @@ function confirmarPizzaConAdicionales() {
         const adicionalesNames = selectedAdicionales.map(a => a.name).join(', ');
         itemName += ` + ${adicionalesNames}`;
     }
-    
+
     // Agregar al carrito con adicionales
     addToCartWithAdicionales(
         currentPizzaData.recipeId,
         itemName,
         totalPrice,
         selectedAdicionales,
-          segundoSaborMesa
+        segundoSaborMesa
     );
-    
+
     closeAdicionalesModal();
 }
 
@@ -1922,12 +1753,12 @@ function closeModal(modalId) {
 function addToCartWithAdicionales(recipeId, itemName, totalPrice, adicionales, segundoSabor = null) {
     // Buscar la receta completa para obtener información adicional
     const recipe = allRecipes.find(r => r.id === recipeId);
-    
-    const existingItem = currentCart.find(item => 
-        item.id === recipeId && 
+
+    const existingItem = currentCart.find(item =>
+        item.id === recipeId &&
         JSON.stringify(item.adicionales || []) === JSON.stringify(adicionales)
     );
-    
+
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
@@ -1939,7 +1770,7 @@ function addToCartWithAdicionales(recipeId, itemName, totalPrice, adicionales, s
             adicionales: adicionales,
             segundo_sabor: segundoSabor
         };
-        
+
         // Si encontramos la receta, agregar información adicional
         if (recipe) {
             newItem.product_id = recipe.product_id;
@@ -1964,11 +1795,11 @@ function addToCartWithAdicionales(recipeId, itemName, totalPrice, adicionales, s
             }
             newItem.sale_price = totalPrice;
         }
-        
+
         console.log('Adding item with adicionales to cart:', newItem);
         currentCart.push(newItem);
     }
-    
+
     console.log('Current cart after adding with adicionales:', currentCart);
     updateCartDisplay();
     showNotification('Pizza agregada al carrito', 'success');
@@ -1985,18 +1816,18 @@ function showDiscountModal() {
         showNotification('Tu carrito está vacío. ¡Añade algunos productos!', 'error');
         return;
     }
-    
+
     // Calcular subtotal
     subtotalAmount = currentCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
+
     // Mostrar subtotal
     document.getElementById('modal-subtotal').textContent = `$${formatPrice(subtotalAmount)}`;
     document.getElementById('modal-total').textContent = `$${formatPrice(subtotalAmount)}`;
-    
+
     // Resetear descuento
     currentDiscount = 0;
     updateDiscountDisplay();
-    
+
     // Mostrar modal
     document.getElementById('discount-modal').classList.remove('hidden');
 }
@@ -2025,12 +1856,12 @@ function applyCustomDiscount() {
 function updateDiscountDisplay() {
     const discountAmount = subtotalAmount * (currentDiscount / 100);
     const totalWithDiscount = subtotalAmount - discountAmount;
-    
+
     // Actualizar elementos del modal
     document.getElementById('discount-percentage').textContent = currentDiscount;
     document.getElementById('discount-amount').textContent = `$${formatPrice(discountAmount)}`;
     document.getElementById('modal-total').textContent = `$${formatPrice(totalWithDiscount)}`;
-    
+
     // Mostrar/ocultar resumen de descuento
     const discountSummary = document.getElementById('discount-summary');
     if (currentDiscount > 0) {
@@ -2045,37 +1876,37 @@ async function confirmOrderWithDiscount() {
         showNotification('Tu carrito está vacío. ¡Añade algunos productos!', 'error');
         return;
     }
-    
+
     try {
         const discountAmount = subtotalAmount * (currentDiscount / 100);
         const totalWithDiscount = subtotalAmount - discountAmount;
-        
+
         const orderResponse = await submitOrderWithDiscount(totalWithDiscount, currentDiscount);
-        
+
         // Guardar el ID del último pedido creado para poder imprimirlo
         lastCreatedOrderId = orderResponse.id || orderResponse.pedido_id || null;
         const displayOrderNumber = orderResponse.numero_pedido || orderResponse.id || orderResponse.pedido_id || '';
-        
+
         // Cambiar el estado del pedido a "En Preparación"
         if (tableOrders[currentTable]) {
             tableOrders[currentTable].status = 'En Preparación';
             tableOrders[currentTable].order_id = lastCreatedOrderId;
         }
-        
+
         // Cerrar modal
         closeDiscountModal();
-        
+
         // Limpiar el carrito despuÃ©Â©s de enviarlo
         currentCart = [];
         tableOrders[currentTable].cart = [];
         tableOrders[currentTable].total = 0;
         updateCartDisplay();
-        
+
         // Regresar al menÃ©Âº principal
         showView('main-menu-view');
-        
+
         // Mostrar notificación de Ã©Â©xito
-    showNotification(`¡Pedido #${displayOrderNumber} enviado exitosamente!`, 'success');
+        showNotification(`¡Pedido #${displayOrderNumber} enviado exitosamente!`, 'success');
 
         // Recargar la gestión de pedidos si estÃ¡ abierta
         reloadOrderManagement();
@@ -2091,26 +1922,24 @@ async function confirmOrderWithDiscount() {
                 showNotification('Pedido enviado exitosamente, pero error al imprimir factura', 'warning');
             }
         }, 500);
-        
+
     } catch (error) {
         console.error('Error al enviar pedido:', error);
         showNotification(`Error al enviar el pedido: ${error.message}`, 'error');
     }
 }
 
-// Enviar pedido con descuento a la API
+// Enviar pedido con descuento usando Supabase
 async function submitOrderWithDiscount(totalWithDiscount, discountPercentage) {
     // Mapear los productos del carrito a productos de la base de datos
     const items = [];
-    
+
     for (const cartItem of currentCart) {
         console.log('Processing cart item for order:', cartItem);
-        
-        // Usar product_id o producto_id (compatibilidad)
+
         let product_id = cartItem.product_id || cartItem.producto_id;
         let size_id = cartItem.size_id || cartItem.tamano_id;
-        
-        // Si aÃ©Âºn no hay product_id, intentar extraer del ID compuesto
+
         if (!product_id && cartItem.id) {
             const parts = cartItem.id.toString().split('_');
             if (parts.length >= 2) {
@@ -2122,59 +1951,71 @@ async function submitOrderWithDiscount(totalWithDiscount, discountPercentage) {
                 size_id = null;
             }
         }
-        
+
         if (!product_id) {
             console.error('Item sin product_id válido:', cartItem);
-            continue; // Saltar este item
+            continue;
         }
-        
-        // Para compatibilidad con la nueva API, necesitamos mapear los items
+
+        // Mapear item para db.createPedido
         const orderItem = {
             product_id: product_id,
             size_id: size_id,
             quantity: cartItem.quantity,
             unit_price: cartItem.sale_price || cartItem.price,
-            additions: cartItem.adicionales || [],
-            segundo_sabor: cartItem.segundo_sabor || null
+            additions: (cartItem.adicionales || []).map(a => ({
+                id: a.id,
+                name: a.name || a.nombre,
+                price: a.price
+            })),
+            segundo_sabor: cartItem.segundo_sabor ? {
+                id: cartItem.segundo_sabor.id,
+                nombre: cartItem.segundo_sabor.name || cartItem.segundo_sabor.nombre
+            } : null
         };
-        
-        console.log('Created order item:', orderItem);
+
         items.push(orderItem);
     }
-    
-    console.log('Total items to send:', items.length);
-    console.log('Items array:', items);
-    
+
     if (items.length === 0) {
         throw new Error('No hay items válidos para enviar');
     }
-    
+
     const orderData = {
-        cliente_nombre: '',
         mesa: typeof currentTable === 'number' ? currentTable.toString() : currentTable,
         total_amount: subtotalAmount,
         discount_percentage: discountPercentage,
         total_with_discount: totalWithDiscount,
-        items: items
+        items: items,
+        tipo_pedido: (typeof currentTable === 'number' || currentTable === 'Para Llevar') ? 'mesa' : 'domicilio',
+        estado: 'pendiente',
+        metodo_pago: 'pendiente'
     };
-    
-    console.log('Enviando pedido:', orderData);
-    console.log('Items detail:', JSON.stringify(items, null, 2));
-    
-    const response = await fetch(API_BASE_URL + '/api/orders', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderData)
-    });
-    
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Error al enviar pedido');
+
+    console.log('Enviando pedido a Supabase:', orderData);
+
+    // Usar db.createPedido que maneja creación e inventario
+    const result = await db.createPedido(orderData);
+
+    if (!result.success) {
+        throw new Error(result.error || 'Error al crear el pedido en Supabase');
     }
-    
-    return await response.json();
+
+    // Nota: La notificación de WhatsApp aún se maneja en el backend.
+    // Podríamos hacer una llamada a un endpoint simplificado del backend solo para esto,
+    // o el backend podría escuchar cambios en la base de datos de Supabase.
+    // Por ahora, para minimizar cambios, el usuario dijo que la lógica compleja queda en Render.
+    // Una opción es NOTIFICAR al backend que se creó un pedido para que envíe WhatsApp.
+
+    try {
+        fetch(`${API_BASE_URL}/api/notify-order`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order_id: result.id })
+        }).catch(e => console.warn('Error enviando notificación al backend:', e));
+    } catch (e) { }
+
+    return result;
 }
 
 
@@ -2183,15 +2024,10 @@ async function submitOrderWithDiscount(totalWithDiscount, discountPercentage) {
 let segundoSaborMesa = null;
 let saboresDisponiblesMesa = [];
 
-// Cargar sabores disponibles para un producto
+// Cargar sabores disponibles desde Supabase
 async function cargarSaboresDisponiblesMesa(productId) {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/productos/${productId}/sabores`);
-        if (!response.ok) {
-            console.log('No hay sabores configurados para este producto');
-            return [];
-        }
-        const sabores = await response.json();
+        const sabores = await db.getSabores(productId);
         saboresDisponiblesMesa = sabores;
         return sabores;
     } catch (error) {
@@ -2204,29 +2040,29 @@ async function cargarSaboresDisponiblesMesa(productId) {
 async function mostrarSeccionDosSaboresMesa(recipeId) {
     const seccion = document.getElementById('seccionDosSaboresMesa');
     const container = document.getElementById('saboresDisponiblesMesa');
-    
+
     if (!seccion || !container) return;
-    
+
     // Extraer product_id del recipeId compuesto (ej: "75_61")
     const parts = String(recipeId).split('_');
     const productId = parseInt(parts[0]);
-    
+
     // Buscar la receta para verificar si permite dos sabores
     const recipe = allRecipes.find(r => r.id === recipeId);
-    
+
     if (!recipe || !recipe.permite_dos_sabores) {
         seccion.classList.add('hidden');
         return;
     }
-    
+
     // Cargar sabores disponibles
     const sabores = await cargarSaboresDisponiblesMesa(productId);
-    
+
     if (sabores.length === 0) {
         seccion.classList.add('hidden');
         return;
     }
-    
+
     // Renderizar sabores
     container.innerHTML = sabores.map(sabor => `
         <button onclick="seleccionarSegundoSaborMesa(${sabor.sabor_producto_id}, '${sabor.nombre.replace(/'/g, "\\'")}')"
@@ -2234,10 +2070,10 @@ async function mostrarSeccionDosSaboresMesa(recipeId) {
             ${sabor.nombre}
         </button>
     `).join('');
-    
+
     // Mostrar secciÃ³n
     seccion.classList.remove('hidden');
-    
+
     // Reset
     segundoSaborMesa = null;
     document.getElementById('saborSeleccionadoMesa').classList.add('hidden');
@@ -2249,10 +2085,10 @@ function seleccionarSegundoSaborMesa(saborId, saborNombre) {
         id: saborId,
         nombre: saborNombre
     };
-    
+
     document.getElementById('nombreSegundoSaborMesa').textContent = saborNombre;
     document.getElementById('saborSeleccionadoMesa').classList.remove('hidden');
-    
+
     // Destacar botÃ³n seleccionado
     const container = document.getElementById('saboresDisponiblesMesa');
     container.querySelectorAll('button').forEach(btn => {
@@ -2270,7 +2106,7 @@ function seleccionarSegundoSaborMesa(saborId, saborNombre) {
 function quitarSegundoSaborMesa() {
     segundoSaborMesa = null;
     document.getElementById('saborSeleccionadoMesa').classList.add('hidden');
-    
+
     // Reset botones
     const container = document.getElementById('saboresDisponiblesMesa');
     if (container) {
