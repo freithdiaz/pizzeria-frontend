@@ -3,9 +3,9 @@
  * =================================
  * Este archivo gestiona la conexión directa con Supabase y toda la lógica
  * que anteriormente residía en el backend (CRUD, Inventario, etc.)
- * Versión: 2.1.2
+ * Versión: 2.1.3
  */
-const CLIENT_VERSION = '2.1.2';
+const CLIENT_VERSION = '2.1.3';
 console.log(`Supabase Client Version: ${CLIENT_VERSION}`);
 
 // Importar SDK de Supabase desde CDN
@@ -86,8 +86,7 @@ export const db = {
             const { data: prods, error: errProds } = await supabase
                 .from('productos')
                 .select('*')
-                .in('categoria_id', catIds)
-                .eq('activo', 1);
+                .in('categoria_id', catIds);
 
             if (errProds) throw errProds;
 
@@ -157,12 +156,12 @@ export const db = {
                 mesa: rawInfo.mesa || 'No especificada',
                 cliente_nombre: rawInfo.cliente_nombre || '',
                 total_precio: parseFloat(rawInfo.total_amount || rawInfo.total_precio || 0),
-                discount_percentage: parseFloat(rawInfo.discount_percentage || 0),
+                descuento_porcentaje: parseFloat(rawInfo.discount_percentage || rawInfo.descuento_porcentaje || 0),
                 total_con_descuento: parseFloat(rawInfo.total_with_discount || rawInfo.total_con_descuento || 0),
                 subtotal: parseFloat(rawInfo.subtotal || rawInfo.total_amount || 0),
                 tipo_pedido: rawInfo.tipo_pedido || 'mesa',
                 estado: rawInfo.estado || 'pendiente',
-                metodo_pago: rawInfo.metodo_pago || 'pendiente',
+                medio_pago: rawInfo.metodo_pago || rawInfo.medio_pago || 'pendiente',
                 observaciones: rawInfo.observaciones || ''
             };
 
