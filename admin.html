@@ -1259,42 +1259,6 @@
             // Inicializar Ventas
             cargarVentasDia();
         });
-        // Ocultar todas las secciones
-        document.querySelectorAll('.seccion').forEach(s => s.classList.add('hidden'));
-        // Desactivar todos los tabs
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.remove('border-blue-500', 'text-blue-400');
-        });
-
-        // Mostrar seccion seleccionada
-        document.getElementById(`seccion-${seccion}`).classList.remove('hidden');
-        document.getElementById(`tab-${seccion}`).classList.add('border-blue-500', 'text-blue-400');
-
-        // Cargar datos segun la seccion
-        if (seccion === 'dashboard') {
-            cargarVentasDia();
-            cargarHistorialCaja();
-        } else if (seccion === 'categorias') {
-            cargarCategorias();
-        } else if (seccion === 'productos') {
-            cargarProductos();
-            cargarCategoriasEnSelect();
-        } else if (seccion === 'vinculaciones') {
-            cargarVinculaciones();
-        } else if (seccion === 'dos-sabores') {
-            cargarProductosDosSabores();
-            cargarCategoriasEnSelectDosSabores();
-        } else if (seccion === 'inventario') {
-            cargarInventario();
-        } else if (seccion === 'configuracion') {
-            // Cargar sistema de precios por zona
-            if (typeof cargarConfiguracion === 'function') {
-                cargarConfiguracion();
-            }
-            if (typeof cargarZonasPrecios === 'function') {
-                cargarZonasPrecios();
-            }
-        }
 
 
         // ==================== CATEGORÃ©ÂAS ====================
