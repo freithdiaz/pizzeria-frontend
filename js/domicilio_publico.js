@@ -346,15 +346,8 @@ async function cargarGruposAdiciones(productoId) {
         // Usar los grupos que ya vienen procesados de db.getGruposAdiciones
         const todosLosGrupos = await db.getGruposAdiciones(productoId);
 
-        const container = document.getElementById('modal-grupos-adiciones');
-
-        if (!todosLosGrupos || todosLosGrupos.length === 0) {
-            container.innerHTML = '<p class="text-gray-500 text-sm text-center py-4">Este producto no tiene opciones adicionales disponibles.</p>';
-            return;
-        }
-
         // Normalizar estructura de grupos para que todos tengan {grupo, opciones}
-        const gruposNormalizados = todosLosGrupos.map(item => {
+        let gruposNormalizados = (todosLosGrupos || []).map(item => {
             // Si ya tiene la estructura {grupo, opciones}, mantenerla
             if (item.grupo && item.opciones !== undefined) {
                 return item;
@@ -377,6 +370,38 @@ async function cargarGruposAdiciones(productoId) {
                 };
             }
         });
+
+        // INYECTAR GRUPO DE TAMAÑOS SI EXISTEN PRECIOS DINÁMICOS
+        if (productoActual.precios && productoActual.precios.length > 0) {
+            // Verificar si ya existe un grupo de tipo tamano
+            const tieneTamano = gruposNormalizados.some(g => g.grupo.tipo === 'tamano' || g.grupo.nombre.toLowerCase().includes('tamañ') || g.grupo.nombre.toLowerCase().includes('taman'));
+            if (!tieneTamano) {
+                console.log('🔍 Inyectando grupo de tamaños desde productoActual.precios');
+                gruposNormalizados.unshift({
+                    grupo: {
+                        id: 'tamano',
+                        nombre: 'Selecciona el Tamaño',
+                        tipo: 'tamano',
+                        minimo: 1,
+                        maximo: 1,
+                        orden: -1 // Siempre de primero
+                    },
+                    opciones: productoActual.precios.map(p => ({
+                        id: p.id,
+                        nombre: p.tamano_nombre,
+                        precio_adicional: parseFloat(p.precio) || 0,
+                        disponible: true
+                    }))
+                });
+            }
+        }
+
+        const container = document.getElementById('modal-grupos-adiciones');
+
+        if (gruposNormalizados.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 text-sm text-center py-4">Este producto no tiene opciones adicionales disponibles.</p>';
+            return;
+        }
 
         // Agregar precios de bebidas dinámicas a productoActual.precios
         if (!productoActual.precios) {
@@ -578,13 +603,16 @@ function calcularTotalModal() {
     let tamanoSeleccionado = adicionesSeleccionadas['tamano'] || adicionesSeleccionadas['tamaño'];
 
     // Si no se encuentra por nombre fijo, buscar qué grupo tiene el tipo 'tamano' en el DOM
-    if (!tamanoSeleccionado) {
-        const inputTamano = document.querySelector('input[name^="grupo-"][onchange*="tamano"]:checked');
+    if (!tamanoSeleccionado || tamanoSeleccionado.length === 0) {
+        // Buscar el input que tenga el último argumento como 'true' (que es isTamano)
+        const inputTamano = document.querySelector('input[name^="grupo-"][onchange*="true"]:checked') ||
+            document.querySelector('input[name="grupo-tamano"]:checked') ||
+            document.querySelector('input[name="grupo-tamaño"]:checked');
+
         if (inputTamano) {
-            const match = inputTamano.name.match(/grupo-(\w+)/);
-            if (match) {
-                tamanoSeleccionado = adicionesSeleccionadas[match[1]];
-            }
+            const tamanoId = inputTamano.value;
+            tamanoSeleccionado = [tamanoId];
+            console.log('🔍 calcularTotalModal - Tamaño detectado desde DOM:', tamanoId);
         }
     }
 
