@@ -41,7 +41,10 @@ function cerrarModalExito() {
     }
 
     setTimeout(() => {
-        if (modal) modal.classList.add('hidden');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('active');
+        }
     }, 300);
 }
 
@@ -1399,7 +1402,11 @@ function irAConfirmar() {
 }
 
 function cerrarModalConfirmar() {
-    document.getElementById('confirmar-modal').classList.remove('active');
+    const modal = document.getElementById('confirmar-modal');
+    if (modal) {
+        modal.classList.remove('active');
+        modal.classList.add('hidden');
+    }
 }
 
 async function enviarPedido(event) {
@@ -1476,7 +1483,9 @@ async function enviarPedido(event) {
                 document.getElementById('exito-order-id').textContent = `#${orderId}`;
 
                 if (modal) {
+                    // Asegurar que el modal queda visible (usamos clase 'active' para sobreescribir estilos)
                     modal.classList.remove('hidden');
+                    modal.classList.add('active');
                     // Animación de entrada
                     setTimeout(() => {
                         content.classList.remove('scale-95', 'opacity-0');
