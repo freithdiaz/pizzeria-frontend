@@ -41,6 +41,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Cargar todas las recetas desde Supabase
 async function loadRecipes() {
     try {
+        // Esperar a que db esté disponible (supabase-client.js se carga como módulo)
+        let retries = 0;
+        while (typeof db === 'undefined' && retries < 50) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            retries++;
+        }
+
+        if (typeof db === 'undefined') {
+            throw new Error('El cliente de base de datos no se inicializó correctamente.');
+        }
+
         const prodsWithPrices = await db.getProductos();
 
         allRecipes = [];

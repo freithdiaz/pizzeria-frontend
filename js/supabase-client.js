@@ -15,6 +15,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 // Inicializar cliente
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+window.supabase = supabase; // Exposición inmediata
 
 // Objeto de base de datos con funciones de conveniencia
 export const db = {
@@ -377,5 +378,4 @@ export const db = {
 
 // Exponer globalmente para scripts que no son módulos
 window.db = db;
-window.supabase = supabase;
 window.supabaseClient = db;

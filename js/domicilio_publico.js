@@ -33,6 +33,13 @@ let clienteActual = null; // Guardar datos del cliente buscado
 
 // Cargar datos al iniciar
 document.addEventListener('DOMContentLoaded', async () => {
+    // Esperar a que db esté disponible (supabase-client.js se carga como módulo)
+    let retries = 0;
+    while (typeof db === 'undefined' && retries < 50) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        retries++;
+    }
+
     await cargarCategorias();
     await cargarProductos();
     actualizarContadorCarrito();
