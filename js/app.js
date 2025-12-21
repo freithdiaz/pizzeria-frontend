@@ -41,12 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Cargar todas las recetas desde Supabase
 async function loadRecipes() {
     try {
-        const { data: prodsWithPrices, error } = await supabase
-            .from('productos')
-            .select('*, precios:producto_precios(*), categorias_config(nombre)')
-            .eq('activo', true);
-
-        if (error) throw error;
+        const prodsWithPrices = await db.getProductos();
 
         allRecipes = [];
         prodsWithPrices.forEach(producto => {
@@ -232,7 +227,7 @@ async function loadCategoryProducts(categoryId) {
         // Obtener productos de esta categoría con sus precios
         const { data: productos, error } = await supabase
             .from('productos')
-            .select('*, precios:producto_precios(*), categorias_config(nombre)')
+            .select('*, precios:producto_precios_dinamicos(*), categorias_config(nombre)')
             .eq('categoria_id', categoria.id)
             .eq('activo', true);
 

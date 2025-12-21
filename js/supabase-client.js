@@ -24,6 +24,7 @@ export const db = {
             .from('productos')
             .select(`
                 *,
+                precios:producto_precios_dinamicos(*),
                 categoria:categorias_config(*)
             `)
             .order('nombre');
@@ -324,6 +325,7 @@ export const db = {
     }
 };
 
-// Exponer globalmente
-window.supabaseClient = db;
+// Exponer globalmente para scripts que no son módulos
+window.db = db;
 window.supabase = supabase;
+window.supabaseClient = db;

@@ -1,10 +1,12 @@
 ﻿<!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nissi Pizza - Administracion Dinamica</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Unificar version de Font Awesome con la pagina de domicilio para evitar inconsistencias en los iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,6 +14,7 @@
         body {
             font-family: 'Poppins', sans-serif;
         }
+
         .modal {
             display: none;
             position: fixed;
@@ -24,12 +27,14 @@
             align-items: center;
             justify-content: center;
         }
+
         /* Support both .show (used in JS) and .active */
         .modal.show,
         .modal.active {
             display: flex !important;
         }
-        .modal > div {
+
+        .modal>div {
             background-color: #1e293b;
             border-radius: 0.5rem;
             padding: 1.5rem;
@@ -42,59 +47,76 @@
             border: 1px solid #334155;
             color: #f1f5f9;
         }
+
         /* Mejoras para moviles: modales ocupen casi todo el ancho y padding reducido */
         @media (max-width: 640px) {
-            .modal > div {
+            .modal>div {
                 max-width: 98%;
                 margin: 0.5rem;
                 padding: 1rem;
                 border-radius: 0.5rem;
                 max-height: 92vh;
             }
+
             /* Asegurar que los contenedores principales adaptan su padding */
             .container {
                 padding-left: 0.75rem;
                 padding-right: 0.75rem;
             }
+
             header .flex {
                 flex-direction: column;
                 align-items: stretch;
                 gap: 0.5rem;
             }
+
             .tab-btn {
                 padding-left: 0.75rem;
                 padding-right: 0.75rem;
                 white-space: nowrap;
             }
+
             nav {
                 overflow-x: auto;
             }
         }
+
         .card-hover {
             transition: all 0.3s ease;
         }
+
         .card-hover:hover {
             transform: translateY(-5px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
+
         /* Mejoras responsivas para tablas y acciones en pantallas pequenas */
         @media (max-width: 640px) {
+
             /* Tabla de inventario: convertir rows en bloques apilados */
-            .overflow-x-auto table, .overflow-x-auto thead, .overflow-x-auto tbody, .overflow-x-auto th, .overflow-x-auto td, .overflow-x-auto tr {
+            .overflow-x-auto table,
+            .overflow-x-auto thead,
+            .overflow-x-auto tbody,
+            .overflow-x-auto th,
+            .overflow-x-auto td,
+            .overflow-x-auto tr {
                 display: block;
             }
+
             .overflow-x-auto thead tr {
                 position: absolute;
                 top: -9999px;
                 left: -9999px;
             }
+
             .overflow-x-auto tr {
                 margin: 0 0 1rem 0;
-                border: 1px solid rgba(148,163,184,0.06);
+                border: 1px solid rgba(148, 163, 184, 0.06);
                 padding: 0.5rem;
                 border-radius: 0.5rem;
-                background: rgba(15,23,42,0.6);
+                background: rgba(15, 23, 42, 0.6);
             }
+
             .overflow-x-auto td {
                 /* Cada celda se muestra como fila flex con label y valor */
                 display: flex;
@@ -104,6 +126,7 @@
                 text-align: left;
                 border: none;
             }
+
             .overflow-x-auto td::before {
                 /* usar el atributo data-label para mostrar el encabezado */
                 content: attr(data-label) ': ';
@@ -111,8 +134,10 @@
                 color: #94a3b8;
                 margin-right: 0.5rem;
             }
+
             /* Reducir padding en tablas y botones dentro de tarjetas */
-            .overflow-x-auto th, .overflow-x-auto td {
+            .overflow-x-auto th,
+            .overflow-x-auto td {
                 padding-left: 0.5rem !important;
                 padding-right: 0.5rem !important;
             }
@@ -125,12 +150,14 @@
             }
 
             /* Ajustes para modales y contenedores mas estrechos */
-            .modal > div {
+            .modal>div {
                 padding: 0.75rem;
             }
         }
     </style>
-<script src="./js/config.js"></script></head>
+    <script src="./js/config.js" defer></script>
+</head>
+
 <body class="bg-slate-900 text-white min-h-screen">
     <!-- Header -->
     <header class="bg-slate-800 shadow-lg sticky top-0 z-40">
@@ -153,124 +180,141 @@
     <div class="bg-slate-800 border-b border-slate-700">
         <div class="container mx-auto px-4">
             <nav class="flex space-x-1">
-                <button onclick="mostrarSeccion('dashboard')" id="tab-dashboard" class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
+                <button onclick="mostrarSeccion('dashboard')" id="tab-dashboard"
+                    class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
                     <i class="fas fa-chart-line mr-2"></i>Dashboard
                 </button>
-                <button onclick="mostrarSeccion('categorias')" id="tab-categorias" class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
+                <button onclick="mostrarSeccion('categorias')" id="tab-categorias"
+                    class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
                     <i class="fas fa-folder mr-2"></i>Categorias
                 </button>
-                <button onclick="mostrarSeccion('productos')" id="tab-productos" class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
+                <button onclick="mostrarSeccion('productos')" id="tab-productos"
+                    class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
                     <i class="fas fa-box mr-2"></i>Productos
                 </button>
-                <button onclick="mostrarSeccion('vinculaciones')" id="tab-vinculaciones" class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
+                <button onclick="mostrarSeccion('vinculaciones')" id="tab-vinculaciones"
+                    class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
                     <i class="fas fa-link mr-2"></i>Vinculaciones
                 </button>
-                <button onclick="mostrarSeccion('dos-sabores')" id="tab-dos-sabores" class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
+                <button onclick="mostrarSeccion('dos-sabores')" id="tab-dos-sabores"
+                    class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
                     <i class="fas fa-pizza-slice mr-2"></i>Dos Sabores
                 </button>
-                <button onclick="mostrarSeccion('inventario')" id="tab-inventario" class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
+                <button onclick="mostrarSeccion('inventario')" id="tab-inventario"
+                    class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
                     <i class="fas fa-warehouse mr-2"></i>Inventario
                 </button>
-                <button onclick="mostrarSeccion('configuracion')" id="tab-configuracion" class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
+                <button onclick="mostrarSeccion('configuracion')" id="tab-configuracion"
+                    class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
                     <i class="fas fa-cog mr-2"></i>Configuracion
                 </button>
             </nav>
-        <!-- SECCIÃ©â€œN: DASHBOARD -->
-        <div id="seccion-dashboard" class="seccion hidden">
-            <h2 class="text-3xl font-bold mb-6">Dashboard de Ventas</h2>
-            
-            <!-- Control de Caja -->
-            <div class="bg-gradient-to-r from-blue-900 to-purple-900 rounded-lg p-6 mb-8">
-                <h3 class="text-2xl font-semibold mb-4 flex items-center">
-                    <i class="fas fa-cash-register mr-3 text-green-400"></i>
-                    Control de Caja
-                </h3>
-                <div id="caja-estado" class="flex items-center justify-between">
-                    <div>
-                        <div id="caja-info" class="text-lg mb-2">Verificando estado...</div>
-                        <div id="caja-monto-inicial" class="text-sm text-gray-300"></div>
+            <!-- SECCIÃ©â€œN: DASHBOARD -->
+            <div id="seccion-dashboard" class="seccion hidden">
+                <h2 class="text-3xl font-bold mb-6">Dashboard de Ventas</h2>
+
+                <!-- Control de Caja -->
+                <div class="bg-gradient-to-r from-blue-900 to-purple-900 rounded-lg p-6 mb-8">
+                    <h3 class="text-2xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-cash-register mr-3 text-green-400"></i>
+                        Control de Caja
+                    </h3>
+                    <div id="caja-estado" class="flex items-center justify-between">
+                        <div>
+                            <div id="caja-info" class="text-lg mb-2">Verificando estado...</div>
+                            <div id="caja-monto-inicial" class="text-sm text-gray-300"></div>
+                        </div>
+                        <div class="flex gap-4">
+                            <button id="btn-abrir-caja" onclick="mostrarModalAbrirCaja()"
+                                class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold hidden">
+                                <i class="fas fa-lock-open mr-2"></i>Abrir Caja
+                            </button>
+                            <button id="btn-cerrar-caja" onclick="cerrarCaja()"
+                                class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-semibold hidden">
+                                <i class="fas fa-lock mr-2"></i>Cerrar Caja
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-slate-800 rounded-lg p-6">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center">
+                            <i class="fas fa-chart-line mr-2 text-green-400"></i>
+                            Ventas del Dia
+                        </h3>
+                        <div class="mb-4">
+                            <label class="block text-sm mb-2">Fecha:</label>
+                            <input type="date" id="dashboard-fecha"
+                                class="bg-slate-700 px-4 py-2 rounded border border-slate-600 text-white" />
+                            <button onclick="cargarVentasDia()"
+                                class="ml-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Ver</button>
+                        </div>
+                        <div id="dashboard-ventas-dia" class="text-2xl font-bold text-green-300 mb-2">$0</div>
+                        <div id="dashboard-pedidos-count" class="text-sm text-gray-400">0 pedidos</div>
+                    </div>
+                    <div class="bg-slate-800 rounded-lg p-6">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center">
+                            <i class="fas fa-history mr-2 text-yellow-400"></i>
+                            Historial de Cierres de Caja
+                        </h3>
+                        <div id="dashboard-historial-caja" class="space-y-2 text-sm max-h-64 overflow-y-auto">
+                            Cargando historial...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detalle de Pedidos del Dia -->
+                <div class="bg-slate-800 rounded-lg p-6">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-receipt mr-2 text-blue-400"></i>
+                        Detalle de Pedidos
+                    </h3>
+                    <div id="dashboard-pedidos-detalle" class="space-y-4">
+                        <p class="text-gray-400">Selecciona una fecha para ver los pedidos</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal: Abrir Caja -->
+            <div id="modal-abrir-caja"
+                class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+                <div class="bg-slate-800 rounded-lg p-8 max-w-md w-full mx-4">
+                    <h3 class="text-2xl font-bold mb-4">Abrir Caja</h3>
+                    <div class="mb-4">
+                        <label class="block text-sm mb-2">Usuario que abre la caja:</label>
+                        <input type="text" id="usuario-apertura" placeholder="Nombre de usuario (sin contrasena)"
+                            class="w-full bg-slate-700 px-4 py-2 rounded border border-slate-600 mb-3">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm mb-2">Monto inicial en caja:</label>
+                        <input type="number" id="monto-inicial-caja" step="0.01" min="0" placeholder="0.00"
+                            class="w-full bg-slate-700 px-4 py-2 rounded border border-slate-600">
                     </div>
                     <div class="flex gap-4">
-                        <button id="btn-abrir-caja" onclick="mostrarModalAbrirCaja()" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold hidden">
-                            <i class="fas fa-lock-open mr-2"></i>Abrir Caja
+                        <button onclick="abrirCaja()"
+                            class="flex-1 bg-green-600 hover:bg-green-700 px-6 py-3 rounded font-semibold">
+                            <i class="fas fa-check mr-2"></i>Abrir
                         </button>
-                        <button id="btn-cerrar-caja" onclick="cerrarCaja()" class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-semibold hidden">
-                            <i class="fas fa-lock mr-2"></i>Cerrar Caja
+                        <button onclick="cerrarModalAbrirCaja()"
+                            class="flex-1 bg-gray-600 hover:bg-gray-700 px-6 py-3 rounded font-semibold">
+                            Cancelar
                         </button>
                     </div>
                 </div>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                <div class="bg-slate-800 rounded-lg p-6">
-                    <h3 class="text-xl font-semibold mb-4 flex items-center">
-                        <i class="fas fa-chart-line mr-2 text-green-400"></i>
-                        Ventas del Dia
-                    </h3>
-                    <div class="mb-4">
-                        <label class="block text-sm mb-2">Fecha:</label>
-                        <input type="date" id="dashboard-fecha" class="bg-slate-700 px-4 py-2 rounded border border-slate-600 text-white" />
-                        <button onclick="cargarVentasDia()" class="ml-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Ver</button>
-                    </div>
-                    <div id="dashboard-ventas-dia" class="text-2xl font-bold text-green-300 mb-2">$0</div>
-                    <div id="dashboard-pedidos-count" class="text-sm text-gray-400">0 pedidos</div>
-                </div>
-                <div class="bg-slate-800 rounded-lg p-6">
-                    <h3 class="text-xl font-semibold mb-4 flex items-center">
-                        <i class="fas fa-history mr-2 text-yellow-400"></i>
-                        Historial de Cierres de Caja
-                    </h3>
-                    <div id="dashboard-historial-caja" class="space-y-2 text-sm max-h-64 overflow-y-auto">
-                        Cargando historial...
-                    </div>
-                </div>
-            </div>
-
-            <!-- Detalle de Pedidos del Dia -->
-            <div class="bg-slate-800 rounded-lg p-6">
-                <h3 class="text-xl font-semibold mb-4 flex items-center">
-                    <i class="fas fa-receipt mr-2 text-blue-400"></i>
-                    Detalle de Pedidos
-                </h3>
-                <div id="dashboard-pedidos-detalle" class="space-y-4">
-                    <p class="text-gray-400">Selecciona una fecha para ver los pedidos</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal: Abrir Caja -->
-        <div id="modal-abrir-caja" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
-            <div class="bg-slate-800 rounded-lg p-8 max-w-md w-full mx-4">
-                <h3 class="text-2xl font-bold mb-4">Abrir Caja</h3>
-                <div class="mb-4">
-                    <label class="block text-sm mb-2">Usuario que abre la caja:</label>
-                    <input type="text" id="usuario-apertura" placeholder="Nombre de usuario (sin contrasena)" class="w-full bg-slate-700 px-4 py-2 rounded border border-slate-600 mb-3">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm mb-2">Monto inicial en caja:</label>
-                    <input type="number" id="monto-inicial-caja" step="0.01" min="0" placeholder="0.00" class="w-full bg-slate-700 px-4 py-2 rounded border border-slate-600">
-                </div>
-                <div class="flex gap-4">
-                    <button onclick="abrirCaja()" class="flex-1 bg-green-600 hover:bg-green-700 px-6 py-3 rounded font-semibold">
-                        <i class="fas fa-check mr-2"></i>Abrir
-                    </button>
-                    <button onclick="cerrarModalAbrirCaja()" class="flex-1 bg-gray-600 hover:bg-gray-700 px-6 py-3 rounded font-semibold">
-                        Cancelar
-                    </button>
-                </div>
-            </div>
-        </div>
         </div>
     </div>
 
     <!-- Main Content -->
     <main class="container mx-auto px-4 py-8">
-        
+
         <!-- SECCIÃ©â€œN: CATEGORÃ©ÂAS -->
         <div id="seccion-categorias" class="seccion hidden">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-3xl font-bold">Gestion de Categorias</h2>
-                <button onclick="abrirModalCategoria()" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition">
+                <button onclick="abrirModalCategoria()"
+                    class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition">
                     <i class="fas fa-plus mr-2"></i>Nueva Categoria
                 </button>
             </div>
@@ -280,9 +324,11 @@
                     <i class="fas fa-exclamation-triangle text-red-400 text-2xl mr-3"></i>
                     <div>
                         <h3 class="font-bold text-red-300">Zona de Peligro</h3>
-                        <p class="text-sm text-red-200">Si deseas empezar desde cero, puedes eliminar todo el menu (categorias y productos).</p>
+                        <p class="text-sm text-red-200">Si deseas empezar desde cero, puedes eliminar todo el menu
+                            (categorias y productos).</p>
                     </div>
-                    <button onclick="confirmarLimpiarMenu()" class="ml-auto bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-semibold whitespace-nowrap">
+                    <button onclick="confirmarLimpiarMenu()"
+                        class="ml-auto bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-semibold whitespace-nowrap">
                         Limpiar Todo
                     </button>
                 </div>
@@ -298,13 +344,16 @@
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-3xl font-bold">Gestion de Productos</h2>
                 <div class="flex space-x-3">
-                    <select id="filtro-categoria" onchange="actualizarFiltrosSubcategoria()" class="bg-slate-700 px-4 py-2 rounded-lg border border-slate-600">
+                    <select id="filtro-categoria" onchange="actualizarFiltrosSubcategoria()"
+                        class="bg-slate-700 px-4 py-2 rounded-lg border border-slate-600">
                         <option value="">Todas las categorias</option>
                     </select>
-                    <select id="filtro-subcategoria" onchange="filtrarProductos()" class="bg-slate-700 px-4 py-2 rounded-lg border border-slate-600" style="display: none;">
+                    <select id="filtro-subcategoria" onchange="filtrarProductos()"
+                        class="bg-slate-700 px-4 py-2 rounded-lg border border-slate-600" style="display: none;">
                         <option value="">Todas las subcategorias</option>
                     </select>
-                    <button onclick="abrirModalProducto()" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition">
+                    <button onclick="abrirModalProducto()"
+                        class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition">
                         <i class="fas fa-plus mr-2"></i>Nuevo Producto
                     </button>
                 </div>
@@ -319,7 +368,8 @@
         <div id="seccion-vinculaciones" class="seccion hidden">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-3xl font-bold">Vinculaciones de Productos</h2>
-                <button onclick="abrirModalVinculacion()" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition">
+                <button onclick="abrirModalVinculacion()"
+                    class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition">
                     <i class="fas fa-plus mr-2"></i>Nueva Vinculacion
                 </button>
             </div>
@@ -329,7 +379,8 @@
                     <i class="fas fa-info-circle text-blue-400 text-2xl mr-3"></i>
                     <div>
                         <h3 class="font-bold text-blue-300">Sistema de Vinculaciones</h3>
-                        <p class="text-sm text-blue-200">Permite combinar productos automaticamente. Por ejemplo: Pizza Hawaiana + Coca Cola + Borde de Queso.</p>
+                        <p class="text-sm text-blue-200">Permite combinar productos automaticamente. Por ejemplo: Pizza
+                            Hawaiana + Coca Cola + Borde de Queso.</p>
                     </div>
                 </div>
             </div>
@@ -353,13 +404,15 @@
                     <div class="space-y-4">
                         <div>
                             <label class="block text-sm mb-2">Producto Principal</label>
-                            <select id="vinculacion-producto-principal" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
+                            <select id="vinculacion-producto-principal"
+                                class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
                                 <option value="">Selecciona producto principal</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-sm mb-2">Tipo de Vinculacion</label>
-                            <select id="vinculacion-tipo" onchange="filtrarProductosVinculados()" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
+                            <select id="vinculacion-tipo" onchange="filtrarProductosVinculados()"
+                                class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
                                 <option value="bebida">Bebida</option>
                                 <option value="adicional">Adicional</option>
                                 <option value="complemento">Complemento</option>
@@ -367,7 +420,8 @@
                         </div>
                         <div id="filtro-subcategoria-div" style="display:none;">
                             <label class="block text-sm mb-2">Filtrar por Tipo de Bebida</label>
-                            <select id="vinculacion-filtro-subcategoria" onchange="filtrarProductosVinculados()" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
+                            <select id="vinculacion-filtro-subcategoria" onchange="filtrarProductosVinculados()"
+                                class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
                                 <option value="">Todos los tipos</option>
                                 <option value="gaseosa">Gaseosas</option>
                                 <option value="limonada">Limonadas</option>
@@ -381,7 +435,8 @@
                         </div>
                         <div>
                             <label class="block text-sm mb-2">Productos a Vincular (selecciona varios)</label>
-                            <div id="vinculacion-productos-lista" class="max-h-64 overflow-y-auto bg-slate-700 rounded-lg border border-slate-600 p-3 space-y-2">
+                            <div id="vinculacion-productos-lista"
+                                class="max-h-64 overflow-y-auto bg-slate-700 rounded-lg border border-slate-600 p-3 space-y-2">
                                 <!-- Los checkboxes se cargaran aqui -->
                             </div>
                         </div>
@@ -391,10 +446,12 @@
                         </div>
                         <div>
                             <label class="block text-sm mb-2">Precio Adicional ($)</label>
-                            <input type="number" id="vinculacion-precio" step="0.01" min="0" placeholder="0.00" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
+                            <input type="number" id="vinculacion-precio" step="0.01" min="0" placeholder="0.00"
+                                class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
                             <p class="text-xs text-gray-400 mt-1">Se aplicara a todos los productos seleccionados</p>
                         </div>
-                        <button onclick="crearVinculacionesMultiples()" class="w-full bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition">
+                        <button onclick="crearVinculacionesMultiples()"
+                            class="w-full bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition">
                             <i class="fas fa-plus mr-2"></i>Crear Vinculaciones
                         </button>
                     </div>
@@ -408,13 +465,14 @@
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-3xl font-bold">Configuracion de Dos Sabores</h2>
             </div>
-            
+
             <div class="bg-slate-800 rounded-lg p-6 mb-6">
                 <div class="flex items-center mb-4">
                     <i class="fas fa-info-circle text-blue-400 mr-3 text-xl"></i>
                     <div>
                         <h3 class="font-bold text-blue-300">Sistema de Dos Sabores</h3>
-                        <p class="text-gray-400 text-sm">Configura productos que pueden tener dos sabores (ej: pizza mitad y mitad). Selecciona los sabores disponibles para cada producto.</p>
+                        <p class="text-gray-400 text-sm">Configura productos que pueden tener dos sabores (ej: pizza
+                            mitad y mitad). Selecciona los sabores disponibles para cada producto.</p>
                     </div>
                 </div>
             </div>
@@ -426,7 +484,8 @@
                         <i class="fas fa-list mr-2"></i>Productos con Dos Sabores
                     </h3>
                     <div class="mb-4">
-                        <select id="filtro-categoria-dos-sabores" onchange="cargarProductosDosSabores()" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2">
+                        <select id="filtro-categoria-dos-sabores" onchange="cargarProductosDosSabores()"
+                            class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2">
                             <option value="">Todas las categorias</option>
                         </select>
                     </div>
@@ -445,27 +504,31 @@
                         <div class="mb-4 p-4 bg-slate-700 rounded-lg">
                             <h4 id="nombre-producto-sabores" class="font-bold text-lg mb-2">Producto</h4>
                             <label class="flex items-center gap-3 cursor-pointer">
-                                <input type="checkbox" id="toggle-permite-dos-sabores" onchange="togglePermiteDosSabores()" class="w-5 h-5 rounded">
+                                <input type="checkbox" id="toggle-permite-dos-sabores"
+                                    onchange="togglePermiteDosSabores()" class="w-5 h-5 rounded">
                                 <span>Permitir dos sabores</span>
                             </label>
                             <label class="flex items-center gap-3 cursor-pointer mt-3">
-                                <input type="checkbox" id="toggle-permite-tres-sabores" onchange="togglePermiteTresSabores()" class="w-5 h-5 rounded">
+                                <input type="checkbox" id="toggle-permite-tres-sabores"
+                                    onchange="togglePermiteTresSabores()" class="w-5 h-5 rounded">
                                 <span>Permitir tres sabores (tercios)</span>
                             </label>
                         </div>
-                        
+
                         <div id="seccion-agregar-sabores" class="hidden">
                             <h4 class="font-semibold mb-3">Sabores disponibles:</h4>
                             <div id="lista-sabores-configurados" class="space-y-2 mb-4 max-h-40 overflow-y-auto">
                                 <!-- Sabores configurados -->
                             </div>
-                            
+
                             <div class="border-t border-slate-600 pt-4 mt-4">
                                 <h4 class="font-semibold mb-3">Agregar sabor:</h4>
-                                <select id="select-nuevo-sabor" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 mb-3">
+                                <select id="select-nuevo-sabor"
+                                    class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 mb-3">
                                     <option value="">Selecciona un producto como sabor</option>
                                 </select>
-                                <button onclick="agregarSaborProducto()" class="w-full bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-semibold transition">
+                                <button onclick="agregarSaborProducto()"
+                                    class="w-full bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-semibold transition">
                                     <i class="fas fa-plus mr-2"></i>Agregar Sabor
                                 </button>
                             </div>
@@ -481,224 +544,234 @@
 
 
         <!-- SECCIÃ©â€œN: INVENTARIO -->
-         <div id="seccion-inventario" class="seccion hidden">
-              <h2 class="text-3xl font-bold mb-6">Gestion de Inventario</h2>
+        <div id="seccion-inventario" class="seccion hidden">
+            <h2 class="text-3xl font-bold mb-6">Gestion de Inventario</h2>
 
-              <div class="bg-slate-800 rounded-lg p-6">
-                  <div class="flex items-center mb-4">
-                      <i class="fas fa-info-circle text-blue-400 mr-2"></i>
-                      <p class="text-gray-300">El inventario se crea automaticamente al agregar productos. Aqui puedes gestionar el stock.</p>
-                  </div>
+            <div class="bg-slate-800 rounded-lg p-6">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-info-circle text-blue-400 mr-2"></i>
+                    <p class="text-gray-300">El inventario se crea automaticamente al agregar productos. Aqui puedes
+                        gestionar el stock.</p>
+                </div>
 
-                  <div id="lista-inventario" class="overflow-x-auto">
-                      <table class="w-full">
-                          <thead>
-                              <tr class="border-b border-slate-700">
-                                  <th class="text-left py-3 px-4">Producto</th>
-                                  <th class="text-left py-3 px-4">Categoria</th>
-                                  <th class="text-center py-3 px-4">Stock Actual</th>
-                                  <th class="text-center py-3 px-4">Stock Minimo</th>
-                                  <th class="text-center py-3 px-4">Estado</th>
-                                  <th class="text-center py-3 px-4">Acciones</th>
-                              </tr>
-                          </thead>
-                          <tbody id="tabla-inventario-body">
-                              <!-- Rows will be loaded here -->
-                          </tbody>
-                      </table>
-                  </div>
-              </div>
-          </div>
+                <div id="lista-inventario" class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-slate-700">
+                                <th class="text-left py-3 px-4">Producto</th>
+                                <th class="text-left py-3 px-4">Categoria</th>
+                                <th class="text-center py-3 px-4">Stock Actual</th>
+                                <th class="text-center py-3 px-4">Stock Minimo</th>
+                                <th class="text-center py-3 px-4">Estado</th>
+                                <th class="text-center py-3 px-4">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-inventario-body">
+                            <!-- Rows will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
 
-         <!-- SECCIÃ©â€œN: CONFIGURACIÃ©â€œN -->
-         <div id="seccion-configuracion" class="seccion hidden">
-             <div class="flex justify-between items-center mb-6">
-                 <h2 class="text-3xl font-bold">Configuracion de Domicilios</h2>
-             </div>
+        <!-- SECCIÃ©â€œN: CONFIGURACIÃ©â€œN -->
+        <div id="seccion-configuracion" class="seccion hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold">Configuracion de Domicilios</h2>
+            </div>
 
-             <!-- Configuracion General -->
-             <div class="bg-slate-800 rounded-lg p-6 mb-6">
-                 <div class="flex items-center justify-between mb-4">
-                     <div class="flex items-center">
-                         <i class="fas fa-cog text-blue-400 text-2xl mr-3"></i>
-                         <div>
-                             <h3 class="text-xl font-semibold">Configuracion General</h3>
-                             <p class="text-gray-400 text-sm">Sistema de precios de domicilio</p>
-                         </div>
-                     </div>
-                     <div id="estado-sistema" class="text-lg font-semibold text-orange-400">
-                         Cargando...
-                     </div>
-                 </div>
+            <!-- Configuracion General -->
+            <div class="bg-slate-800 rounded-lg p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-cog text-blue-400 text-2xl mr-3"></i>
+                        <div>
+                            <h3 class="text-xl font-semibold">Configuracion General</h3>
+                            <p class="text-gray-400 text-sm">Sistema de precios de domicilio</p>
+                        </div>
+                    </div>
+                    <div id="estado-sistema" class="text-lg font-semibold text-orange-400">
+                        Cargando...
+                    </div>
+                </div>
 
-                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                     <div class="bg-slate-700 rounded-lg p-4">
-                         <h4 class="font-semibold mb-3 flex items-center">
-                             <i class="fas fa-dollar-sign mr-2 text-green-400"></i>
-                             Precio por Defecto
-                         </h4>
-                         <p class="text-sm text-gray-300 mb-3">
-                             Precio cuando no hay zona configurada o el sistema de zonas esta desactivado
-                         </p>
-                         <input type="number" id="precio-default" step="100" min="0" placeholder="3000" 
-                                class="w-full px-4 py-2 bg-slate-600 rounded-lg border border-slate-500 focus:border-blue-500 focus:outline-none">
-                     </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-700 rounded-lg p-4">
+                        <h4 class="font-semibold mb-3 flex items-center">
+                            <i class="fas fa-dollar-sign mr-2 text-green-400"></i>
+                            Precio por Defecto
+                        </h4>
+                        <p class="text-sm text-gray-300 mb-3">
+                            Precio cuando no hay zona configurada o el sistema de zonas esta desactivado
+                        </p>
+                        <input type="number" id="precio-default" step="100" min="0" placeholder="3000"
+                            class="w-full px-4 py-2 bg-slate-600 rounded-lg border border-slate-500 focus:border-blue-500 focus:outline-none">
+                    </div>
 
-                     <div class="bg-slate-700 rounded-lg p-4">
-                         <h4 class="font-semibold mb-3 flex items-center">
-                             <i class="fas fa-map-marked-alt mr-2 text-purple-400"></i>
-                             Sistema de Precios por Zona
-                         </h4>
-                         <p class="text-sm text-gray-300 mb-3">
-                             Activar precios dinamicos segun municipio y barrio
-                         </p>
-                         <label class="flex items-center cursor-pointer">
-                             <input type="checkbox" id="usar-precios-zona" 
-                                    class="w-6 h-6 rounded bg-slate-600 border-slate-500 text-blue-600 focus:ring-blue-500">
-                             <span class="ml-3 text-sm font-medium">Usar precios por zona</span>
-                         </label>
-                     </div>
-                 </div>
+                    <div class="bg-slate-700 rounded-lg p-4">
+                        <h4 class="font-semibold mb-3 flex items-center">
+                            <i class="fas fa-map-marked-alt mr-2 text-purple-400"></i>
+                            Sistema de Precios por Zona
+                        </h4>
+                        <p class="text-sm text-gray-300 mb-3">
+                            Activar precios dinamicos segun municipio y barrio
+                        </p>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" id="usar-precios-zona"
+                                class="w-6 h-6 rounded bg-slate-600 border-slate-500 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-3 text-sm font-medium">Usar precios por zona</span>
+                        </label>
+                    </div>
+                </div>
 
-                 <div class="mt-4">
-                     <button onclick="guardarConfiguracion()" 
-                             class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition">
-                         <i class="fas fa-save mr-2"></i>Guardar Configuracion
-                     </button>
-                 </div>
-             </div>
+                <div class="mt-4">
+                    <button onclick="guardarConfiguracion()"
+                        class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition">
+                        <i class="fas fa-save mr-2"></i>Guardar Configuracion
+                    </button>
+                </div>
+            </div>
 
-             <!-- Gestion de Zonas -->
-             <div class="bg-slate-800 rounded-lg p-6">
-                 <div class="flex items-center justify-between mb-4">
-                     <div class="flex items-center">
-                         <i class="fas fa-map-marked-alt text-purple-400 text-2xl mr-3"></i>
-                         <div>
-                             <h3 class="text-xl font-semibold">Zonas de Precio</h3>
-                             <p class="text-gray-400 text-sm">Configura precios segun municipio y barrio</p>
-                         </div>
-                     </div>
-                     <button onclick="mostrarModalNuevaZona()" 
-                             class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold transition">
-                         <i class="fas fa-plus mr-2"></i>Agregar Zona
-                     </button>
-                 </div>
+            <!-- Gestion de Zonas -->
+            <div class="bg-slate-800 rounded-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-map-marked-alt text-purple-400 text-2xl mr-3"></i>
+                        <div>
+                            <h3 class="text-xl font-semibold">Zonas de Precio</h3>
+                            <p class="text-gray-400 text-sm">Configura precios segun municipio y barrio</p>
+                        </div>
+                    </div>
+                    <button onclick="mostrarModalNuevaZona()"
+                        class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold transition">
+                        <i class="fas fa-plus mr-2"></i>Agregar Zona
+                    </button>
+                </div>
 
-                 <!-- Tabla de Zonas -->
-                 <div class="overflow-x-auto">
-                     <table class="min-w-full divide-y divide-slate-700">
-                         <thead class="bg-slate-700">
-                             <tr>
-                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                     Municipio
-                                 </th>
-                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                     Barrio
-                                 </th>
-                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                     Precio
-                                 </th>
-                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                     Observaciones
-                                 </th>
-                                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                     Acciones
-                                 </th>
-                             </tr>
-                         </thead>
-                         <tbody id="tabla-zonas-body" class="bg-slate-800 divide-y divide-slate-700">
-                             <tr>
-                                 <td colspan="5" class="px-6 py-8 text-center text-gray-400">
-                                     <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
-                                     <p>Cargando zonas...</p>
-                                 </td>
-                             </tr>
-                         </tbody>
-                     </table>
-                 </div>
+                <!-- Tabla de Zonas -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-slate-700">
+                        <thead class="bg-slate-700">
+                            <tr>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    Municipio
+                                </th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    Barrio
+                                </th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    Precio
+                                </th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    Observaciones
+                                </th>
+                                <th
+                                    class="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    Acciones
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-zonas-body" class="bg-slate-800 divide-y divide-slate-700">
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-gray-400">
+                                    <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                                    <p>Cargando zonas...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-                 <!-- Ayuda -->
-                 <div class="mt-6 bg-blue-900 bg-opacity-20 border border-blue-500 rounded-lg p-4">
-                     <div class="flex">
-                         <i class="fas fa-info-circle text-blue-400 mr-3 mt-1"></i>
-                         <div class="text-sm text-gray-300">
-                             <p class="font-semibold mb-2">Como funciona el sistema de precios por zona:</p>
-                             <ul class="list-disc ml-5 space-y-1">
-                                 <li><strong>Barrio especifico:</strong> Si defines un precio para un barrio concreto (ej: "Laureles, Medellin"), ese precio tendra prioridad</li>
-                                 <li><strong>Municipio general:</strong> Si solo defines el municipio sin barrio (ej: "Medellin"), ese precio se aplica a todos los barrios no especificados</li>
-                                 <li><strong>Precio por defecto:</strong> Si no hay configuracion para el municipio, se usa el precio por defecto</li>
-                                 <li><strong>Geocodificacion automatica:</strong> El sistema detecta automaticamente el municipio y barrio cuando el cliente ingresa su direccion</li>
-                             </ul>
-                         </div>
-                     </div>
-                 </div>
-             </div>
-         </div>
+                <!-- Ayuda -->
+                <div class="mt-6 bg-blue-900 bg-opacity-20 border border-blue-500 rounded-lg p-4">
+                    <div class="flex">
+                        <i class="fas fa-info-circle text-blue-400 mr-3 mt-1"></i>
+                        <div class="text-sm text-gray-300">
+                            <p class="font-semibold mb-2">Como funciona el sistema de precios por zona:</p>
+                            <ul class="list-disc ml-5 space-y-1">
+                                <li><strong>Barrio especifico:</strong> Si defines un precio para un barrio concreto
+                                    (ej: "Laureles, Medellin"), ese precio tendra prioridad</li>
+                                <li><strong>Municipio general:</strong> Si solo defines el municipio sin barrio (ej:
+                                    "Medellin"), ese precio se aplica a todos los barrios no especificados</li>
+                                <li><strong>Precio por defecto:</strong> Si no hay configuracion para el municipio, se
+                                    usa el precio por defecto</li>
+                                <li><strong>Geocodificacion automatica:</strong> El sistema detecta automaticamente el
+                                    municipio y barrio cuando el cliente ingresa su direccion</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-         <!-- MODAL: Crear/Editar Zona de Precio -->
-         <div id="modal-zona" class="modal hidden">
-             <div class="bg-slate-800 rounded-lg p-6 max-w-lg w-full">
-                 <div class="flex justify-between items-center mb-4">
-                     <h3 class="text-xl font-bold" id="modal-zona-titulo">Nueva Zona de Precio</h3>
-                     <button type="button" onclick="cerrarModalZona()" class="text-gray-400 hover:text-white">
-                         <i class="fas fa-times"></i>
-                     </button>
-                 </div>
-                 
-                 <form id="form-zona" class="space-y-4">
-                     <div>
-                         <label class="block font-medium mb-2 text-sm">Municipio *</label>
-                         <input type="text" id="zona-municipio" required 
-                                class="w-full px-4 py-2 bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none" 
-                                placeholder="Ej: Medellin, Envigado, Itagui">
-                         <p class="text-xs text-gray-400 mt-1">Nombre del municipio o ciudad</p>
-                     </div>
+        <!-- MODAL: Crear/Editar Zona de Precio -->
+        <div id="modal-zona" class="modal hidden">
+            <div class="bg-slate-800 rounded-lg p-6 max-w-lg w-full">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold" id="modal-zona-titulo">Nueva Zona de Precio</h3>
+                    <button type="button" onclick="cerrarModalZona()" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
 
-                     <div>
-                         <label class="block font-medium mb-2 text-sm">Barrio (opcional)</label>
-                         <input type="text" id="zona-barrio" 
-                                class="w-full px-4 py-2 bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none" 
-                                placeholder="Ej: Laureles, Poblado">
-                         <p class="text-xs text-gray-400 mt-1">Dejalo vacio para aplicar a todo el municipio</p>
-                     </div>
+                <form id="form-zona" class="space-y-4">
+                    <div>
+                        <label class="block font-medium mb-2 text-sm">Municipio *</label>
+                        <input type="text" id="zona-municipio" required
+                            class="w-full px-4 py-2 bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none"
+                            placeholder="Ej: Medellin, Envigado, Itagui">
+                        <p class="text-xs text-gray-400 mt-1">Nombre del municipio o ciudad</p>
+                    </div>
 
-                     <div>
-                         <label class="block font-medium mb-2 text-sm">Precio *</label>
-                         <input type="number" id="zona-precio" required step="100" min="0" 
-                                class="w-full px-4 py-2 bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none" 
-                                placeholder="5000">
-                         <p class="text-xs text-gray-400 mt-1">Precio del domicilio en pesos colombianos</p>
-                     </div>
+                    <div>
+                        <label class="block font-medium mb-2 text-sm">Barrio (opcional)</label>
+                        <input type="text" id="zona-barrio"
+                            class="w-full px-4 py-2 bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none"
+                            placeholder="Ej: Laureles, Poblado">
+                        <p class="text-xs text-gray-400 mt-1">Dejalo vacio para aplicar a todo el municipio</p>
+                    </div>
 
-                     <div>
-                         <label class="block font-medium mb-2 text-sm">Observaciones</label>
-                         <textarea id="zona-observaciones" rows="2" 
-                                   class="w-full px-4 py-2 bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none" 
-                                   placeholder="Notas adicionales sobre esta zona"></textarea>
-                     </div>
+                    <div>
+                        <label class="block font-medium mb-2 text-sm">Precio *</label>
+                        <input type="number" id="zona-precio" required step="100" min="0"
+                            class="w-full px-4 py-2 bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none"
+                            placeholder="5000">
+                        <p class="text-xs text-gray-400 mt-1">Precio del domicilio en pesos colombianos</p>
+                    </div>
 
-                     <div class="hidden" id="zona-activo-container">
-                         <label class="flex items-center cursor-pointer">
-                             <input type="checkbox" id="zona-activo" checked 
-                                    class="w-5 h-5 rounded bg-slate-600 border-slate-500 text-blue-600">
-                             <span class="ml-2 text-sm">Zona activa</span>
-                         </label>
-                     </div>
+                    <div>
+                        <label class="block font-medium mb-2 text-sm">Observaciones</label>
+                        <textarea id="zona-observaciones" rows="2"
+                            class="w-full px-4 py-2 bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none"
+                            placeholder="Notas adicionales sobre esta zona"></textarea>
+                    </div>
 
-                     <div class="flex gap-3 pt-4">
-                         <button type="button" onclick="guardarZona()" 
-                                 class="flex-1 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-semibold transition">
-                             <i class="fas fa-save mr-2"></i>Guardar
-                         </button>
-                         <button type="button" onclick="cerrarModalZona()" 
-                                 class="flex-1 bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg font-semibold transition">
-                             <i class="fas fa-times mr-2"></i>Cancelar
-                         </button>
-                     </div>
-                 </form>
-             </div>
-         </div>
+                    <div class="hidden" id="zona-activo-container">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" id="zona-activo" checked
+                                class="w-5 h-5 rounded bg-slate-600 border-slate-500 text-blue-600">
+                            <span class="ml-2 text-sm">Zona activa</span>
+                        </label>
+                    </div>
+
+                    <div class="flex gap-3 pt-4">
+                        <button type="button" onclick="guardarZona()"
+                            class="flex-1 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-semibold transition">
+                            <i class="fas fa-save mr-2"></i>Guardar
+                        </button>
+                        <button type="button" onclick="cerrarModalZona()"
+                            class="flex-1 bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg font-semibold transition">
+                            <i class="fas fa-times mr-2"></i>Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
     </main>
 
@@ -713,11 +786,12 @@
             </div>
             <form id="form-categoria" onsubmit="guardarCategoria(event)" class="space-y-2">
                 <input type="hidden" id="categoria-id">
-                
+
                 <div class="mb-4">
                     <label class="block font-medium mb-1 text-sm">Ícono</label>
                     <div class="flex items-center gap-2">
-                        <select id="categoria-icono" class="w-full px-3 py-1 text-sm bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none">
+                        <select id="categoria-icono"
+                            class="w-full px-3 py-1 text-sm bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none">
                             <!-- Opciones comunes de Font Awesome (valor = clase) -->
                             <option value="fas fa-tag">Tag</option>
                             <option value="fas fa-pizza-slice">Pizza</option>
@@ -740,26 +814,33 @@
                             <option value="fas fa-mug-hot">Bebidas Calientes</option>
                             <option value="fas fa-star">Favoritos</option>
                         </select>
-                        <div id="categoria-icono-preview" class="w-10 h-10 rounded-full flex items-center justify-center text-white" style="background:#ff7a18">
+                        <div id="categoria-icono-preview"
+                            class="w-10 h-10 rounded-full flex items-center justify-center text-white"
+                            style="background:#ff7a18">
                             <i class="fas fa-tag"></i>
                         </div>
                     </div>
-                    <p class="text-xs text-gray-400 mt-1">Selecciona un icono para la categoria. Ej: <code>fas fa-pizza-slice</code></p>
+                    <p class="text-xs text-gray-400 mt-1">Selecciona un icono para la categoria. Ej:
+                        <code>fas fa-pizza-slice</code></p>
                 </div>
 
                 <div class="mb-2">
                     <label class="block font-medium mb-1 text-sm">Nombre de la Categoria *</label>
-                    <input type="text" id="categoria-nombre" required class="w-full px-3 py-1 text-sm bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none" placeholder="Ej: Pizzas Premium">
+                    <input type="text" id="categoria-nombre" required
+                        class="w-full px-3 py-1 text-sm bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none"
+                        placeholder="Ej: Pizzas Premium">
                 </div>
 
                 <div class="mb-2">
                     <label class="block font-medium mb-1 text-sm">Descripcion</label>
-                    <textarea id="categoria-descripcion" rows="1" class="w-full px-3 py-1 text-sm bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none"></textarea>
+                    <textarea id="categoria-descripcion" rows="1"
+                        class="w-full px-3 py-1 text-sm bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none"></textarea>
                 </div>
 
                 <div class="mb-2">
                     <label class="block font-medium mb-1 text-sm">Categoria Padre</label>
-                    <select id="categoria-padre" class="w-full px-3 py-1 text-sm bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none">
+                    <select id="categoria-padre"
+                        class="w-full px-3 py-1 text-sm bg-slate-700 rounded border border-slate-600 focus:border-blue-500 focus:outline-none">
                         <option value="">Ninguna (categoria principal)</option>
                     </select>
                     <p class="text-xs text-gray-400 mt-1">Si es una subcategoria, seleccione la categoria padre</p>
@@ -767,7 +848,8 @@
 
                 <div class="mb-2">
                     <label class="block font-medium mb-1 text-sm">Categorias Compatibles</label>
-                    <div id="categorias-compatibles-container" class="bg-slate-700 p-2 rounded border border-slate-600 max-h-32 overflow-y-auto text-sm">
+                    <div id="categorias-compatibles-container"
+                        class="bg-slate-700 p-2 rounded border border-slate-600 max-h-32 overflow-y-auto text-sm">
                         <!-- Se llenara dinamicamente con JavaScript -->
                     </div>
                     <p class="text-xs text-gray-400 mt-1">Seleccione las categorias que pueden combinarse con esta</p>
@@ -778,7 +860,8 @@
                         <input type="checkbox" id="es-adicion" class="mr-2 w-4 h-4">
                         <span>Es una adicion (puede agregarse a otros productos)</span>
                     </label>
-                    <p class="text-xs text-gray-400 mt-1">Marque si esta categoria contiene productos que pueden ser adiciones</p>
+                    <p class="text-xs text-gray-400 mt-1">Marque si esta categoria contiene productos que pueden ser
+                        adiciones</p>
                 </div>
 
                 <div class="mb-3">
@@ -804,7 +887,8 @@
                         <input type="checkbox" id="categoria-visible-publico" class="mr-2 w-4 h-4">
                         <span>Visible en menu publico</span>
                     </label>
-                    <p class="text-xs text-gray-400 mt-1">Si esta desmarcado, la categoria no aparecera en el menu publico aunque los productos sigan accesibles por vinculaciones.</p>
+                    <p class="text-xs text-gray-400 mt-1">Si esta desmarcado, la categoria no aparecera en el menu
+                        publico aunque los productos sigan accesibles por vinculaciones.</p>
                 </div>
 
                 <div class="mb-2">
@@ -812,11 +896,14 @@
                         <input type="checkbox" id="categoria-default-domicilio" class="mr-2 w-4 h-4">
                         <span>Predeterminada en Domicilios</span>
                     </label>
-                    <p class="text-xs text-gray-400 mt-1">Si marca esta opcion, la categoria seleccionada sera la categoria inicial que veran los clientes en el menu publico (solo una categoria puede ser predeterminada).</p>
+                    <p class="text-xs text-gray-400 mt-1">Si marca esta opcion, la categoria seleccionada sera la
+                        categoria inicial que veran los clientes en el menu publico (solo una categoria puede ser
+                        predeterminada).</p>
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-1">
-                    <button type="button" onclick="cerrarModal('modal-categoria')" class="px-4 py-1 text-sm bg-gray-600 hover:bg-gray-700 rounded transition">
+                    <button type="button" onclick="cerrarModal('modal-categoria')"
+                        class="px-4 py-1 text-sm bg-gray-600 hover:bg-gray-700 rounded transition">
                         Cancelar
                     </button>
                     <button type="submit" class="px-4 py-1 text-sm bg-blue-600 hover:bg-blue-700 rounded transition">
@@ -828,39 +915,45 @@
     </div>
 
     <!-- MODAL: Crear/Editar Producto -->
-    <div id="modal-producto" class="modal fixed inset-0 bg-black bg-opacity-75 items-center justify-center z-50 overflow-y-auto">
+    <div id="modal-producto"
+        class="modal fixed inset-0 bg-black bg-opacity-75 items-center justify-center z-50 overflow-y-auto">
         <div class="bg-slate-800 rounded-lg p-8 max-w-2xl w-full mx-4 my-8">
             <h3 class="text-2xl font-bold mb-6" id="titulo-modal-producto">Nuevo Producto</h3>
             <form id="form-producto" onsubmit="guardarProducto(event)">
                 <input type="hidden" id="producto-id">
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="md:col-span-2">
                         <label class="block font-medium mb-2">Nombre del Producto *</label>
-                        <input type="text" id="producto-nombre" required class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
+                        <input type="text" id="producto-nombre" required
+                            class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
                     </div>
 
                     <div class="md:col-span-2">
                         <label class="block font-medium mb-2">Descripcion</label>
-                        <textarea id="producto-descripcion" rows="2" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none"></textarea>
+                        <textarea id="producto-descripcion" rows="2"
+                            class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none"></textarea>
                     </div>
 
                     <div class="md:col-span-2">
                         <label class="block font-medium mb-2">Imagen del Producto</label>
-                        <input type="file" id="producto-imagen" accept="image/*" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
+                        <input type="file" id="producto-imagen" accept="image/*"
+                            class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
                         <p class="text-sm text-gray-400 mt-1">Selecciona una imagen para el producto (opcional)</p>
                     </div>
 
                     <div>
                         <label class="block font-medium mb-2">Categoria *</label>
-                        <select id="producto-categoria" required onchange="actualizarCamposProducto()" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
+                        <select id="producto-categoria" required onchange="actualizarCamposProducto()"
+                            class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
                             <option value="">Selecciona una categoria</option>
                         </select>
                     </div>
 
                     <div id="div-subcategoria" style="display: none;">
                         <label class="block font-medium mb-2">Subcategoria</label>
-                        <select id="producto-subcategoria" onchange="actualizarCamposProducto()" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
+                        <select id="producto-subcategoria" onchange="actualizarCamposProducto()"
+                            class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
                             <option value="">Selecciona una subcategoria (opcional)</option>
                         </select>
                         <p class="text-sm text-gray-400 mt-1">Para bebidas: gaseosa, limonada, etc.</p>
@@ -868,7 +961,8 @@
 
                     <div>
                         <label class="block font-medium mb-2">Stock Minimo</label>
-                        <input type="number" id="producto-stock-minimo" value="10" min="0" step="1" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
+                        <input type="number" id="producto-stock-minimo" value="10" min="0" step="1"
+                            class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
                     </div>
                 </div>
 
@@ -881,7 +975,8 @@
                 <div id="seccion-precios" class="mt-6">
                     <div class="flex justify-between items-center mb-3">
                         <label class="block font-medium">Precios *</label>
-                        <button type="button" onclick="agregarPrecio()" class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm">
+                        <button type="button" onclick="agregarPrecio()"
+                            class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm">
                             <i class="fas fa-plus mr-1"></i>Agregar Precio
                         </button>
                     </div>
@@ -891,7 +986,8 @@
                 </div>
 
                 <div class="flex justify-end space-x-4 mt-8">
-                    <button type="button" onclick="cerrarModal('modal-producto')" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition">
+                    <button type="button" onclick="cerrarModal('modal-producto')"
+                        class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition">
                         Cancelar
                     </button>
                     <button type="submit" class="px-6 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition">
@@ -908,7 +1004,7 @@
             <h3 class="text-2xl font-bold mb-6">Actualizar Stock</h3>
             <form id="form-stock" onsubmit="actualizarStock(event)">
                 <input type="hidden" id="stock-producto-id">
-                
+
                 <div class="mb-4">
                     <label class="block font-medium mb-2">Producto</label>
                     <p id="stock-producto-nombre" class="px-4 py-2 bg-slate-700 rounded-lg text-gray-300"></p>
@@ -916,11 +1012,13 @@
 
                 <div class="mb-4">
                     <label class="block font-medium mb-2">Stock Actual</label>
-                    <input type="number" id="stock-actual" required min="0" step="0.01" class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
+                    <input type="number" id="stock-actual" required min="0" step="0.01"
+                        class="w-full px-4 py-2 bg-slate-700 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none">
                 </div>
 
                 <div class="flex justify-end space-x-4">
-                    <button type="button" onclick="cerrarModal('modal-stock')" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition">
+                    <button type="button" onclick="cerrarModal('modal-stock')"
+                        class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition">
                         Cancelar
                     </button>
                     <button type="submit" class="px-6 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition">
@@ -932,21 +1030,24 @@
     </div>
 
     <!-- MODAL: Configurar Opciones/Adiciones -->
-     <div id="modalAsignarGrupos" class="modal fixed inset-0 bg-black bg-opacity-75 items-center justify-center z-50">
-         <div class="bg-slate-800 rounded-lg p-8 max-w-2xl w-full mx-4 text-white">
-             <h3 class="text-2xl font-bold mb-6" id="tituloModalAsignar">Configurar Opciones</h3>
-             <input type="hidden" id="productoIdAsignar">
-             <div id="listaGruposAsignar" class="text-gray-300 space-y-2 max-h-72 overflow-y-auto p-2 border border-slate-700 rounded-md"></div>
-             <div class="flex justify-end space-x-4 mt-8">
-                 <button type="button" onclick="cerrarModalAsignar()" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg text-white transition">
-                     Cancelar
-                 </button>
-                 <button id="btnGuardarAsignacion" type="button" onclick="guardarAsignacion()" class="px-6 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white transition">
-                     Guardar Configuracion
-                 </button>
-             </div>
-         </div>
-     </div>
+    <div id="modalAsignarGrupos" class="modal fixed inset-0 bg-black bg-opacity-75 items-center justify-center z-50">
+        <div class="bg-slate-800 rounded-lg p-8 max-w-2xl w-full mx-4 text-white">
+            <h3 class="text-2xl font-bold mb-6" id="tituloModalAsignar">Configurar Opciones</h3>
+            <input type="hidden" id="productoIdAsignar">
+            <div id="listaGruposAsignar"
+                class="text-gray-300 space-y-2 max-h-72 overflow-y-auto p-2 border border-slate-700 rounded-md"></div>
+            <div class="flex justify-end space-x-4 mt-8">
+                <button type="button" onclick="cerrarModalAsignar()"
+                    class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg text-white transition">
+                    Cancelar
+                </button>
+                <button id="btnGuardarAsignacion" type="button" onclick="guardarAsignacion()"
+                    class="px-6 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white transition">
+                    Guardar Configuracion
+                </button>
+            </div>
+        </div>
+    </div>
 
 
     <!-- Notifications Container -->
@@ -979,24 +1080,24 @@
             const inputFecha = document.getElementById('dashboard-fecha');
             const fecha = inputFecha.value || getFechaColombia();
             inputFecha.value = fecha;
-            
+
             try {
                 // Cargar total de ventas
                 const resp = await fetch(`${API_BASE_URL}/api/caja/ventas-dia?fecha=${fecha}`);
                 const data = await resp.json();
                 document.getElementById('dashboard-ventas-dia').textContent = `$${data.total_ventas?.toFixed(2) || 0}`;
-                
+
                 // Cargar detalles de pedidos
                 const respPedidos = await fetch(`${API_BASE_URL}/api/caja/pedidos-dia?fecha=${fecha}`);
                 const dataPedidos = await respPedidos.json();
-                
+
                 document.getElementById('dashboard-pedidos-count').textContent = `${dataPedidos.total_pedidos || 0} pedidos`;
-                
+
                 // Mostrar detalle de pedidos
                 cargarDetallePedidos(dataPedidos.pedidos || []);
             } catch (e) {
                 document.getElementById('dashboard-ventas-dia').textContent = 'Error';
-                document.getElementById('dashboard-pedidos-detalle').innerHTML = 
+                document.getElementById('dashboard-pedidos-detalle').innerHTML =
                     `<p class="text-red-400">Error cargando datos: ${e.message}</p>`;
                 console.error('Error cargando ventas:', e);
             }
@@ -1004,12 +1105,12 @@
 
         function cargarDetallePedidos(pedidos) {
             const cont = document.getElementById('dashboard-pedidos-detalle');
-            
+
             if (!pedidos || pedidos.length === 0) {
                 cont.innerHTML = '<p class="text-gray-400">No hay pedidos para esta fecha</p>';
                 return;
             }
-            
+
             cont.innerHTML = pedidos.map(pedido => {
                 const estadoColor = {
                     'pendiente': 'bg-yellow-600',
@@ -1018,7 +1119,7 @@
                     'entregado': 'bg-gray-600',
                     'cancelado': 'bg-red-600'
                 }[pedido.estado] || 'bg-gray-600';
-                
+
                 const itemsHtml = pedido.items.map(item => {
                     let detalles = [];
                     if (item.tamano) detalles.push(`<span class="text-blue-300">${item.tamano}</span>`);
@@ -1055,7 +1156,7 @@
                         ${detallesStr}
                     </div>`;
                 }).join('');
-                
+
                 // Formatear fecha y hora para Colombia
                 const formatearFecha = (fechaStr) => {
                     // La fecha viene de SQLite sin zona horaria, tratarla como local (Colombia)
@@ -1066,7 +1167,7 @@
                     }
                     // Parsear sin el sufijo Z para que se trate como hora local
                     const fecha = new Date(fechaLocal);
-                    
+
                     // Formatear manualmente
                     const dia = fecha.getDate().toString().padStart(2, '0');
                     const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
@@ -1075,10 +1176,10 @@
                     const minutos = fecha.getMinutes().toString().padStart(2, '0');
                     const ampm = horas >= 12 ? 'p. m.' : 'a. m.';
                     horas = horas % 12 || 12;
-                    
+
                     return `${dia}/${mes}/${anio}, ${horas}:${minutos} ${ampm}`;
                 };
-                
+
                 return `
                     <div class="bg-slate-700 rounded-lg p-4 hover:bg-slate-600 transition">
                         <div class="flex justify-between items-start mb-3">
@@ -1118,7 +1219,7 @@
                 }
                 cont.innerHTML = data.sesiones.map(s =>
                     `<div class='p-2 rounded bg-slate-700 mb-1'>
-                        <b>${s.fecha_apertura}</b> - <span class='text-green-300'>${s.total_ventas ? '$'+s.total_ventas.toFixed(2) : '$0'}</span>
+                        <b>${s.fecha_apertura}</b> - <span class='text-green-300'>${s.total_ventas ? '$' + s.total_ventas.toFixed(2) : '$0'}</span>
                         <br><span class='text-xs'>Apertura: ${s.hora_apertura} | Cierre: ${s.hora_cierre || '-'}</span>
                     </div>`
                 ).join('');
@@ -1173,8 +1274,8 @@
             try {
                 const resp = await fetch(API_BASE_URL + '/api/caja/abrir', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({monto_inicial: monto, usuario: usuario, observaciones: `Monto inicial: ${monto}`})
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ monto_inicial: monto, usuario: usuario, observaciones: `Monto inicial: ${monto}` })
                 });
                 const data = await resp.json();
                 if (resp.ok) {
@@ -1200,8 +1301,8 @@
                 }
                 const resp = await fetch(API_BASE_URL + '/api/caja/cerrar', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({sesion_id: sesionId})
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sesion_id: sesionId })
                 });
                 const data = await resp.json();
                 if (resp.ok) {
@@ -1218,7 +1319,7 @@
         }
 
         // ==================== INICIALIZACIÃ©â€œN ====================
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             mostrarSeccion('dashboard');
             verificarEstadoCaja();
         });
@@ -1231,11 +1332,11 @@
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('border-blue-500', 'text-blue-400');
             });
-            
+
             // Mostrar seccion seleccionada
             document.getElementById(`seccion-${seccion}`).classList.remove('hidden');
             document.getElementById(`tab-${seccion}`).classList.add('border-blue-500', 'text-blue-400');
-            
+
             // Cargar datos segun la seccion
             if (seccion === 'dashboard') {
                 cargarVentasDia();
@@ -1335,33 +1436,33 @@
             document.getElementById('form-categoria').reset();
             document.getElementById('categoria-id').value = '';
             document.getElementById('categoria-icono').value = 'fas fa-tag';
-            
+
             // Cargar categorias para el selector de categoria padre y compatibilidades
             cargarCategoriasEnFormulario();
-            
+
             abrirModal('modal-categoria');
         }
-        
+
         function cargarCategoriasEnFormulario() {
             // Llenar selector de categoria padre
             const selectCategoriaPadre = document.getElementById('categoria-padre');
             selectCategoriaPadre.innerHTML = '<option value="">Ninguna (categoria principal)</option>';
-            
+
             // Llenar contenedor de categorias compatibles
             const contenedorCompatibles = document.getElementById('categorias-compatibles-container');
             contenedorCompatibles.innerHTML = '';
-            
+
             // Obtener ID de la categoria actual (si estamos editando)
             const categoriaId = document.getElementById('categoria-id').value;
-            
+
             // Agregar opciones de categorias existentes
             categoriasData.forEach(cat => {
                 // No mostrar la categoria actual como opcion para padre o compatible
                 if (categoriaId && cat.id == categoriaId) return;
-                
+
                 // Agregar como opcion para categoria padre
                 selectCategoriaPadre.innerHTML += `<option value="${cat.id}">${cat.nombre}</option>`;
-                
+
                 // Agregar como opcion para categorias compatibles
                 contenedorCompatibles.innerHTML += `
                     <label class="flex items-center p-2 hover:bg-slate-600 rounded">
@@ -1382,29 +1483,29 @@
             document.getElementById('categoria-nombre').value = categoria.nombre;
             document.getElementById('categoria-descripcion').value = categoria.descripcion || '';
             document.getElementById('categoria-icono').value = categoria.icono || 'fas fa-tag';
-            
+
             // Actualizar la vista previa del icono
             try { updateIconPreview(); } catch (e) { /* noop */ }
             // Cargar las categorias en el formulario
             cargarCategoriasEnFormulario();
-            
+
             // Establecer categoria padre si existe
             if (categoria.categoria_padre_id) {
                 document.getElementById('categoria-padre').value = categoria.categoria_padre_id;
             } else {
                 document.getElementById('categoria-padre').value = '';
             }
-            
+
             // Establecer si es adicion
             document.getElementById('es-adicion').checked = categoria.es_adicion || false;
-            
+
             // Marcar categorias compatibles
             const checkboxes = document.querySelectorAll('#categorias-compatibles-container input[type="checkbox"]');
             checkboxes.forEach(checkbox => {
-                checkbox.checked = categoria.categorias_compatibles && 
-                                  categoria.categorias_compatibles.includes(parseInt(checkbox.value));
+                checkbox.checked = categoria.categorias_compatibles &&
+                    categoria.categorias_compatibles.includes(parseInt(checkbox.value));
             });
-            
+
             document.getElementById('campo-ingredientes').checked = categoria.campos_requeridos.ingredientes || false;
             document.getElementById('campo-tamanos').checked = categoria.campos_requeridos.tamanos || false;
             document.getElementById('campo-mililitros').checked = categoria.campos_requeridos.mililitros || false;
@@ -1428,13 +1529,13 @@
 
         async function guardarCategoria(event) {
             event.preventDefault();
-            
+
             const id = document.getElementById('categoria-id').value;
-            
+
             // Obtener categorias compatibles seleccionadas
             const categoriasCompatiblesChecks = document.querySelectorAll('#categorias-compatibles-container input[type="checkbox"]:checked');
             const categoriasCompatibles = Array.from(categoriasCompatiblesChecks).map(check => parseInt(check.value));
-            
+
             const data = {
                 nombre: document.getElementById('categoria-nombre').value,
                 descripcion: document.getElementById('categoria-descripcion').value,
@@ -1465,7 +1566,7 @@
             try {
                 const url = id ? `${API_BASE_URL}/api/categorias-config/${id}` : `${API_BASE_URL}/api/categorias-config`;
                 const method = id ? 'PUT' : 'POST';
-                
+
                 const response = await fetch(url, {
                     method: method,
                     headers: { 'Content-Type': 'application/json' },
@@ -1473,7 +1574,7 @@
                 });
 
                 const result = await response.json();
-                
+
                 if (response.ok) {
                     mostrarNotificacion(id ? 'Categoria actualizada' : 'Categoria creada', 'success');
                     cerrarModal('modal-categoria');
@@ -1498,7 +1599,7 @@
                 });
 
                 const result = await response.json();
-                
+
                 if (response.ok) {
                     mostrarNotificacion('Categoria eliminada', 'success');
                     cargarCategorias();
@@ -1536,7 +1637,7 @@
 
         async function confirmarLimpiarMenu() {
             const confirmacion = prompt('Esta accion eliminara TODAS las categorias y productos. Escribe "ELIMINAR TODO" para confirmar:');
-            
+
             if (confirmacion === 'ELIMINAR TODO') {
                 try {
                     const response = await fetch(API_BASE_URL + '/api/limpiar-menu', {
@@ -1546,7 +1647,7 @@
                     });
 
                     const result = await response.json();
-                    
+
                     if (response.ok) {
                         mostrarNotificacion('Menu limpiado exitosamente', 'success');
                         cargarCategorias();
@@ -1568,7 +1669,7 @@
             try {
                 const response = await fetch(API_BASE_URL + '/api/categorias-config');
                 categoriasData = await response.json();
-                
+
                 // Cargar productos de todas las categorias
                 productosData = [];
                 for (const cat of categoriasData) {
@@ -1576,7 +1677,7 @@
                     const prods = await resp.json();
                     productosData = productosData.concat(prods);
                 }
-                
+
                 mostrarProductos();
             } catch (error) {
                 console.error('Error cargando productos:', error);
@@ -1619,11 +1720,11 @@
             }
 
             lista.innerHTML = productosFiltrados.map(prod => {
-                const preciosHTML = prod.precios && prod.precios.length > 0 
+                const preciosHTML = prod.precios && prod.precios.length > 0
                     ? prod.precios.map(p => `<div class="text-sm"><span class="font-semibold">${p.nombre_precio}:</span> $${p.precio}</div>`).join('')
                     : '<div class="text-sm text-gray-500">Sin precios</div>';
 
-                const stockInfo = prod.inventario 
+                const stockInfo = prod.inventario
                     ? `<span class="text-sm ${prod.inventario.stock_actual <= prod.inventario.stock_minimo ? 'text-red-400' : 'text-green-400'}">
                         Stock: ${prod.inventario.stock_actual || 0}
                       </span>`
@@ -1670,7 +1771,7 @@
             mostrarProductos(filtro, filtroSubcategoria);
         }
 
-        
+
 
         function actualizarFiltrosSubcategoria() {
             const categoriaId = document.getElementById('filtro-categoria').value;
@@ -1708,11 +1809,11 @@
         async function cargarCategoriasEnSelect() {
             const select = document.getElementById('producto-categoria');
             const filtro = document.getElementById('filtro-categoria');
-            
-            const options = categoriasData.filter(c => c.activo).map(cat => 
+
+            const options = categoriasData.filter(c => c.activo).map(cat =>
                 `<option value="${cat.id}">${cat.nombre}</option>`
             ).join('');
-            
+
             select.innerHTML = '<option value="">Selecciona una categoria</option>' + options;
             filtro.innerHTML = '<option value="">Todas las categorias</option>' + options;
         }
@@ -1808,7 +1909,7 @@
 
             const categoria = categoriasData.find(c => c.id == categoriaId);
             const lista = document.getElementById('lista-precios');
-            
+
             let nombreLabel = 'Nombre';
             let valorLabel = '';
             let placeholder = '';
@@ -1853,7 +1954,7 @@
 
             const id = document.getElementById('producto-id').value;
             const categoriaId = document.getElementById('producto-categoria').value;
-            
+
             // Recopilar precios
             const preciosElements = document.querySelectorAll('#lista-precios > div');
             if (preciosElements.length === 0) {
@@ -1894,13 +1995,13 @@
             formData.append('nombre', document.getElementById('producto-nombre').value);
             formData.append('descripcion', document.getElementById('producto-descripcion').value);
             formData.append('categoria_id', categoriaId);
-            
+
             // Agregar tipo_bebida a atributos si es una bebida
             const tipoBebida = document.getElementById('producto-subcategoria').value;
             if (tipoBebida) {
                 atributos.tipo_bebida = tipoBebida;
             }
-            
+
             formData.append('subcategoria_id', tipoBebida || null);
             formData.append('stock_minimo', parseFloat(document.getElementById('producto-stock-minimo').value));
             formData.append('precios', JSON.stringify(precios));
@@ -1934,7 +2035,7 @@
                 });
 
                 const result = await response.json();
-                
+
                 if (response.ok) {
                     mostrarNotificacion(id ? 'Producto actualizado' : 'Producto creado', 'success');
                     cerrarModal('modal-producto');
@@ -1952,7 +2053,7 @@
             try {
                 const response = await fetch(`${API_BASE_URL}/api/productos-dinamico/${id}`);
                 const producto = await response.json();
-                
+
                 productoActual = producto;
                 document.getElementById('titulo-modal-producto').textContent = 'Editar Producto';
                 document.getElementById('producto-id').value = producto.id;
@@ -1960,10 +2061,10 @@
                 document.getElementById('producto-descripcion').value = producto.descripcion || '';
                 document.getElementById('producto-categoria').value = producto.categoria_id;
                 document.getElementById('producto-stock-minimo').value = producto.inventario?.stock_minimo || 10;
-                
+
                 // Actualizar campos dinamicos
                 actualizarCamposProducto();
-                
+
                 // Cargar subcategoria
                 if (producto.subcategoria_id) {
                     document.getElementById('producto-subcategoria').value = producto.subcategoria_id;
@@ -2007,7 +2108,7 @@
                     `;
                     imagenInput.parentNode.appendChild(previewDiv);
                 }
-                
+
                 // Cargar precios
                 document.getElementById('lista-precios').innerHTML = '';
                 if (producto.precios && producto.precios.length > 0) {
@@ -2057,7 +2158,7 @@
                         }
                     });
                 }
-                
+
                 abrirModal('modal-producto');
             } catch (error) {
                 console.error('Error:', error);
@@ -2076,7 +2177,7 @@
                 });
 
                 const result = await response.json();
-                
+
                 if (response.ok) {
                     mostrarNotificacion('Producto eliminado', 'success');
                     cargarProductos();
@@ -2089,7 +2190,7 @@
             }
         }
 
-        
+
         // ==================== DOS SABORES ====================
         let productoDosSaboresSeleccionado = null;
         let saboresConfigurados = [];
@@ -2098,10 +2199,10 @@
             try {
                 const response = await fetch(API_BASE_URL + '/api/categorias-config');
                 const categorias = await response.json();
-                
+
                 const select = document.getElementById('filtro-categoria-dos-sabores');
                 select.innerHTML = '<option value="">Todas las categorias</option>';
-                
+
                 categorias.forEach(cat => {
                     select.innerHTML += `<option value="${cat.id}">${cat.nombre}</option>`;
                 });
@@ -2112,68 +2213,68 @@
 
         async function cargarProductosDosSabores() {
             const categoriaId = document.getElementById('filtro-categoria-dos-sabores')?.value || '';
-            
+
             try {
                 let url = API_BASE_URL + '/api/productos';
                 if (categoriaId) {
                     url += `?categoria_id=${categoriaId}`;
                 }
-                
+
                 const response = await fetch(url);
                 const productos = await response.json();
-                
+
                 const container = document.getElementById('lista-productos-dos-sabores');
-                
+
                 if (productos.length === 0) {
                     container.innerHTML = '<p class="text-gray-400 text-center py-4">No hay productos</p>';
                     return;
                 }
-                
+
                 container.innerHTML = productos.map(p => `
                     <div class="flex items-center justify-between p-3 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition ${productoDosSaboresSeleccionado?.id === p.id ? 'ring-2 ring-blue-500' : ''}"
                          onclick="seleccionarProductoDosSabores(${p.id}, '${p.nombre.replace(/'/g, "\\'")}', ${p.permite_dos_sabores || 0}, ${p.permite_tres_sabores || 0})">
                         <div class="flex items-center gap-3">
-                            ${p.imagen_url ? 
-                                `<img src="${p.imagen_url}" class="w-10 h-10 rounded object-cover">` : 
-                                `<div class="w-10 h-10 rounded bg-slate-600 flex items-center justify-center"><i class="fas fa-image text-gray-500"></i></div>`
-                            }
+                            ${p.imagen_url ?
+                        `<img src="${p.imagen_url}" class="w-10 h-10 rounded object-cover">` :
+                        `<div class="w-10 h-10 rounded bg-slate-600 flex items-center justify-center"><i class="fas fa-image text-gray-500"></i></div>`
+                    }
                             <div>
                                 <p class="font-semibold">${p.nombre}</p>
                                 <p class="text-xs text-gray-400">${p.categoria_nombre || 'Sin categoria'}</p>
                             </div>
                         </div>
                         <div>
-                            ${p.permite_dos_sabores ? 
-                                '<span class="bg-green-600 text-xs px-2 py-1 rounded-full"><i class="fas fa-check mr-1"></i>2 Sabores</span>' : 
-                                '<span class="bg-slate-600 text-xs px-2 py-1 rounded-full">Normal</span>'
-                            }
+                            ${p.permite_dos_sabores ?
+                        '<span class="bg-green-600 text-xs px-2 py-1 rounded-full"><i class="fas fa-check mr-1"></i>2 Sabores</span>' :
+                        '<span class="bg-slate-600 text-xs px-2 py-1 rounded-full">Normal</span>'
+                    }
                             ${p.permite_tres_sabores ? '<span class="ml-2 bg-emerald-600 text-xs px-2 py-1 rounded-full">3 Sabores</span>' : ''}
                         </div>
                     </div>
                 `).join('');
-                
+
             } catch (error) {
                 console.error('Error cargando productos:', error);
-                document.getElementById('lista-productos-dos-sabores').innerHTML = 
+                document.getElementById('lista-productos-dos-sabores').innerHTML =
                     '<p class="text-red-400 text-center py-4">Error al cargar productos</p>';
             }
         }
 
         async function seleccionarProductoDosSabores(productoId, nombre, permiteDosSabores, permiteTresSabores) {
             productoDosSaboresSeleccionado = { id: productoId, nombre: nombre };
-            
+
             // Mostrar config y ocultar placeholder
             document.getElementById('config-sabores-producto').classList.remove('hidden');
             document.getElementById('placeholder-config-sabores').classList.add('hidden');
-            
+
             // Actualizar nombre
             document.getElementById('nombre-producto-sabores').textContent = nombre;
-            
+
             // Actualizar checkbox
             document.getElementById('toggle-permite-dos-sabores').checked = permiteDosSabores;
             const toggleTres = document.getElementById('toggle-permite-tres-sabores');
             if (toggleTres) toggleTres.checked = permiteTresSabores;
-            
+
             // Mostrar/ocultar seccion de sabores
             if (permiteDosSabores) {
                 document.getElementById('seccion-agregar-sabores').classList.remove('hidden');
@@ -2182,23 +2283,23 @@
             } else {
                 document.getElementById('seccion-agregar-sabores').classList.add('hidden');
             }
-            
+
             // Actualizar visual en lista
             cargarProductosDosSabores();
         }
 
         async function togglePermiteDosSabores() {
             if (!productoDosSaboresSeleccionado) return;
-            
+
             const permite = document.getElementById('toggle-permite-dos-sabores').checked;
-            
+
             try {
                 const response = await fetch(API_BASE_URL + `/api/productos/${productoDosSaboresSeleccionado.id}/toggle-dos-sabores`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ permite_dos_sabores: permite })
                 });
-                
+
                 if (response.ok) {
                     if (permite) {
                         document.getElementById('seccion-agregar-sabores').classList.remove('hidden');
@@ -2247,21 +2348,21 @@
             try {
                 const response = await fetch(API_BASE_URL + `/api/productos/${productoId}/sabores`);
                 saboresConfigurados = await response.json();
-                
+
                 const container = document.getElementById('lista-sabores-configurados');
-                
+
                 if (saboresConfigurados.length === 0) {
                     container.innerHTML = '<p class="text-gray-400 text-sm">No hay sabores configurados</p>';
                     return;
                 }
-                
+
                 container.innerHTML = saboresConfigurados.map(s => `
                     <div class="flex items-center justify-between p-2 bg-slate-600 rounded">
                         <div class="flex items-center gap-2">
-                            ${s.imagen_url ? 
-                                `<img src="${s.imagen_url}" class="w-8 h-8 rounded object-cover">` : 
-                                `<div class="w-8 h-8 rounded bg-slate-500 flex items-center justify-center"><i class="fas fa-pizza-slice text-xs"></i></div>`
-                            }
+                            ${s.imagen_url ?
+                        `<img src="${s.imagen_url}" class="w-8 h-8 rounded object-cover">` :
+                        `<div class="w-8 h-8 rounded bg-slate-500 flex items-center justify-center"><i class="fas fa-pizza-slice text-xs"></i></div>`
+                    }
                             <span>${s.nombre}</span>
                         </div>
                         <button onclick="eliminarSaborProducto(${s.id})" class="text-red-400 hover:text-red-300">
@@ -2269,7 +2370,7 @@
                         </button>
                     </div>
                 `).join('');
-                
+
             } catch (error) {
                 console.error('Error cargando sabores:', error);
             }
@@ -2279,19 +2380,19 @@
             try {
                 const response = await fetch(API_BASE_URL + '/api/productos');
                 const productos = await response.json();
-                
+
                 const select = document.getElementById('select-nuevo-sabor');
                 select.innerHTML = '<option value="">Selecciona un producto como sabor</option>';
-                
+
                 // Filtrar productos que ya estan agregados
                 const idsAgregados = saboresConfigurados.map(s => s.sabor_producto_id);
-                
+
                 productos
                     .filter(p => p.id !== productoDosSaboresSeleccionado?.id && !idsAgregados.includes(p.id))
                     .forEach(p => {
                         select.innerHTML += `<option value="${p.id}">${p.nombre} (${p.categoria_nombre || 'Sin cat.'})</option>`;
                     });
-                    
+
             } catch (error) {
                 console.error('Error cargando productos para sabores:', error);
             }
@@ -2299,20 +2400,20 @@
 
         async function agregarSaborProducto() {
             if (!productoDosSaboresSeleccionado) return;
-            
+
             const saborId = document.getElementById('select-nuevo-sabor').value;
             if (!saborId) {
                 mostrarNotificacion('Selecciona un sabor', 'warning');
                 return;
             }
-            
+
             try {
                 const response = await fetch(API_BASE_URL + `/api/productos/${productoDosSaboresSeleccionado.id}/sabores`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ sabor_producto_id: parseInt(saborId) })
                 });
-                
+
                 if (response.ok) {
                     mostrarNotificacion('Sabor agregado', 'success');
                     await cargarSaboresProducto(productoDosSaboresSeleccionado.id);
@@ -2329,14 +2430,14 @@
 
         async function eliminarSaborProducto(saborId) {
             if (!productoDosSaboresSeleccionado) return;
-            
+
             if (!confirm('Â¿Eliminar este sabor?')) return;
-            
+
             try {
                 const response = await fetch(API_BASE_URL + `/api/productos/${productoDosSaboresSeleccionado.id}/sabores/${saborId}`, {
                     method: 'DELETE'
                 });
-                
+
                 if (response.ok) {
                     mostrarNotificacion('Sabor eliminado', 'success');
                     await cargarSaboresProducto(productoDosSaboresSeleccionado.id);
@@ -2349,14 +2450,14 @@
         }
 
 
-        
+
         // ==================== INVENTARIO ====================
         async function cargarInventario() {
             try {
                 // Cargar todos los productos directamente
                 const response = await fetch(API_BASE_URL + '/api/productos');
                 const productos = await response.json();
-                
+
                 mostrarInventario(productos);
             } catch (error) {
                 console.error('Error cargando inventario:', error);
@@ -2366,7 +2467,7 @@
 
         function mostrarInventario(productos) {
             const tbody = document.getElementById('tabla-inventario-body');
-            
+
             if (productos.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-400">No hay productos en inventario</td></tr>';
                 return;
@@ -2384,9 +2485,9 @@
                         <td class="py-3 px-4 text-center font-semibold ${estado ? 'text-red-400' : 'text-green-400'}" data-label="Stock Actual">${stockActual} ${prod.unidad_medida || 'und'}</td>
                         <td class="py-3 px-4 text-center text-gray-400" data-label="Stock Minimo">${stockMinimo}</td>
                         <td class="py-3 px-4 text-center" data-label="Estado">
-                            ${estado 
-                                ? '<span class="bg-red-900 text-red-200 px-3 py-1 rounded-full text-xs">⚠️ Stock Bajo</span>' 
-                                : '<span class="bg-green-900 text-green-200 px-3 py-1 rounded-full text-xs">✔ OK</span>'}
+                            ${estado
+                        ? '<span class="bg-red-900 text-red-200 px-3 py-1 rounded-full text-xs">⚠️ Stock Bajo</span>'
+                        : '<span class="bg-green-900 text-green-200 px-3 py-1 rounded-full text-xs">✔ OK</span>'}
                         </td>
                         <td class="py-3 px-4 text-center" data-label="Acciones">
                             <button onclick="abrirModalStock(${prod.id}, '${prod.nombre}', ${stockActual}, ${stockMinimo})" class="bg-blue-600 hover:bg-blue-700 px-4 py-1 rounded text-sm">
@@ -2419,7 +2520,7 @@
                 });
 
                 const result = await response.json();
-                
+
                 if (response.ok) {
                     mostrarNotificacion('Stock actualizado', 'success');
                     cerrarModal('modal-stock');
@@ -2531,7 +2632,7 @@
         }
 
         let todosLosProductos = [];
-        
+
         async function cargarProductosEnSelects() {
             try {
                 const response = await fetch(API_BASE_URL + '/api/productos');
@@ -2540,22 +2641,22 @@
                 const selectPrincipal = document.getElementById('vinculacion-producto-principal');
                 const options = todosLosProductos.map(p => `<option value="${p.id}">${p.nombre} (${p.categoria_nombre})</option>`).join('');
                 selectPrincipal.innerHTML = '<option value="">Selecciona producto principal</option>' + options;
-                
+
                 filtrarProductosVinculados();
             } catch (error) {
                 console.error('Error:', error);
             }
         }
-        
+
         function filtrarProductosVinculados() {
             const tipo = document.getElementById('vinculacion-tipo').value;
             const filtroSubcategoria = document.getElementById('vinculacion-filtro-subcategoria').value;
             const divFiltro = document.getElementById('filtro-subcategoria-div');
             const listaProductos = document.getElementById('vinculacion-productos-lista');
-            
+
             // Mostrar filtro de subcategoria solo para bebidas
             divFiltro.style.display = tipo === 'bebida' ? 'block' : 'none';
-            
+
             // Filtrar productos segun tipo y subcategoria
             let productosFiltrados = todosLosProductos.filter(p => {
                 if (tipo === 'bebida') {
@@ -2565,14 +2666,14 @@
                 }
                 return true; // complemento muestra todos
             });
-            
+
             // Filtrar por subcategoria si es bebida
             if (tipo === 'bebida' && filtroSubcategoria) {
-                productosFiltrados = productosFiltrados.filter(p => 
+                productosFiltrados = productosFiltrados.filter(p =>
                     p.tipo_bebida && p.tipo_bebida.toLowerCase() === filtroSubcategoria.toLowerCase()
                 );
             }
-            
+
             // Renderizar checkboxes
             if (productosFiltrados.length === 0) {
                 listaProductos.innerHTML = '<p class="text-gray-400 text-sm">No hay productos disponibles</p>';
@@ -2598,7 +2699,7 @@
                 mostrarNotificacion('Selecciona un producto principal', 'warning');
                 return;
             }
-            
+
             if (productosVinculados.length === 0) {
                 mostrarNotificacion('Selecciona al menos un producto para vincular', 'warning');
                 return;
@@ -2612,7 +2713,7 @@
             try {
                 let exitosas = 0;
                 let fallidas = 0;
-                
+
                 // Crear vinculaciones en paralelo
                 const promesas = productosVinculados.map(async (productoVinculado) => {
                     try {
@@ -2626,7 +2727,7 @@
                                 precio_adicional: precio
                             })
                         });
-                        
+
                         if (response.ok) {
                             exitosas++;
                         } else {
@@ -2636,13 +2737,13 @@
                         fallidas++;
                     }
                 });
-                
+
                 await Promise.all(promesas);
-                
+
                 if (exitosas > 0) {
                     mostrarNotificacion(`${exitosas} vinculacion(es) creada(s) exitosamente${fallidas > 0 ? `, ${fallidas} fallida(s)` : ''}`, 'success');
                     cargarVinculaciones();
-                    
+
                     // Limpiar formulario
                     document.getElementById('vinculacion-producto-principal').value = '';
                     document.querySelectorAll('.vinculacion-checkbox').forEach(cb => cb.checked = false);
@@ -2690,7 +2791,7 @@
 
         // ==================== CONFIGURACIÃ©â€œN ====================
         // Las funciones de gestion de precios por zona estan en precios-zona.js
-        
+
         async function cargarPrecioDomicilio() {
             // Esta funcion ahora es manejada por el sistema de precios por zona
             // Ver precios-zona.js: cargarConfiguracion() y cargarZonasPrecios()
@@ -2767,9 +2868,5 @@
         }
     </script>
 </body>
+
 </html>
-
-
-
-
-

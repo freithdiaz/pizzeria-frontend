@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,8 +13,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./css/styles.css">
     <script type="module" src="./js/supabase-client.js"></script>
-    <script src="./js/config.js"></script>
+    <script src="./js/config.js" defer></script>
 </head>
+
 <body class="bg-slate-900 text-white min-h-screen">
 
     <!-- Splash Screen -->
@@ -30,14 +32,17 @@
     </div>
 
     <!-- Main Container -->
-    <div id="main-content" class="bg-gray-800 w-full min-h-screen p-4 lg:p-6 space-y-6 opacity-0 transition-opacity duration-1000">
+    <div id="main-content"
+        class="bg-gray-800 w-full min-h-screen p-4 lg:p-6 space-y-6 opacity-0 transition-opacity duration-1000">
         <!-- Top Navigation Buttons -->
         <div class="fixed top-2 sm:top-4 right-2 sm:right-4 z-40 flex gap-2">
-            <a href="domicilio.html" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg shadow-lg transition-colors duration-200 flex items-center space-x-1 sm:space-x-2 text-sm sm:text-base">
+            <a href="domicilio.html"
+                class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg shadow-lg transition-colors duration-200 flex items-center space-x-1 sm:space-x-2 text-sm sm:text-base">
                 <i class="fas fa-motorcycle"></i>
                 <span class="hidden sm:inline">Domicilios</span>
             </a>
-            <a href="admin.html" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg shadow-lg transition-colors duration-200 flex items-center space-x-1 sm:space-x-2 text-sm sm:text-base">
+            <a href="admin.html"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg shadow-lg transition-colors duration-200 flex items-center space-x-1 sm:space-x-2 text-sm sm:text-base">
                 <i class="fas fa-cog"></i>
                 <span class="hidden sm:inline">Admin</span>
             </a>
@@ -55,13 +60,16 @@
         </header>
 
         <!-- Navigation Bar -->
-        <nav id="nav-bar" class="hidden w-full bg-gray-700 rounded-lg lg:rounded-full px-2 sm:px-4 py-2 flex flex-col sm:flex-row justify-around items-center mb-8 gap-2 sm:gap-0">
-            <button onclick="showTableView()" class="nav-item w-full sm:w-auto text-white font-semibold py-2 px-4 rounded-lg sm:rounded-full hover:bg-gray-600 transition-colors">
+        <nav id="nav-bar"
+            class="hidden w-full bg-gray-700 rounded-lg lg:rounded-full px-2 sm:px-4 py-2 flex flex-col sm:flex-row justify-around items-center mb-8 gap-2 sm:gap-0">
+            <button onclick="showTableView()"
+                class="nav-item w-full sm:w-auto text-white font-semibold py-2 px-4 rounded-lg sm:rounded-full hover:bg-gray-600 transition-colors">
                 <i class="fas fa-table mr-2"></i>
                 <span class="hidden sm:inline">Mesas</span>
                 <span class="sm:hidden">🍽️ Mesas</span>
             </button>
-            <button onclick="showOrderManagement()" class="nav-item w-full sm:w-auto text-white font-semibold py-2 px-4 rounded-lg sm:rounded-full hover:bg-gray-600 transition-colors">
+            <button onclick="showOrderManagement()"
+                class="nav-item w-full sm:w-auto text-white font-semibold py-2 px-4 rounded-lg sm:rounded-full hover:bg-gray-600 transition-colors">
                 <i class="fas fa-clipboard-list mr-2"></i>
                 <span class="hidden sm:inline">Gestión de Pedidos</span>
                 <span class="sm:hidden">📝 Pedidos</span>
@@ -71,7 +79,8 @@
         <!-- Step 1: Table Selection -->
         <section id="table-view" class="view-section space-y-6 flex flex-col items-center justify-center">
             <h3 class="text-2xl font-bold text-white">Selecciona tu mesa o tipo de servicio</h3>
-            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12 gap-4 sm:gap-5 lg:gap-6 w-full">
+            <div
+                class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12 gap-4 sm:gap-5 lg:gap-6 w-full">
                 <!-- Buttons for 10 tables -->
                 <button onclick="startOrder(1)" class="table-pizza"><span class="pizza-text">Mesa 1</span></button>
                 <br>
@@ -93,9 +102,9 @@
                 <br>
                 <button onclick="startOrder(10)" class="table-pizza"><span class="pizza-text">Mesa 10</span></button>
                 <br>
-                 <!-- To-Go option -->
-                 <button onclick="startOrder('Para Llevar')" class="table-pizza bg-gray-600 border-2 border-gray-400">
-                    
+                <!-- To-Go option -->
+                <button onclick="startOrder('Para Llevar')" class="table-pizza bg-gray-600 border-2 border-gray-400">
+
                     <span class="pizza-text">Para Llevar</span>
                 </button>
             </div>
@@ -107,9 +116,11 @@
             <div class="space-y-6">
                 <!-- Las categorías se cargarán dinámicamente aquí desde JavaScript -->
             </div>
-            
+
             <!-- Floating Cart/Checkout Button -->
-            <div id="checkout-btn" onclick="showCart()" class="fixed bottom-6 right-6 px-6 py-4 bg-green-500 text-white font-semibold rounded-full shadow-lg cursor-pointer" style="display: none;">
+            <div id="checkout-btn" onclick="showCart()"
+                class="fixed bottom-6 right-6 px-6 py-4 bg-green-500 text-white font-semibold rounded-full shadow-lg cursor-pointer"
+                style="display: none;">
                 Ver mi pedido (<span id="current-table-display"></span>)
             </div>
         </section>
@@ -138,10 +149,12 @@
                     </div>
                 </div>
                 <div class="flex space-x-4">
-                    <button onclick="showView('main-menu-view')" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-xl">
+                    <button onclick="showView('main-menu-view')"
+                        class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-xl">
                         <i class="fas fa-arrow-left mr-2"></i>Seguir Comprando
                     </button>
-                    <button onclick="showDiscountModal()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl">
+                    <button onclick="showDiscountModal()"
+                        class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl">
                         <i class="fas fa-paper-plane mr-2"></i>Enviar Pedido
                     </button>
                 </div>
@@ -152,27 +165,32 @@
         <section id="order-management-view" class="view-section">
             <h3 class="text-2xl font-bold text-white mb-6 text-center">Gestión de Pedidos</h3>
             <div class="mb-4 flex justify-center flex-wrap gap-2 px-2">
-                <button onclick="filterOrdersByStatus('all')" id="filter-all" class="filter-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm flex items-center">
+                <button onclick="filterOrdersByStatus('all')" id="filter-all"
+                    class="filter-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm flex items-center">
                     <i class="fas fa-list mr-1"></i>
                     <span class="hidden xs:inline">Todos</span>
                     <span class="xs:hidden">📝</span>
                 </button>
-                <button onclick="filterOrdersByStatus('pendiente')" id="filter-pendiente" class="filter-btn bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm flex items-center">
+                <button onclick="filterOrdersByStatus('pendiente')" id="filter-pendiente"
+                    class="filter-btn bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm flex items-center">
                     <i class="fas fa-clock mr-1"></i>
                     <span class="hidden xs:inline">Pendientes</span>
                     <span class="xs:hidden">⏐</span>
                 </button>
-                <button onclick="filterOrdersByStatus('preparando')" id="filter-preparando" class="filter-btn bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm flex items-center">
+                <button onclick="filterOrdersByStatus('preparando')" id="filter-preparando"
+                    class="filter-btn bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm flex items-center">
                     <i class="fas fa-fire mr-1"></i>
                     <span class="hidden xs:inline">En Prep.</span>
                     <span class="xs:hidden">🔥</span>
                 </button>
-                <button onclick="filterOrdersByStatus('listo')" id="filter-listo" class="filter-btn bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm flex items-center">
+                <button onclick="filterOrdersByStatus('listo')" id="filter-listo"
+                    class="filter-btn bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm flex items-center">
                     <i class="fas fa-check-circle mr-1"></i>
                     <span class="hidden xs:inline">Listos</span>
                     <span class="xs:hidden">✔</span>
                 </button>
-                <button onclick="filterOrdersByStatus('entregado')" id="filter-entregado" class="filter-btn bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm flex items-center">
+                <button onclick="filterOrdersByStatus('entregado')" id="filter-entregado"
+                    class="filter-btn bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm flex items-center">
                     <i class="fas fa-box-open mr-1"></i>
                     <span class="hidden xs:inline">Entregados</span>
                     <span class="xs:hidden">📦</span>
@@ -186,27 +204,32 @@
         <!-- Admin Panel View -->
         <section id="admin-panel-view" class="view-section">
             <h3 class="text-2xl font-bold text-white mb-6 text-center">Panel Administrativo</h3>
-            
+
             <!-- Formulario para agregar nuevos items -->
             <div class="bg-gray-700 p-6 rounded-2xl shadow-md mb-6">
                 <h4 class="font-bold text-xl text-white mb-4">Agregar Nuevo Item</h4>
                 <form id="add-item-form" class="space-y-4">
                     <div class="flex flex-col">
                         <label for="item-type" class="text-sm font-semibold text-gray-300 mb-1">Tipo de Item</label>
-                        <select id="item-type" class="bg-gray-800 text-white rounded-lg p-2 border border-gray-600 focus:outline-none focus:border-orange-500">
+                        <select id="item-type"
+                            class="bg-gray-800 text-white rounded-lg p-2 border border-gray-600 focus:outline-none focus:border-orange-500">
                             <option value="pizza-flavor">Sabor de Pizza</option>
                             <option value="beverage">Bebida</option>
                         </select>
                     </div>
                     <div class="flex flex-col">
                         <label for="item-name" class="text-sm font-semibold text-gray-300 mb-1">Nombre</label>
-                        <input type="text" id="item-name" required class="bg-gray-800 text-white rounded-lg p-2 border border-gray-600 focus:outline-none focus:border-orange-500">
+                        <input type="text" id="item-name" required
+                            class="bg-gray-800 text-white rounded-lg p-2 border border-gray-600 focus:outline-none focus:border-orange-500">
                     </div>
                     <div class="flex flex-col">
-                        <label for="item-price" class="text-sm font-semibold text-gray-300 mb-1">Precio (en pesos colombianos)</label>
-                        <input type="number" id="item-price" required class="bg-gray-800 text-white rounded-lg p-2 border border-gray-600 focus:outline-none focus:border-orange-500">
+                        <label for="item-price" class="text-sm font-semibold text-gray-300 mb-1">Precio (en pesos
+                            colombianos)</label>
+                        <input type="number" id="item-price" required
+                            class="bg-gray-800 text-white rounded-lg p-2 border border-gray-600 focus:outline-none focus:border-orange-500">
                     </div>
-                    <button type="submit" class="w-full px-4 py-2 bg-green-500 text-white font-semibold rounded-full hover:bg-green-600 transition-colors">
+                    <button type="submit"
+                        class="w-full px-4 py-2 bg-green-500 text-white font-semibold rounded-full hover:bg-green-600 transition-colors">
                         Agregar Item
                     </button>
                 </form>
@@ -216,16 +239,19 @@
         </section>
 
         <!-- Custom Message Box -->
-        <div id="message-box" class="hidden fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50">
+        <div id="message-box"
+            class="hidden fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50">
             <div class="bg-gray-800 p-8 rounded-3xl shadow-2xl w-full max-w-sm mx-4 text-center">
                 <h4 class="text-xl font-bold text-white mb-2">Â¡Pedido enviado!</h4>
                 <p id="message-text" class="text-gray-400 text-sm"></p>
                 <div id="order-summary" class="mt-4 p-4 bg-gray-700 rounded-xl text-left text-sm text-gray-300"></div>
-                
-                <button onclick="printOrder()" class="mt-4 mr-2 px-4 py-2 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-600 transition-colors">
+
+                <button onclick="printOrder()"
+                    class="mt-4 mr-2 px-4 py-2 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-600 transition-colors">
                     <i class="fas fa-print mr-2"></i>Imprimir
                 </button>
-                <button onclick="closeMessageBox()" class="mt-4 px-4 py-2 bg-red-500 text-white font-semibold rounded-full hover:bg-red-600 transition-colors">
+                <button onclick="closeMessageBox()"
+                    class="mt-4 px-4 py-2 bg-red-500 text-white font-semibold rounded-full hover:bg-red-600 transition-colors">
                     Cerrar
                 </button>
             </div>
@@ -418,7 +444,8 @@
     </style>
 
     <!-- Modal de Adicionales -->
-    <div id="adicionalesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+    <div id="adicionalesModal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div class="p-6 border-b border-gray-700">
                 <div class="flex justify-between items-center">
@@ -441,7 +468,8 @@
                     <div id="saboresDisponiblesMesa" class="grid grid-cols-2 gap-2">
                         <!-- Sabores se cargan dinámicamente -->
                     </div>
-                    <div id="saborSeleccionadoMesa" class="mt-3 hidden bg-green-800/30 rounded-lg p-3 border border-green-600">
+                    <div id="saborSeleccionadoMesa"
+                        class="mt-3 hidden bg-green-800/30 rounded-lg p-3 border border-green-600">
                         <div class="flex justify-between items-center">
                             <span class="text-green-400 font-medium">
                                 <i class="fas fa-check-circle mr-2"></i>
@@ -454,7 +482,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="p-6">
                 <div class="mb-4">
                     <h4 class="text-lg font-semibold text-white mb-3">Selecciona adicionales (opcional)</h4>
@@ -462,20 +490,20 @@
                         <!-- Los adicionales se cargarán aquí -->
                     </div>
                 </div>
-                
+
                 <div class="border-t border-gray-700 pt-4">
                     <div class="flex justify-between items-center mb-4">
                         <span class="text-white font-semibold">Total:</span>
                         <span id="totalPrecio" class="text-xl font-bold text-green-400"></span>
                     </div>
-                    
+
                     <div class="flex gap-3">
-                        <button onclick="closeAdicionalesModal()" 
-                                class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg transition-colors">
+                        <button onclick="closeAdicionalesModal()"
+                            class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg transition-colors">
                             Cancelar
                         </button>
-                        <button onclick="confirmarPizzaConAdicionales()" 
-                                class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg transition-colors font-semibold">
+                        <button onclick="confirmarPizzaConAdicionales()"
+                            class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg transition-colors font-semibold">
                             Agregar al Carrito
                         </button>
                     </div>
@@ -503,34 +531,37 @@
                 <div class="space-y-3">
                     <label class="text-white font-semibold">Descuento (%)</label>
                     <div class="flex space-x-3">
-                        <button onclick="applyDiscount(0)" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-3 rounded-lg">
+                        <button onclick="applyDiscount(0)"
+                            class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-3 rounded-lg">
                             Sin Descuento
                         </button>
-                        <button onclick="applyDiscount(5)" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg">
+                        <button onclick="applyDiscount(5)"
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg">
                             5%
                         </button>
-                        <button onclick="applyDiscount(10)" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg">
+                        <button onclick="applyDiscount(10)"
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg">
                             10%
                         </button>
-                        <button onclick="applyDiscount(15)" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg">
+                        <button onclick="applyDiscount(15)"
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg">
                             15%
                         </button>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <input type="number" id="custom-discount" 
-                               class="flex-1 bg-gray-700 text-white p-2 rounded-lg border border-gray-600"
-                               placeholder="Descuento personalizado %" 
-                               min="0" max="100"
-                               onchange="applyCustomDiscount()">
-                        <button onclick="applyCustomDiscount()" 
-                                class="bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg">
+                        <input type="number" id="custom-discount"
+                            class="flex-1 bg-gray-700 text-white p-2 rounded-lg border border-gray-600"
+                            placeholder="Descuento personalizado %" min="0" max="100" onchange="applyCustomDiscount()">
+                        <button onclick="applyCustomDiscount()"
+                            class="bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg">
                             Aplicar
                         </button>
                     </div>
                 </div>
 
                 <!-- Resumen de descuento -->
-                <div id="discount-summary" class="hidden space-y-2 p-3 bg-green-900 bg-opacity-50 rounded-lg border border-green-600">
+                <div id="discount-summary"
+                    class="hidden space-y-2 p-3 bg-green-900 bg-opacity-50 rounded-lg border border-green-600">
                     <div class="flex justify-between text-green-300">
                         <span>Descuento (<span id="discount-percentage">0</span>%):</span>
                         <span id="discount-amount">$0</span>
@@ -545,22 +576,21 @@
             </div>
 
             <div class="flex space-x-4">
-                <button onclick="closeDiscountModal()" 
-                        class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-xl">
+                <button onclick="closeDiscountModal()"
+                    class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-xl">
                     <i class="fas fa-times mr-2"></i>Cancelar
                 </button>
-                <button onclick="confirmOrderWithDiscount()" 
-                        class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl">
+                <button onclick="confirmOrderWithDiscount()"
+                    class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl">
                     <i class="fas fa-check mr-2"></i>Confirmar Pedido
                 </button>
             </div>
         </div>
     </div>
 
-    <script src="./js/notifications.js"></script>
-    <script src="./js/dos-sabores.js"></script>
+    <script src="./js/notifications.js" defer></script>
+    <script src="./js/dos-sabores.js" defer></script>
     <script src="./js/app.js" defer></script>
 </body>
+
 </html>
-
-
