@@ -3,9 +3,9 @@
  * =================================
  * Este archivo gestiona la conexión directa con Supabase y toda la lógica
  * que anteriormente residía en el backend (CRUD, Inventario, etc.)
- * Versión: 2.2.0
+ * Versión: 2.2.1
  */
-const CLIENT_VERSION = '2.2.0';
+const CLIENT_VERSION = '2.2.1';
 console.log(`Supabase Client Version: ${CLIENT_VERSION}`);
 
 // Importar SDK de Supabase desde CDN
@@ -248,6 +248,86 @@ export const db = {
 
         if (error) throw error;
         return data?.[0];
+    },
+
+    async getPedidoById(orderId) {
+        try {
+            // 1. Obtener pedido (Zero Join)
+            const { data: pedidoArr, error: errPedido } = await supabase
+                .from('pedidos')
+                .select('*')
+                .eq('id', orderId);
+
+            if (errPedido) {
+                return { success: false, error: errPedido.message };
+            }
+
+            if (!pedidoArr || pedidoArr.length === 0) {
+                return { success: false, error: 'Pedido no encontrado' };
+            }
+
+            const pedido = pedidoArr[0];
+
+            // 2. Obtener detalles
+            const { data: detalles, error: errDetalles } = await supabase
+                .from('detalle_pedido')
+                .select('*')
+                .eq('pedido_id', orderId);
+
+            if (errDetalles) {
+                console.warn('Error obteniendo detalles del pedido:', errDetalles);
+            }
+
+            // 3. Enriquecer items (Zero Join)
+            let itemsFull = [];
+            if (detalles && detalles.length > 0) {
+                // Obtener IDs de productos y tamaños
+                const prodIds = detalles.map(d => d.producto_id);
+                const sizeIds = detalles.map(d => d.tamano_id).filter(id => id); // Filtrar nulos
+
+                // Fetch productos
+                const { data: productos } = await supabase
+                    .from('productos')
+                    .select('id, nombre')
+                    .in('id', prodIds);
+
+                // Fetch precios/tamaños
+                let precios = [];
+                if (sizeIds.length > 0) {
+                    const { data: p } = await supabase
+                        .from('producto_precios_dinamicos')
+                        .select('id, nombre_precio')
+                        .in('id', sizeIds);
+                    precios = p || [];
+                }
+
+                // Unir todo
+                itemsFull = detalles.map(d => {
+                    const prod = productos ? productos.find(p => p.id === d.producto_id) : null;
+                    const size = precios.find(p => p.id === d.tamano_id);
+
+                    return {
+                        ...d,
+                        name: prod ? prod.nombre : 'Producto no encontrado',
+                        tamano: size ? size.nombre_precio : '',
+                        quantity: d.cantidad,
+                        price: d.precio_unitario,
+                        additions: typeof d.adiciones === 'string' ? JSON.parse(d.adiciones) : (d.adiciones || [])
+                    };
+                });
+            }
+
+            return {
+                success: true,
+                data: {
+                    ...pedido,
+                    items: itemsFull
+                }
+            };
+        } catch (error) {
+            console.error('Error in getPedidoById:', error);
+            return { success: false, error: error.message };
+        }
     },
 
     // --- USUARIOS ---

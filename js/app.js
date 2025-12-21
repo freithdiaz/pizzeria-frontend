@@ -1905,8 +1905,13 @@ async function confirmOrderWithDiscount() {
         setTimeout(async () => {
             console.log(`Imprimiendo factura automáticamente para pedido #${displayOrderNumber}`);
             try {
-                // printOrder espera el ID interno; usar orderResponse.id si está disponible
-                await printOrder(orderResponse.id || orderResponse.pedido_id);
+                // printOrder espera el ID interno; usar orderResponse.data.id si está disponible
+                const orderId = orderResponse.data ? orderResponse.data.id : (orderResponse.id || orderResponse.pedido_id);
+                if (orderId) {
+                    await printOrder(orderId);
+                } else {
+                    console.error('No se pudo obtener el ID del pedido para imprimir');
+                }
             } catch (printError) {
                 console.error('Error al imprimir factura:', printError);
                 showNotification('Pedido enviado exitosamente, pero error al imprimir factura', 'warning');
@@ -1998,14 +2003,18 @@ async function submitOrderWithDiscount(totalWithDiscount, discountPercentage) {
     // Una opción es NOTIFICAR al backend que se creó un pedido para que envíe WhatsApp.
 
     try {
-        fetch(`${API_BASE_URL}/api/notify-order`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ order_id: result.id })
-        }).catch(e => console.warn('Error enviando notificación al backend:', e));
+        const notifOrderId = result.data ? result.data.id : result.id;
+        if (notifOrderId) {
+            fetch(`${API_BASE_URL}/api/notify-order`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ order_id: notifOrderId })
+            }).catch(e => console.warn('Error enviando notificación al backend (CORS esperado en local):', e));
+        }
     } catch (e) { }
+} catch (e) { }
 
-    return result;
+return result;
 }
 
 
