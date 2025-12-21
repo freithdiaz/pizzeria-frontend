@@ -1341,6 +1341,7 @@ async function enviarPedido(event) {
     const domicilio = window.precioDomicilio || 0;
     const total = subtotal + domicilio;
 
+<<<<<<< HEAD
     const btn = document.getElementById('btn-enviar-pedido');
     const textoOriginal = btn ? btn.innerHTML : 'Confirmar Pedido';
     if (btn) {
@@ -1348,6 +1349,31 @@ async function enviarPedido(event) {
         btn.disabled = true;
     }
 
+=======
+    const pedido = {
+        tipo_pedido: 'domicilio',
+        cliente_nombre: nombre,
+        telefono_cliente: telefono,
+        direccion_entrega: direccion,
+        notas_entrega: notas,
+        medio_pago: medioPago,
+        // Incluir subtotal y domicilio por separado y el total que incluye domicilio
+        subtotal: subtotal,
+        valor_domicilio: domicilio,
+        total_precio: total,
+        total_con_descuento: total,
+        items: carrito.map(item => ({
+            producto_id: item.producto_id,
+            tamano_id: item.tamano_id,
+            cantidad: item.cantidad,
+            precio_unitario: item.precio_unitario,
+            comentarios: item.comentarios,
+            adiciones: item.adiciones,
+            segundo_sabor: item.segundo_sabor || item.segundos_sabores || null
+        }))
+    };
+    
+>>>>>>> 0df16e8fcf7e6cb0e5a8dfeb06993a3736d388a2
     try {
         const pedido = {
             tipo_pedido: 'domicilio',
