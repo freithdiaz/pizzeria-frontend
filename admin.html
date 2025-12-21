@@ -1236,11 +1236,24 @@
             }
 
             // Cargar datos especificos
+            // Cargar datos especificos
             if (seccion === 'dashboard') {
-                // Ya se carga automaticamente con onload
                 if (typeof cargarVentasDia === 'function') cargarVentasDia();
+            } else if (seccion === 'categorias') {
+                if (typeof cargarCategorias === 'function') cargarCategorias();
             } else if (seccion === 'productos') {
-                // Si existe funcion carga
+                if (typeof cargarProductos === 'function') cargarProductos();
+                if (typeof cargarCategoriasEnSelect === 'function') cargarCategoriasEnSelect();
+            } else if (seccion === 'vinculaciones') {
+                if (typeof cargarVinculaciones === 'function') cargarVinculaciones();
+            } else if (seccion === 'dos-sabores') {
+                if (typeof cargarProductosDosSabores === 'function') cargarProductosDosSabores();
+                if (typeof cargarCategoriasEnSelectDosSabores === 'function') cargarCategoriasEnSelectDosSabores();
+            } else if (seccion === 'inventario') {
+                if (typeof cargarInventario === 'function') cargarInventario();
+            } else if (seccion === 'configuracion') {
+                if (typeof cargarConfiguracion === 'function') cargarConfiguracion();
+                if (typeof cargarZonasPrecios === 'function') cargarZonasPrecios();
             }
         }
 
