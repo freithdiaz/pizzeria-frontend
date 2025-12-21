@@ -133,7 +133,8 @@ export const db = {
                 tipo_pedido: rawInfo.tipo_pedido || 'mesa',
                 estado: rawInfo.estado || 'pendiente',
                 medio_pago: rawInfo.metodo_pago || rawInfo.medio_pago || 'pendiente',
-                notas_entrega: rawInfo.observaciones || rawInfo.notas_entrega || ''
+                notas_entrega: rawInfo.observaciones || rawInfo.notas_entrega || '',
+                fecha: new Date().toISOString()
             };
 
             // 1. Insertar el pedido principal
