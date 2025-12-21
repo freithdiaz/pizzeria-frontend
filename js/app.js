@@ -1183,12 +1183,12 @@ function closeMessageBox() {
 }
 
 // Función para imprimir (placeholder)
+// Función para imprimir usando iframe (evita bloqueos de popup)
 async function printOrder(orderId) {
     try {
-        // Si no se proporciona orderId, usar el último pedido creado
+        // Validación de ID
         if (!orderId && lastCreatedOrderId) {
             orderId = lastCreatedOrderId;
-            console.log(`Usando último pedido creado: #${orderId}`);
         }
 
         if (!orderId) {
@@ -1197,184 +1197,168 @@ async function printOrder(orderId) {
         }
 
         console.log(`Iniciando impresión para pedido #${orderId}`);
+        showNotification('Generando factura...', 'info');
 
-        // Obtener los detalles del pedido para impresión desde Supabase
+        // Obtener datos
         const result = await db.getPedidoById(orderId);
         if (!result.success) {
             throw new Error(result.error || 'Error al obtener detalles del pedido');
         }
 
         const order = result.data;
-        console.log('Detalles del pedido obtenidos de Supabase:', order);
 
-        // Crear ventana de impresión con formato específico
-        const printWindow = window.open('', '_blank', 'width=400,height=600');
-
-        if (!printWindow) {
-            // Si la ventana emergente fue bloqueada, mostrar alternativa
-            console.warn('Ventana emergente bloqueada, usando impresión alternativa');
-            printAlternative(order);
-            return;
+        // Preparar iframe de impresión
+        let printFrame = document.getElementById('print-frame');
+        if (!printFrame) {
+            printFrame = document.createElement('iframe');
+            printFrame.id = 'print-frame';
+            printFrame.style.position = 'fixed';
+            printFrame.style.right = '0';
+            printFrame.style.bottom = '0';
+            printFrame.style.width = '0';
+            printFrame.style.height = '0';
+            printFrame.style.border = '0';
+            document.body.appendChild(printFrame);
         }
 
-        const printContent = `
+        // Generar contenido HTML (Receipt)
+        const receiptHTML = generateReceiptHTML(order);
+
+        // Escribir en el iframe
+        const frameDoc = printFrame.contentWindow.document;
+        frameDoc.open();
+        frameDoc.write(receiptHTML);
+        frameDoc.close();
+
+        // Esperar a que cargue y llamar a print
+        // Usamos un pequeño delay para asegurar renderizado
+        setTimeout(() => {
+            try {
+                printFrame.contentWindow.focus();
+                printFrame.contentWindow.print();
+                console.log(`Pedido #${orderId} enviado a impresión (iframe)`);
+                showNotification('Enviado a impresora', 'success');
+            } catch (err) {
+                console.error('Error al invocar print() en iframe:', err);
+                // Fallback extremo: nueva ventana
+                printAlternative(order);
+            }
+        }, 500);
+
+    } catch (error) {
+        console.error('Error en proceso de impresión:', error);
+        showNotification('Error al generar impresión', 'error');
+    }
+}
+
+// Generador de HTML de factura separado para limpieza
+function generateReceiptHTML(order) {
+    return `
             <html>
                 <head>
                     <title>Factura #${order.id}</title>
                     <style>
                         @media print {
-                            @page { margin: 0.5cm; size: 80mm auto; }
+                            @page { margin: 0; size: 80mm auto; }
                             body { margin: 0; }
                         }
                         body { 
                             font-family: 'Courier New', monospace; 
                             font-size: 12px; 
-                            line-height: 1.3;
-                            margin: 10px; 
+                            line-height: 1.2;
+                            margin: 5px; 
                             max-width: 300px;
+                            color: black;
+                            background: white;
                         }
                         .header { 
                             text-align: center; 
                             border-bottom: 1px dashed #000; 
-                            padding-bottom: 8px; 
-                            margin-bottom: 8px;
+                            padding-bottom: 5px; 
+                            margin-bottom: 5px;
                         }
-                        .header h3 { 
-                            margin: 0 0 5px 0; 
-                            font-size: 14px; 
+                        .header h3 { margin: 0; font-size: 14px; font-weight: bold; }
+                        .header p { margin: 2px 0; font-size: 11px; }
+                        
+                        .info { margin-bottom: 5px; font-size: 11px; }
+                        .info p { margin: 2px 0; }
+                        
+                        .items { margin-bottom: 5px; }
+                        .item { 
+                            display: flex; 
+                            justify-content: space-between;
+                            margin-bottom: 3px;
+                            font-size: 11px;
+                        }
+                        .item-qty { width: 25px; }
+                        .item-desc { flex: 1; margin-right: 5px; }
+                        .item-price { text-align: right; }
+                        
+                        .sub-item { font-size: 10px; color: #333; margin-left: 25px; }
+                        
+                        .totals { 
+                            border-top: 1px dashed #000;
+                            border-bottom: 1px dashed #000;
+                            margin: 5px 0;
+                            padding: 5px 0;
+                            text-align: right;
+                            font-size: 12px;
                             font-weight: bold;
                         }
-                        .header p { 
-                            margin: 2px 0; 
-                            font-size: 10px;
-                        }
-                        .order-info { 
-                            margin: 8px 0; 
-                            font-size: 11px;
-                        }
-                        .order-info p { 
-                            margin: 2px 0; 
-                        }
-                        .items { 
-                            margin: 8px 0; 
-                        }
-                        .items h4 { 
-                            margin: 0 0 5px 0; 
-                            font-size: 12px; 
-                            text-decoration: underline;
-                        }
-                        .item { 
-                            margin: 3px 0; 
-                            font-size: 11px;
-                            display: flex;
-                            justify-content: space-between;
-                        }
-                        .item-desc {
-                            flex: 1;
-                            margin-right: 10px;
-                        }
-                        .item-price {
-                            white-space: nowrap;
-                        }
-                        .separator { 
-                            border-top: 1px dashed #000; 
-                            margin: 8px 0; 
-                        }
-                        .total { 
-                            font-weight: bold; 
-                            font-size: 13px;
-                            text-align: center;
-                            margin-top: 8px;
-                        }
-                        .footer {
-                            text-align: center;
-                            margin-top: 10px;
-                            font-size: 10px;
-                            border-top: 1px dashed #000;
-                            padding-top: 5px;
-                        }
+                        
+                        .footer { text-align: center; font-size: 10px; margin-top: 10px; }
                     </style>
                 </head>
                 <body>
                     <div class="header">
                         <h3>🍕 PIZZERÍA NISSI</h3>
-                        <p>FACTURA #${order.id}</p>
-                        <p>${formatDateTime(order.created_at)}</p>
+                        <p>Nit: 12345678-9</p>  
+                        <p>Factura de Venta: #${order.id}</p>
+                        <p>${formatDateTime(order.created_at || order.fecha)}</p>
                     </div>
                     
-                    <div class="order-info">
-                        <p><strong>Mesa:</strong> ${order.tipo_pedido === 'domicilio' ? 'Domicilio' : (order.mesa || 'Para Llevar')}</p>
-                        <p><strong>Estado:</strong> ${formatStatusForDisplay(order.estado)}</p>
-                        ${order.tipo_pedido === 'domicilio' ? `
-                            <div style="margin-top: 8px; padding: 5px; border: 1px dashed #000;">
-                                <p style="font-weight: bold;">DATOS ENTREGA:</p>
-                                ${order.cliente_nombre ? `<p>Cliente: ${order.cliente_nombre}</p>` : ''}
-                                ${order.telefono_cliente ? `<p>Tel: ${order.telefono_cliente}</p>` : ''}
-                                ${order.direccion_entrega ? `<p>Dir: ${order.direccion_entrega}</p>` : ''}
-                            </div>
-                        ` : ''}
+                    <div class="info">
+                        <p>Mesa: ${order.tipo_pedido === 'domicilio' ? 'DOMICILIO' : (order.mesa || 'Llevar')}</p>
+                        ${order.cliente_nombre ? `<p>Cliente: ${order.cliente_nombre}</p>` : ''}
+                        ${order.telefono_cliente ? `<p>Tel: ${order.telefono_cliente}</p>` : ''}
+                        ${order.direccion_entrega ? `<p>Dir: ${order.direccion_entrega}</p>` : ''}
                     </div>
-                    
-                    <div class="separator"></div>
                     
                     <div class="items">
-                        <h4>PRODUCTOS:</h4>
                         ${order.items.map(item => {
-            const tamano = item.tamano || item.size || '';
-            const segundoSabor = item.segundo_sabor || '';
-            let additionsText = '';
-            if (item.additions && item.additions.length > 0) {
-                const names = item.additions.map(a => (a && (a.name || a.nombre)) || a).filter(x => x && String(x).trim() !== '');
-                if (names.length) additionsText = `<div class="item-additions">+ ${names.join(', ')}</div>`;
-            }
-            return `
-                            <div class="item">
-                                <div class="item-desc">
-                                    ${item.quantity}x ${item.name}
-                                    ${tamano && tamano.trim() !== '' ? `<div style="font-size: 0.9em;">(${tamano})</div>` : ''}
-                                    ${segundoSabor ? `<div style="font-size: 0.9em;">2do Sabor: ${segundoSabor}</div>` : ''}
-                                    ${additionsText}
+        const totalItem = (parseFloat(item.price || item.precio_unitario || 0) * (item.quantity || 1));
+        let extras = [];
+        if (item.tamano) extras.push(item.tamano);
+        if (item.segundo_sabor) extras.push(`2do: ${item.segundo_sabor}`);
+        if (item.additions && item.additions.length) {
+            const addNames = item.additions.map(a => a.name || a.nombre || a).join(',');
+            extras.push(`+${addNames}`);
+        }
+
+        return `
+                                <div class="item">
+                                    <div class="item-qty">${item.quantity}</div>
+                                    <div class="item-desc">
+                                        ${item.name}
+                                        ${extras.length ? `<div class="sub-item">${extras.join(' | ')}</div>` : ''}
+                                    </div>
+                                    <div class="item-price">$${formatPrice(totalItem)}</div>
                                 </div>
-                                    $${formatPrice(parseFloat(item.price || item.precio_unitario || 0) * parseFloat(item.quantity || 1))}
-                                </div>
-                            </div>`;
-        }).join('')}
+                            `;
+    }).join('')}
                     </div>
                     
-                    <div class="separator"></div>
-                    
-                    <div class="total">
-                        <p>TOTAL: $${formatPrice(order.total_con_descuento || order.total_precio)}</p>
+                    <div class="totals">
+                        TOTAL: $${formatPrice(order.total_con_descuento || order.total_precio)}
                     </div>
                     
                     <div class="footer">
                         <p>¡Gracias por su compra!</p>
-                        <p>www.pizzerianiss.com</p>
+                        <p>Servicio a Domicilio</p>
                     </div>
                 </body>
             </html>
-        `;
-
-        printWindow.document.write(printContent);
-        printWindow.document.close();
-
-        // Esperar un momento y luego imprimir
-        setTimeout(() => {
-            try {
-                printWindow.print();
-                console.log(`Pedido #${orderId} enviado a impresión`);
-                showNotification('Pedido enviado a impresión', 'success');
-                setTimeout(() => printWindow.close(), 1000);
-            } catch (printError) {
-                console.error('Error al ejecutar print():', printError);
-                showNotification('Error al imprimir - verifique la configuración de su navegador', 'error');
-            }
-        }, 500);
-
-    } catch (error) {
-        console.error('Error al imprimir pedido:', error);
-        showNotification('Error al enviar a impresión', 'error');
-    }
+    `;
 }
 
 // Función alternativa de impresión cuando las ventanas emergentes están bloqueadas
