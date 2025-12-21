@@ -224,14 +224,9 @@ async function loadCategoryProducts(categoryId) {
             return;
         }
 
-        // Obtener productos de esta categoría con sus precios
-        const { data: productos, error } = await supabase
-            .from('productos')
-            .select('*, precios:producto_precios_dinamicos(*), categorias_config(nombre)')
-            .eq('categoria_id', categoria.id)
-            .eq('activo', true);
-
-        if (error) throw error;
+        // Obtener productos de esta categoría con sus precios (usando el cliente db que maneja el join manual)
+        const allProds = await db.getProductos();
+        const productos = allProds.filter(p => p.categoria_id === categoria.id && (p.activo === true || p.activo === 1 || p.activo === undefined));
 
         // Convertir productos a formato compatible con el código existente
         const recipes = [];

@@ -20,23 +20,36 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 export const db = {
     // --- PRODUCTOS Y CATEGORÍAS ---
     async getProductos() {
-        const { data, error } = await supabase
+        // 1. Obtener todos los productos y sus categorías (el join con categorías sí funciona por FK existente)
+        const { data: prods, error: prodsError } = await supabase
             .from('productos')
             .select(`
                 *,
-                precios:producto_precios_dinamicos(*),
                 categoria:categorias_config(*)
             `)
             .order('nombre');
 
-        if (error) throw error;
+        if (prodsError) throw prodsError;
 
-        // Asegurar que valores numéricos almacenados como texto sean convertidos
-        return data.map(p => ({
-            ...p,
-            stock_actual: parseFloat(p.stock_actual || 0),
-            stock_minimo: parseFloat(p.stock_minimo || 0)
-        }));
+        // 2. Obtener todos los precios dinámicos (ya que no hay FK para el join automático)
+        const { data: prices, error: pricesError } = await supabase
+            .from('producto_precios_dinamicos')
+            .select('*');
+
+        if (pricesError) {
+            console.warn('Error al cargar precios dinámicos:', pricesError);
+        }
+
+        // 3. Unir productos con sus precios en JS
+        return prods.map(p => {
+            const productPrices = (prices || []).filter(pr => pr.producto_id === p.id);
+            return {
+                ...p,
+                precios: productPrices,
+                stock_actual: parseFloat(p.stock_actual || 0),
+                stock_minimo: parseFloat(p.stock_minimo || 0)
+            };
+        });
     },
 
     async getCategorias() {
