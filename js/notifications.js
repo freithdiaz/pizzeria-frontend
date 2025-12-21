@@ -48,7 +48,13 @@ class NotificationSystem {
         this.isRunning = true;
 
         // Usar Supabase Realtime en lugar de polling
-        const channel = window.supabaseClient.db
+        // Acceder a window.supabase (cliente raw) en lugar de window.supabaseClient (wrapper db)
+        if (!window.supabase) {
+            console.error('Supabase raw client no disponible para notificaciones');
+            return;
+        }
+
+        const channel = window.supabase
             .channel('pedidos-realtime')
             .on('postgres_changes', {
                 event: 'INSERT',

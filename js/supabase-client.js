@@ -569,3 +569,4 @@ export const db = {
 // Exponer globalmente para scripts que no son módulos
 window.db = db;
 window.supabaseClient = db;
+window.supabase = supabase; // Exponer cliente raw para Realtime
