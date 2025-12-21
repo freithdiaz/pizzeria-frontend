@@ -20,36 +20,39 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 export const db = {
     // --- PRODUCTOS Y CATEGORÍAS ---
     async getProductos() {
-        // 1. Obtener todos los productos y sus categorías (el join con categorías sí funciona por FK existente)
-        const { data: prods, error: prodsError } = await supabase
-            .from('productos')
-            .select(`
-                *,
-                categoria:categorias_config(*)
-            `)
-            .order('nombre');
+        try {
+            // 1. Obtener todas las tablas necesarias por separado (Zero Joins Architecture)
+            const [prodsRes, catsRes, pricesRes] = await Promise.all([
+                supabase.from('productos').select('*').order('nombre'),
+                supabase.from('categorias_config').select('*'),
+                supabase.from('producto_precios_dinamicos').select('*')
+            ]);
 
-        if (prodsError) throw prodsError;
+            if (prodsRes.error) throw prodsRes.error;
+            if (catsRes.error) console.warn('Error cargando categorías para productos:', catsRes.error);
+            if (pricesRes.error) console.warn('Error cargando precios dinámicos:', pricesRes.error);
 
-        // 2. Obtener todos los precios dinámicos (ya que no hay FK para el join automático)
-        const { data: prices, error: pricesError } = await supabase
-            .from('producto_precios_dinamicos')
-            .select('*');
+            const prods = prodsRes.data || [];
+            const cats = catsRes.data || [];
+            const prices = pricesRes.data || [];
 
-        if (pricesError) {
-            console.warn('Error al cargar precios dinámicos:', pricesError);
+            // 2. Unir todo en JavaScript
+            return prods.map(p => {
+                const categoria = cats.find(c => c.id === p.categoria_id) || null;
+                const productPrices = prices.filter(pr => pr.producto_id === p.id);
+
+                return {
+                    ...p,
+                    categoria: categoria,
+                    precios: productPrices,
+                    stock_actual: parseFloat(p.stock_actual || 0),
+                    stock_minimo: parseFloat(p.stock_minimo || 0)
+                };
+            });
+        } catch (error) {
+            console.error('Error in getProductos (Zero Joins):', error);
+            throw error;
         }
-
-        // 3. Unir productos con sus precios en JS
-        return prods.map(p => {
-            const productPrices = (prices || []).filter(pr => pr.producto_id === p.id);
-            return {
-                ...p,
-                precios: productPrices,
-                stock_actual: parseFloat(p.stock_actual || 0),
-                stock_minimo: parseFloat(p.stock_minimo || 0)
-            };
-        });
     },
 
     async getCategorias() {
@@ -114,17 +117,27 @@ export const db = {
     },
 
     async getPedidos(limit = 50) {
-        const { data, error } = await supabase
-            .from('pedidos')
-            .select(`
-                *,
-                usuario_domicilio:usuarios_domicilio(*)
-            `)
-            .order('fecha', { ascending: false })
-            .limit(limit);
+        try {
+            // 1. Obtener pedidos y usuarios por separado
+            const [pedidosRes, usuariosRes] = await Promise.all([
+                supabase.from('pedidos').select('*').order('fecha', { ascending: false }).limit(limit),
+                supabase.from('usuarios_domicilio').select('*')
+            ]);
 
-        if (error) throw error;
-        return data;
+            if (pedidosRes.error) throw pedidosRes.error;
+
+            const pedidos = pedidosRes.data || [];
+            const usuarios = usuariosRes.data || [];
+
+            // 2. Unir en JavaScript
+            return pedidos.map(p => ({
+                ...p,
+                usuario_domicilio: usuarios.find(u => u.id === p.usuario_domicilio_id) || null
+            }));
+        } catch (error) {
+            console.error('Error in getPedidos (Zero Joins):', error);
+            throw error;
+        }
     },
 
     async updateOrderStatus(orderId, newStatus) {
@@ -213,37 +226,56 @@ export const db = {
 
     // --- ADICIONES Y SABORES ---
     async getSabores(productId) {
-        const { data, error } = await supabase
-            .from('producto_sabores')
-            .select(`
-                *,
-                sabor_producto:productos!sabor_producto_id(*)
-            `)
-            .eq('producto_id', productId)
-            .eq('activo', 1)
-            .order('orden');
+        try {
+            // 1. Obtener los registros de la tabla intermedia y todos los productos
+            const [saboresRes, prodsRes] = await Promise.all([
+                supabase.from('producto_sabores').select('*').eq('producto_id', productId).eq('activo', 1).order('orden'),
+                supabase.from('productos').select('*')
+            ]);
 
-        if (error) throw error;
-        return data.map(s => ({
-            ...s.sabor_producto,
-            sabor_id: s.id,
-            orden: s.orden
-        }));
+            if (saboresRes.error) throw saboresRes.error;
+
+            const saboresIntermedia = saboresRes.data || [];
+            const todosLosProductos = prodsRes.data || [];
+
+            // 2. Unir en JavaScript
+            return saboresIntermedia.map(s => {
+                const productoSabor = todosLosProductos.find(p => p.id === s.sabor_producto_id);
+                if (!productoSabor) return null;
+                return {
+                    ...productoSabor,
+                    sabor_id: s.id,
+                    orden: s.orden
+                };
+            }).filter(s => s !== null);
+        } catch (error) {
+            console.error('Error in getSabores (Zero Joins):', error);
+            throw error;
+        }
     },
 
     async getVinculaciones(productId) {
-        const { data, error } = await supabase
-            .from('producto_vinculaciones')
-            .select(`
-                *,
-                producto_adicional:productos!producto_adicional_id(*)
-            `)
-            .eq('producto_principal_id', productId)
-            .eq('activo', true)
-            .order('orden');
+        try {
+            // 1. Obtener vinculaciones y todos los productos
+            const [vincRes, prodsRes] = await Promise.all([
+                supabase.from('producto_vinculaciones').select('*').eq('producto_principal_id', productId).eq('activo', true).order('orden'),
+                supabase.from('productos').select('*')
+            ]);
 
-        if (error) throw error;
-        return data;
+            if (vincRes.error) throw vincRes.error;
+
+            const vinculaciones = vincRes.data || [];
+            const todosLosProductos = prodsRes.data || [];
+
+            // 2. Unir en JavaScript
+            return vinculaciones.map(v => ({
+                ...v,
+                producto_adicional: todosLosProductos.find(p => p.id === v.producto_adicional_id) || null
+            }));
+        } catch (error) {
+            console.error('Error in getVinculaciones (Zero Joins):', error);
+            throw error;
+        }
     },
 
     async getGruposAdiciones(productId) {
