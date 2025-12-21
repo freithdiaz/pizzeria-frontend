@@ -1198,7 +1198,9 @@ async function buscarDireccionAutocompletado(query) {
 
     sugerenciasDireccionTimeout = setTimeout(async () => {
         try {
-            const response = await fetch(`${API_BASE_URL} /api/delivery / suggestions ? q = ${encodeURIComponent(query)} `);
+            // Construir URL correctamente (quitar espacios accidentaless)
+            const url = `${API_BASE_URL}/api/delivery/suggestions?q=${encodeURIComponent(query)}`;
+            const response = await fetch(url);
             const data = await response.json();
 
             if (data.success && data.data && data.data.length > 0) {
