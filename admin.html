@@ -2880,14 +2880,14 @@
             const estadoInfo = document.getElementById('caja-info');
             const usuarioOpen = localStorage.getItem('cajaUsuario');
 
-            // Asegurar que las clases hidden funcionan
-            if (btnAbrir) btnAbrir.classList.add('hidden');
-            if (btnCerrar) btnCerrar.classList.add('hidden');
+            // Asegurar estado inicial (ocultar ambos)
+            if (btnAbrir) btnAbrir.style.display = 'none';
+            if (btnCerrar) btnCerrar.style.display = 'none';
 
             if (cajaStart && cajaStart !== 'undefined' && cajaStart !== 'null') {
                 // CAJA ABIERTA
                 console.log('Estado detectado: ABIERTA');
-                if (btnCerrar) btnCerrar.classList.remove('hidden');
+                if (btnCerrar) btnCerrar.style.display = 'block'; // Mostrar Cerrar
                 if (estadoInfo) {
                     estadoInfo.className = 'text-lg mb-2 p-2 bg-green-900 bg-opacity-50 rounded border border-green-500';
                     estadoInfo.innerHTML = `
@@ -2906,7 +2906,7 @@
                 // Limpieza preventiva
                 ['cajaSesionStart', 'cajaStartTime', 'cajaUsuario'].forEach(k => localStorage.removeItem(k));
 
-                if (btnAbrir) btnAbrir.classList.remove('hidden');
+                if (btnAbrir) btnAbrir.style.display = 'block'; // Mostrar Abrir
                 if (estadoInfo) {
                     estadoInfo.className = 'text-lg mb-2 p-2 bg-red-900 bg-opacity-50 rounded border border-red-500';
                     estadoInfo.innerHTML = `
