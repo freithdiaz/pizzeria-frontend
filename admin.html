@@ -1205,53 +1205,96 @@
                             <p class="text-xs text-gray-400 mb-2"><i class="fas fa-list mr-1"></i>Items:</p>
                             ${itemsHtml}
                         </div>
-            `).join('');
+                            ${itemsHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
-        // ==================== INICIALIZACIÃ©â€œN ====================
-        document.addEventListener('DOMContentLoaded', function () {
-            mostrarSeccion('dashboard');
-            verificarEstadoCaja();
-        });
+        // ==================== FUNCIONES DE UTILIDAD (Reemplazo de admin.js) ====================
 
-        // ==================== NAVEGACIÃ©â€œN ====================
         function mostrarSeccion(seccion) {
             // Ocultar todas las secciones
             document.querySelectorAll('.seccion').forEach(s => s.classList.add('hidden'));
+
             // Desactivar todos los tabs
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('border-blue-500', 'text-blue-400');
+                btn.classList.remove('border-blue-500', 'text-blue-400', 'active');
+                btn.classList.add('border-transparent');
             });
 
             // Mostrar seccion seleccionada
-            document.getElementById(`seccion-${seccion}`).classList.remove('hidden');
-            document.getElementById(`tab-${seccion}`).classList.add('border-blue-500', 'text-blue-400');
+            const seccionEl = document.getElementById(`seccion-${seccion}`);
+            if (seccionEl) seccionEl.classList.remove('hidden');
 
-            // Cargar datos segun la seccion
-            if (seccion === 'dashboard') {
-                cargarVentasDia();
-                cargarHistorialCaja();
-            } else if (seccion === 'categorias') {
-                cargarCategorias();
-            } else if (seccion === 'productos') {
-                cargarProductos();
-                cargarCategoriasEnSelect();
-            } else if (seccion === 'vinculaciones') {
-                cargarVinculaciones();
-            } else if (seccion === 'dos-sabores') {
-                cargarProductosDosSabores();
-                cargarCategoriasEnSelectDosSabores();
-            } else if (seccion === 'inventario') {
-                cargarInventario();
-            } else if (seccion === 'configuracion') {
-                // Cargar sistema de precios por zona
-                if (typeof cargarConfiguracion === 'function') {
-                    cargarConfiguracion();
-                }
-                if (typeof cargarZonasPrecios === 'function') {
-                    cargarZonasPrecios();
-                }
+            // Activar tab
+            const tabBtn = document.getElementById(`tab-${seccion}`);
+            if (tabBtn) {
+                tabBtn.classList.remove('border-transparent');
+                tabBtn.classList.add('border-blue-500', 'text-blue-400', 'active');
             }
+
+            // Cargar datos especificos
+            if (seccion === 'dashboard') {
+                // Ya se carga automaticamente con onload
+                if (typeof cargarVentasDia === 'function') cargarVentasDia();
+            } else if (seccion === 'productos') {
+                // Si existe funcion carga
+            }
+        }
+
+        function closeAllModals() {
+            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active', 'show'));
+        }
+
+        // ==================== INICIALIZACIÓN ====================
+        document.addEventListener('DOMContentLoaded', function () {
+            // Inicializar Navegacion
+            mostrarSeccion('dashboard');
+
+            // Inicializar Estado Caja (Nueva logica)
+            if (typeof inicializarEstadoCaja === 'function') inicializarEstadoCaja();
+
+            // Inicializar Ventas
+            cargarVentasDia();
+        });
+        // Ocultar todas las secciones
+        document.querySelectorAll('.seccion').forEach(s => s.classList.add('hidden'));
+        // Desactivar todos los tabs
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('border-blue-500', 'text-blue-400');
+        });
+
+        // Mostrar seccion seleccionada
+        document.getElementById(`seccion-${seccion}`).classList.remove('hidden');
+        document.getElementById(`tab-${seccion}`).classList.add('border-blue-500', 'text-blue-400');
+
+        // Cargar datos segun la seccion
+        if (seccion === 'dashboard') {
+            cargarVentasDia();
+            cargarHistorialCaja();
+        } else if (seccion === 'categorias') {
+            cargarCategorias();
+        } else if (seccion === 'productos') {
+            cargarProductos();
+            cargarCategoriasEnSelect();
+        } else if (seccion === 'vinculaciones') {
+            cargarVinculaciones();
+        } else if (seccion === 'dos-sabores') {
+            cargarProductosDosSabores();
+            cargarCategoriasEnSelectDosSabores();
+        } else if (seccion === 'inventario') {
+            cargarInventario();
+        } else if (seccion === 'configuracion') {
+            // Cargar sistema de precios por zona
+            if (typeof cargarConfiguracion === 'function') {
+                cargarConfiguracion();
+            }
+            if (typeof cargarZonasPrecios === 'function') {
+                cargarZonasPrecios();
+            }
+        }
         }
 
         // ==================== CATEGORÃ©ÂAS ====================
