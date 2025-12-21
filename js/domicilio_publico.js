@@ -1432,20 +1432,27 @@ async function enviarPedido(event) {
 
         const result = await db.createPedido(pedido);
 
-        if (result && (result.id || result.order_id)) {
-            const orderId = result.id || result.order_id;
+        if (result && result.success) {
+            const pedidoCreado = result.data;
+            const orderId = pedidoCreado ? pedidoCreado.id : null;
 
             // Intentar notificar al backend para WhatsApp
-            fetch(`${API_BASE_URL}/api/notifications/notify-order`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ order_id: orderId })
-            }).catch(e => console.error('Error notificando pedido:', e));
+            if (orderId) {
+                fetch(`${API_BASE_URL}/api/notifications/notify-order`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order_id: orderId })
+                }).catch(e => console.error('Error notificando pedido:', e));
+            }
 
             mostrarNotificacionRapida('¡Pedido enviado exitosamente!', 'success');
-            setTimeout(() => {
-                window.location.href = `confirmacion.html?order_id=${orderId}`;
-            }, 1500);
+
+            // Limpiar carrito y cerrar modal
+            if (typeof vaciarCarrito === 'function') vaciarCarrito();
+            if (typeof cerrarModalFinalizar === 'function') cerrarModalFinalizar();
+
+            // Desplazar al inicio para mostrar que se limpió
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
             throw new Error('No se recibió el ID del pedido');
         }
