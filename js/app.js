@@ -18,6 +18,22 @@ const adminPanelView = document.getElementById('admin-panel-view');
 const checkoutBtn = document.getElementById('checkout-btn');
 const headerText = document.getElementById('header-text');
 
+// Función para formatear fecha y hora (es-CO / Bogota)
+function formatDateTime(dateInput) {
+    if (!dateInput) return 'Fecha desconocida';
+    const date = new Date(dateInput);
+    if (isNaN(date.getTime())) return 'Fecha inválida';
+    return date.toLocaleString('es-CO', {
+        timeZone: 'America/Bogota',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
+}
+
 // Función para formatear precios como enteros
 function formatPrice(price) {
     // Ahora los precios vienen ya en pesos enteros desde el backend
@@ -965,7 +981,7 @@ function renderOrderManagement() {
                         <i class="fas fa-utensils mr-2"></i>${tableInfo}
                     </p>
                     <p class="text-sm text-gray-400">
-                        <i class="fas fa-clock mr-1"></i>${new Date(order.fecha).toLocaleString('es-CO')}
+                        <i class="fas fa-clock mr-1"></i>${formatDateTime(order.created_at || order.fecha)}
                     </p>
                 </div>
                 <div class="text-right">
@@ -1260,7 +1276,7 @@ async function printOrder(orderId) {
                     <div class="header">
                         <h3>🍕 PIZZERÍA NISSI</h3>
                         <p>FACTURA #${order.id}</p>
-                        <p>${new Date(order.created_at).toLocaleString('es-CO')}</p>
+                        <p>${formatDateTime(order.created_at)}</p>
                     </div>
                     
                     <div class="order-info">
