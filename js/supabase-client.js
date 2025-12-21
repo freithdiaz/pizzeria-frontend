@@ -3,9 +3,9 @@
  * =================================
  * Este archivo gestiona la conexión directa con Supabase y toda la lógica
  * que anteriormente residía en el backend (CRUD, Inventario, etc.)
- * Versión: 2.1.3
+ * Versión: 2.1.4
  */
-const CLIENT_VERSION = '2.1.3';
+const CLIENT_VERSION = '2.1.4';
 console.log(`Supabase Client Version: ${CLIENT_VERSION}`);
 
 // Importar SDK de Supabase desde CDN
@@ -71,35 +71,6 @@ export const db = {
         return data;
     },
 
-    async getAdiciones() {
-        try {
-            // 1. Obtener categorías relevantes (Zero Join)
-            const { data: cats, error: errCats } = await supabase
-                .from('categorias_config')
-                .select('*')
-                .or('nombre.ilike.%adici%,nombre.ilike.%ingrediente%');
-
-            if (errCats) throw errCats;
-            const catIds = cats.map(c => c.id);
-
-            // 2. Obtener productos (Zero Join)
-            const { data: prods, error: errProds } = await supabase
-                .from('productos')
-                .select('*')
-                .in('categoria_id', catIds);
-
-            if (errProds) throw errProds;
-
-            // 3. Unir manualmente
-            return prods.map(p => ({
-                ...p,
-                categoria: cats.find(c => c.id === p.categoria_id)
-            }));
-        } catch (error) {
-            console.error('Error in getAdiciones:', error);
-            return [];
-        }
-    },
 
     async getVinculaciones(productId) {
         try {

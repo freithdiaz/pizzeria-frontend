@@ -1517,8 +1517,8 @@ async function showPizzaAdicionales(recipeId, pizzaName, basePrice, sizeDisplay)
     document.getElementById('pizzaSeleccionada').textContent =
         `${pizzaName} - ${sizeDisplay} - $${formatPrice(basePrice)}`;
 
-    // Cargar adicionales disponibles
-    await loadAdicionales();
+    // Limpiar lista de adicionales disponibles
+    availableAdicionales = [];
 
     // Intentar cargar vinculaciones / productos vinculados del producto para mostrarlos tambiÃ©Â©n como adiciones
     try {
@@ -1544,17 +1544,6 @@ async function showPizzaAdicionales(recipeId, pizzaName, basePrice, sizeDisplay)
     document.getElementById('adicionalesModal').classList.remove('hidden');
 }
 
-// Cargar adicionales desde Supabase
-async function loadAdicionales() {
-    try {
-        const adicionales = await db.getAdiciones();
-        availableAdicionales = adicionales;
-        renderAdicionales();
-    } catch (error) {
-        console.error('Error cargando adicionales:', error);
-        showNotification('Error al cargar adicionales', 'error');
-    }
-}
 
 // Cargar productos vinculados desde Supabase
 async function loadVinculadosForProduct(productId) {
