@@ -245,6 +245,7 @@ export const db = {
                 return {
                     ...productoSabor,
                     sabor_id: s.id,
+                    sabor_producto_id: s.sabor_producto_id,
                     orden: s.orden
                 };
             }).filter(s => s !== null);
@@ -270,6 +271,7 @@ export const db = {
             // 2. Unir en JavaScript
             return vinculaciones.map(v => ({
                 ...v,
+                producto_adicional_id: v.producto_adicional_id, // Asegurar que esté disponible
                 producto_adicional: todosLosProductos.find(p => p.id === v.producto_adicional_id) || null
             }));
         } catch (error) {

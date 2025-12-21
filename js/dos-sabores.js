@@ -175,7 +175,7 @@ async function mostrarSeccionDosSabores(producto) {
             `<div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">` +
             sabores.map(sabor => `
                             <div class="sabor-opcion p-2 border border-gray-200 rounded-lg cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition flex items-center gap-2"
-                                 onclick="seleccionarSegundoSabor(${sabor.sabor_producto_id}, '${sabor.nombre.replace(/'/g, "\\'")}', this, '${(sabor.tipo || '').replace(/'/g, "\\'")}')">
+                                 onclick="seleccionarSegundoSabor('${sabor.sabor_producto_id || sabor.id}', '${sabor.nombre.replace(/'/g, "\\'")}', this, '${(sabor.tipo || '').replace(/'/g, "\\'")}')">
                                 ${sabor.imagen_url ? `<img src="${sabor.imagen_url}" class="w-10 h-10 rounded object-cover">` : `<div class="w-10 h-10 rounded bg-gray-200 flex items-center justify-center"><i class="fas fa-pizza-slice text-gray-400"></i></div>`}
                                 <span class="text-sm font-medium text-gray-700 truncate">${sabor.nombre}</span>
                             </div>

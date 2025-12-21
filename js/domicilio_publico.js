@@ -1,4 +1,28 @@
-﻿// Estado global
+﻿// Fallback para notificaciones si notifications.js no está cargado
+if (typeof window.mostrarNotificacionRapida !== 'function') {
+    window.mostrarNotificacionRapida = function (mensaje, tipo = 'info') {
+        console.log(`[Notification] ${tipo.toUpperCase()}: ${mensaje}`);
+        const div = document.createElement('div');
+        div.className = `fixed bottom-20 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-lg shadow-xl z-[9999] transition-all duration-300 text-white font-semibold ${tipo === 'error' ? 'bg-red-600' : (tipo === 'warning' ? 'bg-orange-500' : 'bg-green-600')}`;
+        div.style.zIndex = "10000";
+        div.textContent = mensaje;
+        document.body.appendChild(div);
+        setTimeout(() => {
+            div.style.opacity = '0';
+            setTimeout(() => div.remove(), 300);
+        }, 3000);
+    };
+}
+
+// Fallback para formatPrice si no está definido
+if (typeof window.formatPrice !== 'function') {
+    window.formatPrice = function (price) {
+        const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+        return Math.round(numPrice || 0).toLocaleString('es-CO');
+    };
+}
+
+// Estado global
 let productos = [];
 let categorias = [];
 let carrito = [];
@@ -499,11 +523,14 @@ function toggleGrupo(grupoId) {
 
 // Función actualizada para seleccionar opciones
 function seleccionarOpcion(grupoId, opcionId, maxSelecciones, event) {
+    // Si el grupo es de tipo tamaño, también guardarlo en un lugar fácil de acceder
+    const input = event.target;
+    const isTamano = input.name === 'grupo-tamano' || input.name === 'grupo-tamaño' ||
+        (input.closest('[id^="grupo-"]') && input.closest('[id^="grupo-"]').querySelector('h4')?.textContent.toLowerCase().includes('tamaño'));
+
     if (!adicionesSeleccionadas[grupoId]) {
         adicionesSeleccionadas[grupoId] = [];
     }
-
-    const input = event.target;
 
     // Convertir opcionId a string si es necesario para comparación consistente
     const opcionIdStr = opcionId.toString();
@@ -511,6 +538,7 @@ function seleccionarOpcion(grupoId, opcionId, maxSelecciones, event) {
     if (maxSelecciones === 1) {
         // Radio button - solo uno
         adicionesSeleccionadas[grupoId] = input.checked ? [opcionIdStr] : [];
+        if (isTamano) adicionesSeleccionadas['tamano'] = adicionesSeleccionadas[grupoId];
     } else {
         // Checkbox - múltiples hasta el máximo
         const index = adicionesSeleccionadas[grupoId].indexOf(opcionIdStr);
@@ -550,7 +578,19 @@ function calcularTotalModal() {
     let precioBase = 0;
 
     // Si hay tamaños seleccionados, usar el precio del tamaño
-    const tamanoSeleccionado = adicionesSeleccionadas['tamano'] || adicionesSeleccionadas['tamaño'];
+    let tamanoSeleccionado = adicionesSeleccionadas['tamano'] || adicionesSeleccionadas['tamaño'];
+
+    // Si no se encuentra por nombre fijo, buscar qué grupo tiene el tipo 'tamano' en el DOM
+    if (!tamanoSeleccionado) {
+        const inputTamano = document.querySelector('input[name^="grupo-"][onchange*="tamano"]:checked');
+        if (inputTamano) {
+            const match = inputTamano.name.match(/grupo-(\w+)/);
+            if (match) {
+                tamanoSeleccionado = adicionesSeleccionadas[match[1]];
+            }
+        }
+    }
+
     console.log('🔍 calcularTotalModal - Tamaño seleccionado:', tamanoSeleccionado);
 
     if (tamanoSeleccionado && tamanoSeleccionado.length > 0) {
