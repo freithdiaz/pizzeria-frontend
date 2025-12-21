@@ -253,7 +253,12 @@ export const db = {
                 return { success: false, error: error.message };
             }
 
-            return { success: true, data: data?.[0] };
+            if (!data || data.length === 0) {
+                console.error('Error de permisos o ID no encontrado: No se actualizó ninguna fila');
+                return { success: false, error: 'No se pudo actualizar el pedido (revise permisos RLS o ID)' };
+            }
+
+            return { success: true, data: data[0] };
         } catch (e) {
             console.error('Excepción al actualizar estado:', e);
             return { success: false, error: e.message };
