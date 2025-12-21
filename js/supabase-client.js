@@ -3,9 +3,9 @@
  * =================================
  * Este archivo gestiona la conexión directa con Supabase y toda la lógica
  * que anteriormente residía en el backend (CRUD, Inventario, etc.)
- * Versión: 2.1.4
+ * Versión: 2.1.5
  */
-const CLIENT_VERSION = '2.1.4';
+const CLIENT_VERSION = '2.1.5';
 console.log(`Supabase Client Version: ${CLIENT_VERSION}`);
 
 // Importar SDK de Supabase desde CDN
@@ -133,7 +133,7 @@ export const db = {
                 tipo_pedido: rawInfo.tipo_pedido || 'mesa',
                 estado: rawInfo.estado || 'pendiente',
                 medio_pago: rawInfo.metodo_pago || rawInfo.medio_pago || 'pendiente',
-                observaciones: rawInfo.observaciones || ''
+                notas_entrega: rawInfo.observaciones || rawInfo.notas_entrega || ''
             };
 
             // 1. Insertar el pedido principal
