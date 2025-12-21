@@ -31,8 +31,26 @@ let adicionesSeleccionadas = {};
 let preciosOpciones = {}; // Guardar precios de opciones para cálculo rápido
 let clienteActual = null; // Guardar datos del cliente buscado
 
-// Cargar datos al iniciar
-document.addEventListener('DOMContentLoaded', async () => {
+function cerrarModalExito() {
+    const modal = document.getElementById('modal-exito-pedido');
+    const content = document.getElementById('modal-exito-content');
+
+    if (content) {
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+    }
+
+    setTimeout(() => {
+        if (modal) modal.classList.add('hidden');
+    }, 300);
+}
+
+// Inicialización de la aplicación
+document.addEventListener('DOMContentLoaded', () => {
+    inicializarApp();
+});
+
+async function inicializarApp() {
     // Esperar a que db esté disponible (supabase-client.js se carga como módulo)
     let retries = 0;
     while (typeof db === 'undefined' && retries < 50) {
