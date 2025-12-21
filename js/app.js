@@ -1296,8 +1296,7 @@ async function printOrder(orderId) {
                                     ${segundoSabor ? `<div style="font-size: 0.9em;">2do Sabor: ${segundoSabor}</div>` : ''}
                                     ${additionsText}
                                 </div>
-                                <div class="item-price">
-                                    $${formatPrice(item.unit_price * item.quantity)}
+                                    $${formatPrice(parseFloat(item.price || item.precio_unitario || 0) * parseFloat(item.quantity || 1))}
                                 </div>
                             </div>`;
         }).join('')}
@@ -1306,7 +1305,7 @@ async function printOrder(orderId) {
                     <div class="separator"></div>
                     
                     <div class="total">
-                        <p>TOTAL: $${formatPrice(order.total_amount)}</p>
+                        <p>TOTAL: $${formatPrice(order.total_con_descuento || order.total_precio)}</p>
                     </div>
                     
                     <div class="footer">
