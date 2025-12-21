@@ -2879,21 +2879,54 @@
             const estadoInfo = document.getElementById('caja-info');
             const usuarioOpen = localStorage.getItem('cajaUsuario');
 
+            // Asegurar que las clases hidden funcionan
+            if (btnAbrir) btnAbrir.classList.add('hidden');
+            if (btnCerrar) btnCerrar.classList.add('hidden');
+
             if (cajaStart && cajaStart !== 'undefined' && cajaStart !== 'null') {
-                // Caja Abierta
-                if (btnAbrir) btnAbrir.classList.add('hidden');
+                // CAJA ABIERTA
+                console.log('Estado detectado: ABIERTA');
                 if (btnCerrar) btnCerrar.classList.remove('hidden');
-                if (estadoInfo) estadoInfo.innerHTML = `<span class="text-green-400 font-bold">ABIERTA</span> desde ${new Date(cajaStart).toLocaleTimeString()} por ${usuarioOpen || 'Admin'}`;
+                if (estadoInfo) {
+                    estadoInfo.className = 'text-lg mb-2 p-2 bg-green-900 bg-opacity-50 rounded border border-green-500';
+                    estadoInfo.innerHTML = `
+                        <div class="flex items-center">
+                            <span class="text-3xl mr-2">🟢</span>
+                            <div>
+                                <span class="text-green-400 font-bold text-xl">CAJA ABIERTA</span>
+                                <div class="text-xs text-gray-300">Desde: ${new Date(cajaStart).toLocaleTimeString()}</div>
+                                <div class="text-xs text-gray-300">Usuario: ${usuarioOpen || 'Admin'}</div>
+                            </div>
+                        </div>`;
+                }
             } else {
-                // Caja Cerrada
-                // Si llegamos aqui, nos aseguramos que las claves no existan
-                if (localStorage.getItem('cajaSesionStart')) localStorage.removeItem('cajaSesionStart');
+                // CAJA CERRADA
+                console.log('Estado detectado: CERRADA');
+                // Limpieza preventiva
+                ['cajaSesionStart', 'cajaStartTime', 'cajaUsuario'].forEach(k => localStorage.removeItem(k));
 
                 if (btnAbrir) btnAbrir.classList.remove('hidden');
-                if (btnCerrar) btnCerrar.classList.add('hidden');
-                if (estadoInfo) estadoInfo.innerHTML = `<span class="text-red-400 font-bold">CERRADA</span>`;
+                if (estadoInfo) {
+                    estadoInfo.className = 'text-lg mb-2 p-2 bg-red-900 bg-opacity-50 rounded border border-red-500';
+                    estadoInfo.innerHTML = `
+                        <div class="flex items-center">
+                            <span class="text-3xl mr-2">🔴</span>
+                            <div>
+                                <span class="text-red-400 font-bold text-xl">CAJA CERRADA</span>
+                                <div class="text-xs text-gray-300">Sin sesión activa</div>
+                            </div>
+                        </div>`;
+                }
             }
         }
+
+        // Sincronizar pestañas
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'cajaSesionStart') {
+                console.log('Detectado cambio de sesión en otra pestaña');
+                inicializarEstadoCaja();
+            }
+        });
 
         function mostrarModalAbrirCaja() {
             const modal = document.getElementById('modal-abrir-caja');
