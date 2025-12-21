@@ -282,11 +282,8 @@ async function abrirModalProducto(productoId) {
         imagenContainer.innerHTML = '';
     }
 
-    // Cargar grupos de adiciones desde el backend
+    // Cargar grupos de adiciones y vinculaciones desde Supabase
     await cargarGruposAdiciones(productoId);
-
-    // Cargar productos vinculados (bebidas, adicionales, etc.)
-    await cargarProductosVinculados(productoId);
 
     // Mostrar sección de dos sabores si el producto lo permite
     if (typeof mostrarSeccionDosSabores === 'function') {
@@ -322,25 +319,8 @@ async function cargarGruposBebidas(productoId) {
 
 async function cargarGruposAdiciones(productoId) {
     try {
-        // Cargar grupos normales de adiciones
-        let gruposNormales = await db.getGruposAdiciones(productoId);
-        if (!Array.isArray(gruposNormales)) {
-            gruposNormales = [];
-        }
-
-        console.log('Grupos cargados para producto', productoId, ':', gruposNormales);
-
-        // Cargar grupos de bebidas dinámicos
-        const gruposBebidas = await cargarGruposBebidas(productoId);
-
-        // Cargar vinculaciones del producto
-        const vinculaciones = await db.getVinculacionesProducto(productoId);
-
-        // Crear grupos dinámicos basados en vinculaciones
-        const gruposVinculaciones = crearGruposDesdeVinculaciones(vinculaciones.como_principal);
-
-        // Combinar todos los tipos de grupos
-        const todosLosGrupos = [...gruposNormales, ...gruposBebidas, ...gruposVinculaciones];
+        // Usar los grupos que ya vienen procesados de db.getGruposAdiciones
+        const todosLosGrupos = await db.getGruposAdiciones(productoId);
 
         const container = document.getElementById('modal-grupos-adiciones');
 

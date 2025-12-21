@@ -258,7 +258,7 @@ export const db = {
         try {
             // 1. Obtener vinculaciones y todos los productos
             const [vincRes, prodsRes] = await Promise.all([
-                supabase.from('producto_vinculaciones').select('*').eq('producto_principal_id', productId).eq('activo', true).order('orden'),
+                supabase.from('producto_vinculaciones').select('*').eq('producto_principal_id', productId).eq('activo', 1).order('orden'),
                 supabase.from('productos').select('*')
             ]);
 
