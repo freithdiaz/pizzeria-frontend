@@ -68,10 +68,101 @@ export const db = {
         return data;
     },
 
+    async getAdiciones() {
+        try {
+            // 1. Obtener categorías relevantes (Zero Join)
+            const { data: cats, error: errCats } = await supabase
+                .from('categorias_config')
+                .select('*')
+                .or('nombre.ilike.%adici%,nombre.ilike.%ingrediente%');
+
+            if (errCats) throw errCats;
+            const catIds = cats.map(c => c.id);
+
+            // 2. Obtener productos (Zero Join)
+            const { data: prods, error: errProds } = await supabase
+                .from('productos')
+                .select('*')
+                .in('categoria_config_id', catIds)
+                .eq('activo', 1);
+
+            if (errProds) throw errProds;
+
+            // 3. Unir manualmente
+            return prods.map(p => ({
+                ...p,
+                categoria: cats.find(c => c.id === p.categoria_config_id)
+            }));
+        } catch (error) {
+            console.error('Error in getAdiciones:', error);
+            return [];
+        }
+    },
+
+    async getVinculaciones(productId) {
+        try {
+            // 1. Obtener vinculaciones (Zero Join)
+            const { data: vincs, error: errVincs } = await supabase
+                .from('producto_vinculaciones')
+                .select('*')
+                .eq('producto_principal_id', productId);
+
+            if (errVincs) throw errVincs;
+
+            // 2. Obtener los productos adicionales (Zero Join)
+            const adicionalesIds = [...new Set(vincs.map(v => v.producto_adicional_id))];
+            let productosAdicionales = [];
+
+            if (adicionalesIds.length > 0) {
+                const { data: adics, error: errAdics } = await supabase
+                    .from('productos')
+                    .select('*')
+                    .in('id', adicionalesIds);
+                if (errAdics) throw errAdics;
+                productosAdicionales = adics;
+            }
+
+            // 3. Unir manualmente y agrupar por tipo
+            const result = {};
+            vincs.forEach(v => {
+                if (!result[v.tipo_vinculacion]) result[v.tipo_vinculacion] = [];
+                const prod = productosAdicionales.find(p => p.id === v.producto_adicional_id);
+                if (prod) {
+                    result[v.tipo_vinculacion].push({
+                        ...prod,
+                        tipo: v.tipo_vinculacion
+                    });
+                }
+            });
+            return result;
+        } catch (error) {
+            console.error('Error in getVinculaciones:', error);
+            return {};
+        }
+    },
+
     // --- PEDIDOS Y VENTAS ---
     async createPedido(pedidoData) {
         try {
-            const { items, ...orderInfo } = pedidoData;
+            console.log('Mapping pedidoData for Supabase:', pedidoData);
+
+            // Extraer items para inserción separada
+            const { items, ...rawInfo } = pedidoData;
+
+            // Mapear campos de app.js a nombres de columna reales en la base de datos
+            const orderInfo = {
+                mesa: rawInfo.mesa || 'No especificada',
+                total_precio: parseFloat(rawInfo.total_amount || rawInfo.total_precio || 0),
+                discount_percentage: parseFloat(rawInfo.discount_percentage || 0),
+                total_con_descuento: parseFloat(rawInfo.total_with_discount || rawInfo.total_con_descuento || 0),
+                subtotal: parseFloat(rawInfo.subtotal || rawInfo.total_amount || 0),
+                tipo_pedido: rawInfo.tipo_pedido || 'mesa',
+                estado: rawInfo.estado || 'pendiente',
+                metodo_pago: rawInfo.metodo_pago || 'pendiente',
+                cliente_id: rawInfo.cliente_id || null,
+                vendedor_id: rawInfo.vendedor_id || null,
+                observaciones: rawInfo.observaciones || ''
+            };
 
             // 1. Insertar el pedido principal
             const { data: pedido, error: errPedido } = await supabase
