@@ -39,7 +39,10 @@ export const db = {
             // 2. Unir todo en JavaScript
             return prods.map(p => {
                 const categoria = cats.find(c => c.id === p.categoria_id) || null;
-                const productPrices = prices.filter(pr => pr.producto_id === p.id);
+                const productPrices = prices.filter(pr => pr.producto_id === p.id).map(pr => ({
+                    ...pr,
+                    tamano_nombre: pr.nombre_precio // Mapeo para compatibilidad con el frontend
+                }));
 
                 return {
                     ...p,

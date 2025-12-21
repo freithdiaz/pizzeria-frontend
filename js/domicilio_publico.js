@@ -443,7 +443,7 @@ async function cargarGruposAdiciones(productoId) {
                                                     name="grupo-${grupo.id}"
                                                     value="${opcion.id}"
                                                     class="w-5 h-5 text-red-600"
-                                                    onchange="seleccionarOpcion('${grupo.id}', '${String(opcion.id)}', ${grupo.maximo}, event)"
+                                                    onchange="seleccionarOpcion('${grupo.id}', '${String(opcion.id)}', ${grupo.maximo}, event, ${esTamano})"
                                                 >
                                                 <div>
                                                     <div class="font-semibold">${opcion.nombre}</div>
@@ -462,7 +462,7 @@ async function cargarGruposAdiciones(productoId) {
                                                 name="grupo-${grupo.id}"
                                                 value="${opcion.id}"
                                                 class="w-4 h-4 text-red-600 mr-3"
-                                                onchange="seleccionarOpcion('${grupo.id}', '${String(opcion.id)}', ${grupo.maximo}, event)"
+                                                onchange="seleccionarOpcion('${grupo.id}', '${String(opcion.id)}', ${grupo.maximo}, event, false)"
                                             >
                                             <span class="font-medium">${opcion.nombre}</span>
                                         </label>
@@ -480,7 +480,7 @@ async function cargarGruposAdiciones(productoId) {
                                                     name="grupo-${grupo.id}"
                                                     value="${opcion.id}"
                                                     class="w-4 h-4 text-red-600"
-                                                    onchange="seleccionarOpcion('${grupo.id}', '${String(opcion.id)}', ${esBebidaGrupo ? 99 : grupo.maximo}, event)"
+                                                    onchange="seleccionarOpcion('${grupo.id}', '${String(opcion.id)}', ${esBebidaGrupo ? 99 : grupo.maximo}, event, false)"
                                                 >
                                                 <div>
                                                     <div class="font-medium text-sm">${opcion.nombre}</div>
@@ -522,11 +522,8 @@ function toggleGrupo(grupoId) {
 }
 
 // Función actualizada para seleccionar opciones
-function seleccionarOpcion(grupoId, opcionId, maxSelecciones, event) {
-    // Si el grupo es de tipo tamaño, también guardarlo en un lugar fácil de acceder
+function seleccionarOpcion(grupoId, opcionId, maxSelecciones, event, isTamano = false) {
     const input = event.target;
-    const isTamano = input.name === 'grupo-tamano' || input.name === 'grupo-tamaño' ||
-        (input.closest('[id^="grupo-"]') && input.closest('[id^="grupo-"]').querySelector('h4')?.textContent.toLowerCase().includes('tamaño'));
 
     if (!adicionesSeleccionadas[grupoId]) {
         adicionesSeleccionadas[grupoId] = [];
@@ -1215,10 +1212,19 @@ async function seleccionarDireccionSugerida(placeId) {
 
 async function calcularPrecioDomicilio(municipio, barrio) {
     try {
-        const params = new URLSearchParams({ municipio: municipio || '' });
+        const params = new URLSearchParams({ municipio: municipio || 'No especificado' });
         if (barrio) params.append('barrio', barrio);
 
         const response = await fetch(`${API_BASE_URL}/api/delivery/calculate-delivery-price?${params}`);
+
+        // Si el backend responde 404 o error, usar precio por defecto 3000
+        if (!response.ok) {
+            console.warn('Backend de entrega no disponible (404), usando valor por defecto 3000');
+            window.precioDomicilio = 3000;
+            actualizarResumenPrecio();
+            return 3000;
+        }
+
         const resultado = await response.json();
 
         if (resultado.success) {
@@ -1376,8 +1382,6 @@ async function enviarPedido(event) {
             direccion_entrega: direccion,
             notas_entrega: notas,
             medio_pago: medioPago,
-            subtotal: subtotal,
-            valor_domicilio: domicilio,
             total_precio: total,
             total_con_descuento: total,
             items: carrito.map(item => ({
@@ -1396,15 +1400,17 @@ async function enviarPedido(event) {
         if (result && (result.id || result.order_id)) {
             const orderId = result.id || result.order_id;
 
-            // Trigger WhatsApp notification on backend
-            fetch(`${API_BASE_URL}/api/notify-order`, {
+            // Intentar notificar al backend para WhatsApp
+            fetch(`${API_BASE_URL}/api/notifications/notify-order`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ order_id: orderId })
             }).catch(e => console.error('Error notificando pedido:', e));
 
-            alert('¡Tu pedido ha sido enviado exitosamente!');
-            window.location.href = `confirmacion.html?order_id=${orderId}`;
+            mostrarNotificacionRapida('¡Pedido enviado exitosamente!', 'success');
+            setTimeout(() => {
+                window.location.href = `confirmacion.html?order_id=${orderId}`;
+            }, 1500);
         } else {
             throw new Error('No se recibió el ID del pedido');
         }
