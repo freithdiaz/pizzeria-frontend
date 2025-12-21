@@ -3,9 +3,9 @@
  * =================================
  * Este archivo gestiona la conexión directa con Supabase y toda la lógica
  * que anteriormente residía en el backend (CRUD, Inventario, etc.)
- * Versión: 2.1.5
+ * Versión: 2.1.6
  */
-const CLIENT_VERSION = '2.1.5';
+const CLIENT_VERSION = '2.1.6';
 console.log(`Supabase Client Version: ${CLIENT_VERSION}`);
 
 // Importar SDK de Supabase desde CDN
@@ -117,10 +117,10 @@ export const db = {
     // --- PEDIDOS Y VENTAS ---
     async createPedido(pedidoData) {
         try {
-            console.log('Mapping pedidoData for Supabase:', pedidoData);
+            const rawInfo = pedidoData;
+            const items = rawInfo.items || [];
 
-            // Extraer items para inserción separada
-            const { items, ...rawInfo } = pedidoData;
+            console.log('Mapping pedidoData for Supabase:', rawInfo);
 
             // Mapear campos de app.js a nombres de columna reales en la base de datos
             const orderInfo = {
@@ -137,14 +137,21 @@ export const db = {
             };
 
             // 1. Insertar el pedido principal
-            const { data: pedido, error: errPedido } = await supabase
+            const { data: pedidoArr, error: errPedido } = await supabase
                 .from('pedidos')
                 .insert([orderInfo])
-                .select()
-                .single();
+                .select();
 
-            if (errPedido) throw errPedido;
+            if (errPedido) {
+                console.error('Error insertando pedido:', errPedido);
+                return { success: false, error: errPedido.message || 'Error al insertar pedido' };
+            }
 
+            if (!pedidoArr || pedidoArr.length === 0) {
+                return { success: false, error: 'No se recibió respuesta del servidor al crear el pedido' };
+            }
+
+            const pedido = pedidoArr[0];
             const pedidoId = pedido.id;
 
             // 2. Insertar los items del detalle y procesar inventario
@@ -163,7 +170,10 @@ export const db = {
                         .from('detalle_pedido')
                         .insert([detalleItem]);
 
-                    if (errDetalle) console.error('Error al insertar detalle:', errDetalle);
+                    if (errDetalle) {
+                        console.error('Error al insertar detalle:', errDetalle);
+                        // No retornamos error aquí para permitir que los demás items se inserten
+                    }
 
                     // 3. Descontar inventario
                     try {
@@ -174,10 +184,10 @@ export const db = {
                 }
             }
 
-            return pedido;
+            return { success: true, data: pedido };
         } catch (error) {
             console.error('Error in createPedido:', error);
-            throw error;
+            return { success: false, error: error.message || 'Error inesperado al crear el pedido' };
         }
     },
 
