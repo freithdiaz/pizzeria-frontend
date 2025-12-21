@@ -240,14 +240,23 @@ export const db = {
     },
 
     async updateOrderStatus(orderId, newStatus) {
-        const { data, error } = await supabase
-            .from('pedidos')
-            .update({ estado: newStatus })
-            .eq('id', orderId)
-            .select();
+        try {
+            const { data, error } = await supabase
+                .from('pedidos')
+                .update({ estado: newStatus })
+                .eq('id', orderId)
+                .select();
 
-        if (error) throw error;
-        return data?.[0];
+            if (error) {
+                console.error('Error actualizando estado:', error);
+                return { success: false, error: error.message };
+            }
+
+            return { success: true, data: data?.[0] };
+        } catch (e) {
+            console.error('Excepción al actualizar estado:', e);
+            return { success: false, error: e.message };
+        }
     },
 
     async getPedidoById(orderId) {
