@@ -83,7 +83,7 @@ export const db = {
             const { data: prods, error: errProds } = await supabase
                 .from('productos')
                 .select('*')
-                .in('categoria_config_id', catIds)
+                .in('categoria_id', catIds)
                 .eq('activo', 1);
 
             if (errProds) throw errProds;
@@ -152,6 +152,7 @@ export const db = {
             // Mapear campos de app.js a nombres de columna reales en la base de datos
             const orderInfo = {
                 mesa: rawInfo.mesa || 'No especificada',
+                cliente_nombre: rawInfo.cliente_nombre || '',
                 total_precio: parseFloat(rawInfo.total_amount || rawInfo.total_precio || 0),
                 discount_percentage: parseFloat(rawInfo.discount_percentage || 0),
                 total_con_descuento: parseFloat(rawInfo.total_with_discount || rawInfo.total_con_descuento || 0),
@@ -159,8 +160,6 @@ export const db = {
                 tipo_pedido: rawInfo.tipo_pedido || 'mesa',
                 estado: rawInfo.estado || 'pendiente',
                 metodo_pago: rawInfo.metodo_pago || 'pendiente',
-                cliente_id: rawInfo.cliente_id || null,
-                vendedor_id: rawInfo.vendedor_id || null,
                 observaciones: rawInfo.observaciones || ''
             };
 
