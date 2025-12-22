@@ -2309,7 +2309,13 @@
                 select.innerHTML = '<option value="">Selecciona un producto como sabor</option>';
 
                 // Filtrar productos que ya estan agregados
-                const idsAgregados = Array.isArray(saboresConfigurados) ? saboresConfigurados.map(s => s.sabor_producto_id) : [];
+                // Normalizar los posibles campos que indican el id del producto sabor
+                const idsAgregados = Array.isArray(saboresConfigurados) ? saboresConfigurados.map(s => (s.sabor_producto_id ?? s.producto_id ?? s.id ?? null)).filter(Boolean) : [];
+
+                // Debug: mostrar resumen para entender por qué ciertos productos no aparecen
+                console.log('Productos totales disponibles para sabores:', productos.length);
+                console.log('IDs ya agregados como sabores:', idsAgregados);
+                console.log('Primeros 10 productos (id, nombre, categoria):', productos.slice(0, 10).map(p => ({ id: p.id, nombre: p.nombre, categoria: p.categoria_nombre })));
 
                 productos
                     .filter(p => p.id !== productoDosSaboresSeleccionado?.id && !idsAgregados.includes(p.id))
