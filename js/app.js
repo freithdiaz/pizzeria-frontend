@@ -969,42 +969,110 @@ function renderOrderManagement() {
             `;
         }
 
-        // Crear HTML detallado para cada item
-        const itemsHTML = order.items.map(item => {
-            // Obtener tamaño del item
-            const tamano = item.tamano || item.size || '';
-            const segundoSabor = item.segundo_sabor || '';
-            let itemHTML = `
+        // Agrupar items por producto+size+precio y consolidar segundos sabores
+        let itemsToRender = [];
+        try {
+            if (order.items && order.items.length > 0) {
+                const grouped = {};
+                order.items.forEach(it => {
+                    const prod = it.name || it.producto || '';
+                    const size = it.size || it.tamano || '';
+                    const priceKey = (it.unit_price || it.price || it.precio || it.subtotal || 0);
+                    const key = `${prod}||${size}||${priceKey}`;
+
+                    // Normalizar segundos sabores
+                    let ssList = [];
+                    if (Array.isArray(it.segundos_sabores) && it.segundos_sabores.length > 0) {
+                        ssList = it.segundos_sabores.map(s => ({ id: s.id || s.producto_id || null, nombre: s.nombre || s.name || s.nombre_producto || '' }));
+                    } else if (it.segundo_sabor) {
+                        const ss = it.segundo_sabor;
+                        if (Array.isArray(ss)) ssList = ss.map(s => ({ id: s.id || s.producto_id || null, nombre: s.nombre || s.name || '' }));
+                        else if (typeof ss === 'string') ssList = ss.split(',').map(s => ({ id: null, nombre: s.trim() }));
+                        else if (typeof ss === 'object' && ss !== null) ssList = [{ id: ss.id || ss.producto_id || null, nombre: ss.nombre || ss.name || '' }];
+                    }
+
+                    if (!grouped[key]) {
+                        grouped[key] = Object.assign({}, it);
+                        grouped[key].quantity = Number(it.quantity || it.cantidad || 1);
+                        grouped[key].segundos_sabores = ssList.slice();
+                    } else {
+                        grouped[key].quantity = Number(grouped[key].quantity || 0) + Number(it.quantity || it.cantidad || 1);
+                        ssList.forEach(ss => {
+                            const exists = (grouped[key].segundos_sabores || []).some(e => (e.nombre || e.name || '').toString().trim() === (ss.nombre || ss.name || '').toString().trim());
+                            if (!exists) grouped[key].segundos_sabores.push(ss);
+                        });
+                    }
+                });
+
+                itemsToRender = Object.values(grouped);
+            }
+        } catch (e) {
+            console.warn('Error agrupando items en renderOrderManagement (frontend):', e);
+            itemsToRender = order.items || [];
+        }
+
+        const itemsHTML = (itemsToRender || []).map(item => {
+            const additionsHtml = (item.additions && item.additions.length > 0) ? `
+                <p class="text-yellow-400 text-sm mt-1">
+                    <i class="fas fa-plus-circle mr-1"></i>
+                    ${(() => {
+                        const names = (item.additions || []).map(a => (a && (a.name || a.nombre)) || a).filter(x => x && String(x).trim() !== '');
+                        return names.length ? names.join(', ') : '';
+                    })()}
+                </p>
+            ` : '';
+
+            // Construir display de segundos sabores
+            let segundoHtml = '';
+            try {
+                const names = (item.segundos_sabores && Array.isArray(item.segundos_sabores)) ? item.segundos_sabores.map(s => (s && (s.nombre || s.name || s.nombre_producto)) || '').filter(Boolean) : [];
+                if (names.length) {
+                    segundoHtml = `<p class="text-purple-400 text-sm mt-1"><i class="fas fa-pagelines mr-1"></i>mitad ${names.join(', ')}</p>`;
+                } else if (item.segundo_sabor) {
+                    const f = formatSegundoSaborForDisplay(item.segundo_sabor);
+                    if (f) segundoHtml = `<p class="text-purple-400 text-sm mt-1"><i class="fas fa-pagelines mr-1"></i>${f}</p>`;
+                }
+            } catch (e) {
+                console.warn('Error construyendo segundo sabor display (frontend):', e);
+            }
+
+            // Badge
+            let badgeHtml = '';
+            try {
+                if (item.segundos_sabores && Array.isArray(item.segundos_sabores) && item.segundos_sabores.length > 0) {
+                    const names = item.segundos_sabores.map(s => (s && (s.nombre || s.name || s.nombre_producto)) || '').filter(Boolean);
+                    if (names.length) badgeHtml = `<div class="mt-1"><span class="inline-block bg-orange-500 text-white text-xs px-2 py-1 rounded">${names.join(', ')}</span></div>`;
+                }
+            } catch (e) {
+                console.warn('Error creando badge en render frontend', e);
+            }
+
+            const unit = item.unit_price || item.price || item.precio || 0;
+            const qty = Number(item.quantity || item.cantidad || 1) || 1;
+            const total = item.subtotal || (unit * qty);
+
+            return `
                 <div class="flex justify-between items-start py-2 border-b border-gray-600 last:border-b-0">
                     <div class="flex-1">
                         <div class="flex items-center">
                             <span class="inline-block w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm mr-3">
-                                ${item.quantity}
+                                ${qty}
                             </span>
                             <div>
-                                <p class="text-white font-semibold">${item.name}</p>
-                                ${tamano && tamano.trim() !== '' ? `<p class="text-blue-400 text-sm"><i class="fas fa-ruler mr-1"></i>Tamaño: ${tamano}</p>` : ''}
-                                ${segundoSabor ? `<p class="text-orange-400 text-sm"><i class="fas fa-pizza-slice mr-1"></i>2do Sabor: ${segundoSabor}</p>` : ''}
-                                ${item.additions && item.additions.length > 0 ? `
-                                    <p class="text-yellow-400 text-sm mt-1">
-                                        <i class="fas fa-plus-circle mr-1"></i>
-                                        : ${(() => {
-                        // Manejar diferentes shapes: {name}, {nombre} o strings
-                        const names = item.additions.map(a => (a && (a.name || a.nombre)) || a).filter(x => x && String(x).trim() !== '');
-                        return names.length ? names.join(', ') : '';
-                    })()}
-                                    </p>
-                                ` : ''}
+                                <p class="text-white font-semibold">${item.name || item.producto}</p>
+                                ${item.size && item.size !== 'Única' ? `<p class="text-gray-400 text-sm">Tamaño: ${item.size}</p>` : ''}
+                                ${additionsHtml}
+                                ${segundoHtml}
                             </div>
                         </div>
                     </div>
                     <div class="text-right ml-4">
-                        <p class="text-white font-semibold">$${formatPrice(item.unit_price * item.quantity)}</p>
-                        <p class="text-gray-400 text-xs">$${formatPrice(item.unit_price)} c/u</p>
+                        <p class="text-white font-semibold">$${formatPrice(total)}</p>
+                        <p class="text-gray-400 text-xs">$${formatPrice(unit)} c/u</p>
                     </div>
                 </div>
+                ${badgeHtml}
             `;
-            return itemHTML;
         }).join('');
 
         orderCard.innerHTML = `
