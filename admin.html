@@ -1123,7 +1123,51 @@
                     'cancelado': 'bg-red-600'
                 }[pedido.estado] || 'bg-gray-600';
 
-                const itemsHtml = pedido.items.map(item => {
+                // Agrupar items por producto+tamano para combinar segundos sabores (mitad/mitad)
+                let itemsToRender = [];
+                try {
+                    if (pedido.items && pedido.items.length > 0) {
+                        const grouped = {};
+                        pedido.items.forEach(it => {
+                            const prod = it.producto || it.name || '';
+                            const tam = it.tamano || it.size || '';
+                            const price = it.precio_unitario || it.unit_price || it.price || 0;
+                            const key = `${prod}||${tam}||${price}`;
+
+                            // Normalizar segundos_sabores del item actual
+                            let ssList = [];
+                            if (Array.isArray(it.segundos_sabores) && it.segundos_sabores.length > 0) {
+                                ssList = it.segundos_sabores.map(s => ({ producto_id: s.producto_id || s.id || null, nombre: s.nombre || s.name || (s.nombre_producto || '') }));
+                            } else if (it.segundo_sabor) {
+                                if (Array.isArray(it.segundo_sabor)) {
+                                    ssList = it.segundo_sabor.map(s => ({ producto_id: s.id || s.producto_id || null, nombre: s.nombre || s.name || '' }));
+                                } else if (typeof it.segundo_sabor === 'string' && it.segundo_sabor.trim() !== '') {
+                                    ssList = it.segundo_sabor.split(',').map(s => ({ producto_id: null, nombre: s.trim() }));
+                                }
+                            }
+
+                            if (!grouped[key]) {
+                                grouped[key] = Object.assign({}, it);
+                                grouped[key].cantidad = Number(it.cantidad || it.quantity || 1);
+                                grouped[key].segundos_sabores = ssList.slice();
+                            } else {
+                                grouped[key].cantidad = Number(grouped[key].cantidad || 0) + Number(it.cantidad || it.quantity || 1);
+                                // merge segundos_sabores sin duplicados por nombre
+                                ssList.forEach(ss => {
+                                    const exists = (grouped[key].segundos_sabores || []).some(e => (e.nombre || e.name || '').toString().trim() === (ss.nombre || ss.name || '').toString().trim());
+                                    if (!exists) grouped[key].segundos_sabores.push(ss);
+                                });
+                            }
+                        });
+
+                        itemsToRender = Object.values(grouped);
+                    }
+                } catch (e) {
+                    console.warn('Error agrupando items para segundos sabores:', e);
+                    itemsToRender = pedido.items || [];
+                }
+
+                const itemsHtml = (itemsToRender || []).map(item => {
                     let detalles = [];
                     if (item.tamano) detalles.push(`<span class="text-blue-300">${item.tamano}</span>`);
                     // Resolver segundo(s) sabor(es) de forma robusta: puede venir en 'segundo_sabor' (string)
@@ -1149,16 +1193,31 @@
                         console.warn('Error resolving segundos sabores display', e);
                     }
                     if (segundoDisplay) detalles.push(`<span class="text-orange-300">mitad ${segundoDisplay}</span>`);
+
+                    // Badge con nombres de segundos sabores (si existen)
+                    let badgeHtml = '';
+                    try {
+                        if (item.segundos_sabores && Array.isArray(item.segundos_sabores) && item.segundos_sabores.length > 0) {
+                            const names = item.segundos_sabores.map(s => (s && (s.nombre || s.name || s.nombre_producto)) || '').filter(Boolean);
+                            if (names.length) {
+                                badgeHtml = `<div class="mt-1"><span class="inline-block bg-orange-500 text-white text-xs px-2 py-1 rounded">${names.join(', ')}</span></div>`;
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('Error creando badge de segundos sabores', e);
+                    }
+
                     const detallesStr = detalles.length > 0 ? `<div class="text-xs ml-4 text-gray-400">${detalles.join(' | ')}</div>` : '';
                     return `
                     <div class="py-2 border-b border-slate-600">
                         <div class="flex justify-between text-sm">
                             <span class="font-medium">${item.cantidad}x ${item.producto}</span>
-                            <span class="text-green-300 font-semibold">${parseFloat(item.subtotal || 0).toLocaleString('es-CO')}</span>
+                            <span class="text-green-300 font-semibold">${parseFloat(item.subtotal || (item.precio_unitario * item.cantidad) || 0).toLocaleString('es-CO')}</span>
                         </div>
+                        ${badgeHtml}
                         ${detallesStr}
                     </div>`;
-                }).join('');
+                    }).join('');
 
                 // Formatear fecha y hora para Colombia
                 const formatearFecha = (fechaStr) => {
