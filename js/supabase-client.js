@@ -179,7 +179,18 @@ export const db = {
 
                     // 3. Descontar inventario
                     try {
-                        await this.updateStock(detalleItem.producto_id, -detalleItem.cantidad);
+                        // Primero intentar descontar por receta (materias primas)
+                        try {
+                            const invRes = await this.descontarIngredientesPorVenta(detalleItem.producto_id, detalleItem.tamano_id, detalleItem.cantidad);
+                            if (!invRes || !invRes.success) {
+                                // Si falla (no hay receta o error), fallback a descontar stock del producto
+                                await this.updateStock(detalleItem.producto_id, -detalleItem.cantidad);
+                            }
+                        } catch (innerInvErr) {
+                            // Fallback: descontar stock en tabla productos
+                            console.warn('descontarIngredientesPorVenta fallo, aplicando updateStock fallback', innerInvErr);
+                            await this.updateStock(detalleItem.producto_id, -detalleItem.cantidad);
+                        }
                     } catch (invErr) {
                         console.warn('Error al descontar inventario:', invErr);
                     }
@@ -434,6 +445,83 @@ export const db = {
 
         if (error) throw error;
         return true;
+    },
+
+    // Descontar ingredientes según receta (si existe) o descontar inventario directo
+    async descontarIngredientesPorVenta(productId, tamanoId, cantidadVendida) {
+        try {
+            // 1. Intentar obtener recetas para el producto y tamaño
+            let recetasQuery = supabase.from('recetas').select('materia_prima_id, cantidad, tamano_id').eq('producto_id', productId);
+            if (tamanoId && tamanoId !== 0) recetasQuery = recetasQuery.eq('tamano_id', tamanoId);
+            else recetasQuery = recetasQuery.is('tamano_id', null);
+
+            const { data: recetas, error: recetasErr } = await recetasQuery;
+            if (recetasErr) throw recetasErr;
+
+            if (!recetas || recetas.length === 0) {
+                // No hay receta: intentar descontar inventario directo en producto_inventario
+                const { data: invDirecto, error: invErr } = await supabase.from('producto_inventario').select('materia_prima_id').eq('producto_id', productId).single();
+                if (invErr) {
+                    // No inventory mapping
+                    return { success: false, message: 'No recipe nor direct inventory mapping' };
+                }
+
+                const mpId = invDirecto.materia_prima_id;
+                // Obtener stock actual
+                const { data: mpRow, error: mpErr } = await supabase.from('materias_primas').select('stock_actual, unidad_medida, nombre').eq('id', mpId).single();
+                if (mpErr) throw mpErr;
+                const current = parseFloat(mpRow.stock_actual || 0);
+                const needed = Number(cantidadVendida || 0);
+                if (current < needed) return { success: false, error: `Stock insuficiente de ${mpRow.nombre}` };
+
+                const nuevo = current - needed;
+                const { error: updErr } = await supabase.from('materias_primas').update({ stock_actual: nuevo }).eq('id', mpId);
+                if (updErr) throw updErr;
+                return { success: true, descuentos: [{ ingrediente: mpRow.nombre, cantidad_descontada: needed, stock_anterior: current, stock_nuevo: nuevo }] };
+            }
+
+            // 2. Si hay recetas, verificar stock suficiente de todas las materias primas
+            const mpIds = recetas.map(r => r.materia_prima_id);
+            const { data: materias, error: matErr } = await supabase.from('materias_primas').select('id, nombre, stock_actual, unidad_medida').in('id', mpIds);
+            if (matErr) throw matErr;
+
+            // Mapear stock actual
+            const stockMap = {};
+            materias.forEach(m => { stockMap[m.id] = { nombre: m.nombre, stock_actual: parseFloat(m.stock_actual || 0), unidad: m.unidad_medida }; });
+
+            // Calcular necesidades
+            const requerimientos = recetas.map(r => {
+                const cantidadReceta = parseFloat(r.cantidad || 0);
+                const necesario = cantidadReceta * Number(cantidadVendida || 0);
+                return { materia_prima_id: r.materia_prima_id, necesario };
+            });
+
+            // Verificar suficiencia
+            for (const req of requerimientos) {
+                const stockInfo = stockMap[req.materia_prima_id] || { stock_actual: 0, nombre: 'Ingrediente' };
+                if (stockInfo.stock_actual < req.necesario) {
+                    return { success: false, error: `Stock insuficiente de ${stockInfo.nombre}. Necesario: ${req.necesario}` };
+                }
+            }
+
+            // 3. Descontar stock para cada materia prima
+            const descuentos = [];
+            for (const req of requerimientos) {
+                const info = stockMap[req.materia_prima_id];
+                const nuevoStock = info.stock_actual - req.necesario;
+                const { error: upd } = await supabase.from('materias_primas').update({ stock_actual: nuevoStock }).eq('id', req.materia_prima_id);
+                if (upd) {
+                    console.warn('Error actualizando materia prima:', upd);
+                } else {
+                    descuentos.push({ ingrediente: info.nombre, cantidad_descontada: req.necesario, stock_anterior: info.stock_actual, stock_nuevo: nuevoStock });
+                }
+            }
+
+            return { success: true, descuentos };
+        } catch (e) {
+            console.error('descontarIngredientesPorVenta error:', e);
+            return { success: false, error: e.message || String(e) };
+        }
     },
 
     async getDashboardStats() {
