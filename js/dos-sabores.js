@@ -64,6 +64,8 @@ async function cargarSaboresDisponibles(producto) {
             if (posibles.includes('ESPECIAL')) tipoCanonico = 'ESPECIAL';
             else if (posibles.includes('PREMI')) tipoCanonico = 'PREMIUM';
             else if (posibles.includes('TRADIC')) tipoCanonico = 'TRADICIONAL';
+            // Si no se detecta tipo explícito, asumimos TRADICIONAL
+            if (!tipoCanonico) tipoCanonico = 'TRADICIONAL';
             else {
                 const n = (s.nombre || '').toString().toUpperCase();
                 if (n.includes('ESPECIAL')) tipoCanonico = 'ESPECIAL';
@@ -79,10 +81,29 @@ async function cargarSaboresDisponibles(producto) {
             sabores: saboresEnriquecidos
         };
 
+        // Depuración: mostrar la estructura enriquecida y conteos por tipo
+        try {
+            console.log('Sabores cargados vía Supabase (raw):', sabores);
+            console.log('Sabores enriquecidos:', saboresEnriquecidos);
+            const conteo = saboresEnriquecidos.reduce((acc, s) => {
+                const k = s.tipo_canonico || 'SIN_TIPO';
+                acc[k] = (acc[k] || 0) + 1;
+                return acc;
+            }, {});
+            console.log('Conteo de sabores por tipo:', conteo);
+            if (allowedTypes && allowedTypes.length) {
+                allowedTypes.forEach(t => {
+                    const opciones = saboresEnriquecidos.filter(s => (s.tipo_canonico||'').toString().toUpperCase() === t.toUpperCase());
+                    console.log(`Opciones para tipo ${t}:`, opciones.length);
+                });
+            }
+        } catch (e) {
+            console.warn('Error al loggear sabores enriquecidos:', e);
+        }
+
         saboresDisponibles = data.sabores;
         allowedTypesForCombined = data.allowed_types;
 
-        console.log('Sabores cargados vía Supabase:', data);
         return data;
 
     } catch (error) {
