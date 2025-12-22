@@ -238,12 +238,13 @@ export const db = {
     async getPedidos(limit = 50) {
         try {
             // 1. Obtener todos los datos necesarios por separado (Zero Join)
-            const [pedidosRes, usuariosRes, detallesRes, productosRes, preciosRes] = await Promise.all([
+            const [pedidosRes, usuariosRes, detallesRes, productosRes, preciosRes, segundosRes] = await Promise.all([
                 supabase.from('pedidos').select('*').order('id', { ascending: false }).limit(limit),
                 supabase.from('usuarios_domicilio').select('*'),
                 supabase.from('detalle_pedido').select('*'),
                 supabase.from('productos').select('*'),
-                supabase.from('producto_precios_dinamicos').select('*')
+                supabase.from('producto_precios_dinamicos').select('*'),
+                supabase.from('detalle_pedido_segundo_sabor').select('*')
             ]);
 
             if (pedidosRes.error) throw pedidosRes.error;
@@ -253,6 +254,7 @@ export const db = {
             const detalles = detallesRes.data || [];
             const productos = productosRes.data || [];
             const precios = preciosRes.data || [];
+            const segundos = (segundosRes && segundosRes.data) ? segundosRes.data : [];
 
             // 2. Unir en JavaScript
             return pedidos.map(p => {
@@ -261,13 +263,20 @@ export const db = {
                     const prod = productos.find(pr => pr.id === d.producto_id);
                     const precioDinamico = precios.find(pd => pd.id === d.tamano_id);
 
+                    // Encontrar segundos sabores asociados a este detalle
+                    const segundosParaDetalle = segundos.filter(s => s.detalle_pedido_id === d.id).map(s => ({ id: s.producto_id || null, nombre: s.nombre_producto || null }));
+
                     return {
                         ...d,
                         name: prod ? prod.nombre : 'Producto no encontrado',
                         tamano: precioDinamico ? precioDinamico.nombre_precio : '',
                         quantity: d.cantidad,
                         price: d.precio_unitario,
-                        additions: typeof d.adiciones === 'string' ? JSON.parse(d.adiciones) : (d.adiciones || [])
+                        unit_price: d.precio_unitario,
+                        subtotal: (d.precio_unitario * (d.cantidad || 1)),
+                        additions: typeof d.adiciones === 'string' ? JSON.parse(d.adiciones) : (d.adiciones || []),
+                        segundos_sabores: segundosParaDetalle,
+                        segundo_sabor: segundosParaDetalle.length === 1 ? (segundosParaDetalle[0].nombre || segundosParaDetalle[0].id) : (segundosParaDetalle.length > 1 ? segundosParaDetalle : null)
                     };
                 });
 
