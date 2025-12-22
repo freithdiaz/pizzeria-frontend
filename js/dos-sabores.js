@@ -50,14 +50,22 @@ async function cargarSaboresDisponibles(producto) {
 
         // Enriquecer los sabores con su tipo canónico para el renderizado
         const saboresEnriquecidos = sabores.map(s => {
-            const catNombre = (s.categoria?.nombre || s.sabor_categoria || '').toUpperCase();
+            const posibles = [
+                s.categoria?.nombre,
+                s.sabor_categoria,
+                s.tipo,
+                s.type,
+                s.categoria_nombre,
+                s.category?.nombre,
+                s.categoria
+            ].filter(Boolean).join(' ').toString().toUpperCase();
+
             let tipoCanonico = null;
-            if (catNombre.includes('ESPECIAL')) tipoCanonico = 'ESPECIAL';
-            else if (catNombre.includes('PREMI')) tipoCanonico = 'PREMIUM';
-            else if (catNombre.includes('TRADIC')) tipoCanonico = 'TRADICIONAL';
+            if (posibles.includes('ESPECIAL')) tipoCanonico = 'ESPECIAL';
+            else if (posibles.includes('PREMI')) tipoCanonico = 'PREMIUM';
+            else if (posibles.includes('TRADIC')) tipoCanonico = 'TRADICIONAL';
             else {
-                // Por nombre
-                const n = s.nombre.toUpperCase();
+                const n = (s.nombre || '').toString().toUpperCase();
                 if (n.includes('ESPECIAL')) tipoCanonico = 'ESPECIAL';
                 else if (n.includes('PREMI')) tipoCanonico = 'PREMIUM';
                 else if (n.includes('TRADIC')) tipoCanonico = 'TRADICIONAL';
@@ -161,7 +169,7 @@ async function mostrarSeccionDosSabores(producto) {
                                     <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto" data-tipo="${tipo}">
                                         ${opciones.map(sabor => `
                                             <div class="sabor-opcion p-2 border border-gray-200 rounded-lg cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition flex items-center gap-2"
-                                                onclick="seleccionarSegundoSaborCombinado(${sabor.sabor_producto_id}, '${sabor.nombre.replace(/'/g, "\\'")}', this, '${tipo}')">
+                                                onclick="seleccionarSegundoSaborCombinado(${sabor.sabor_producto_id || sabor.id}, '${(sabor.nombre||'').replace(/'/g, "\\'")}', this, '${tipo}')">
                                                 ${sabor.imagen_url ? `<img src="${sabor.imagen_url}" class="w-10 h-10 rounded object-cover">` : `<div class="w-10 h-10 rounded bg-gray-200 flex items-center justify-center"><i class="fas fa-pizza-slice text-gray-400"></i></div>`}
                                                 <span class="text-sm font-medium text-gray-700 truncate">${sabor.nombre}</span>
                                             </div>
