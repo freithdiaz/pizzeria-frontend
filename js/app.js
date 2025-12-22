@@ -2310,6 +2310,32 @@ function quitarSegundoSaborMesa() {
             btn.classList.add('bg-gray-700');
         });
     }
+    updateMesaFlavorDisplay();
+}
+
+// Actualizar visual del selector de sabores en mesas: ocultar imágenes y expandir nombres
+function updateMesaFlavorDisplay() {
+    try {
+        const selector = document.getElementById('selector-segundo-sabor-mesa');
+        const infoBox = document.getElementById('saborSeleccionadoMesa');
+        if (!selector) return;
+
+        // Calcular cantidad de selecciones
+        let count = 0;
+        if (modoDosSaboresMesa === 3) count = segundosMesaSeleccionados.length;
+        else if (allowedTypesForCombinedMesa && allowedTypesForCombinedMesa.length >= 2) count = Object.keys(combinadoSelectionsMesa).length;
+        else count = segundoSaborMesa ? 1 : 0;
+
+        if (count >= 2) {
+            selector.classList.add('hide-flavor-images');
+            if (infoBox) infoBox.classList.add('expanded-names');
+        } else {
+            selector.classList.remove('hide-flavor-images');
+            if (infoBox) infoBox.classList.remove('expanded-names');
+        }
+    } catch (e) {
+        console.warn('updateMesaFlavorDisplay error', e);
+    }
 }
 
 // ===== Helpers para dos sabores en mesas =====
@@ -2342,6 +2368,7 @@ function seleccionarSegundoSaborCombinadoMesa(id, nombre, el, tipo) {
         const names = Object.values(combinadoSelectionsMesa).map(s => s.nombre).filter(Boolean);
         const span = document.getElementById('nombreSegundoSaborMesa'); if (span) span.textContent = names.join(' / ');
     }
+    updateMesaFlavorDisplay();
 }
 
 function seleccionarSegundoSaborModoMesa(id, nombre, el, tipoCanonico) {
@@ -2353,6 +2380,7 @@ function seleccionarSegundoSaborModoMesa(id, nombre, el, tipoCanonico) {
         const span = document.getElementById('nombreSegundoSaborMesa'); if (span) span.textContent = nombre;
     }
     try { if (el && el.parentElement) { Array.from(el.parentElement.children).forEach(ch => ch.classList.remove('border-orange-400','bg-orange-50')); el.classList.add('border-orange-400','bg-orange-50'); } } catch(e){}
+    updateMesaFlavorDisplay();
 }
 
 function seleccionarSegundoSaborModo3Mesa(id, nombre, el) {
@@ -2364,6 +2392,7 @@ function seleccionarSegundoSaborModo3Mesa(id, nombre, el) {
         else { info.classList.remove('hidden'); const span = document.getElementById('nombreSegundoSaborMesa'); if (span) span.textContent = segundosMesaSeleccionados.map(s => s.nombre).join(' / '); }
     }
     try { if (el) el.classList.toggle('border-orange-400'); } catch(e){}
+    updateMesaFlavorDisplay();
 }
 
 

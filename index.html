@@ -14,6 +14,14 @@
     <link rel="stylesheet" href="./css/styles.css">
     <script type="module" src="./js/supabase-client.js?v=4.1"></script>
     <script src="./js/config.js" defer></script>
+    <style>
+        /* Cuando hay múltiples sabores seleccionados en mesas, ocultar imágenes y mostrar nombres legibles */
+        #selector-segundo-sabor-mesa.hide-flavor-images .sabor-opcion img { display: none !important; }
+        #selector-segundo-sabor-mesa.hide-flavor-images .sabor-opcion span { white-space: normal !important; font-size: 1rem !important; }
+        /* Resumen expandido en modal */
+        #saborSeleccionadoMesa.expanded-names { padding: 0.75rem; }
+        #saborSeleccionadoMesa.expanded-names #nombreSegundoSaborMesa { display: block; font-size: 1rem; line-height: 1.25; word-break: break-word; }
+    </style>
 </head>
 
 <body class="bg-slate-900 text-white min-h-screen">
