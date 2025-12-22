@@ -2258,18 +2258,24 @@
             try {
                 const response = await fetch(API_BASE_URL + `/api/productos/${productoId}/sabores`);
                 saboresConfigurados = await response.json();
-                // Normalizar respuesta: asegurar que `saboresConfigurados` sea un array
-                if (!Array.isArray(saboresConfigurados)) {
-                    if (Array.isArray(saboresConfigurados.data)) {
+                // Normalizar respuesta: la API puede devolver directamente un array
+                // o un objeto con forma { combined, allowed_types, sabores: [...] }
+                if (Array.isArray(saboresConfigurados)) {
+                    // ok
+                } else if (saboresConfigurados && typeof saboresConfigurados === 'object') {
+                    if (Array.isArray(saboresConfigurados.sabores)) {
+                        saboresConfigurados = saboresConfigurados.sabores;
+                    } else if (Array.isArray(saboresConfigurados.data)) {
                         saboresConfigurados = saboresConfigurados.data;
-                    } else if (saboresConfigurados && typeof saboresConfigurados === 'object' && Object.values(saboresConfigurados).every(v => v && v.id)) {
+                    } else if (Object.values(saboresConfigurados).every(v => v && v.id)) {
                         // Si la API devolviera un objeto indexado, convertir a array
                         saboresConfigurados = Object.values(saboresConfigurados);
                     } else {
-                        // No es un array conocido -> vaciar
-                        console.warn('Respuesta de sabores no es un array, normalizando a array vacío:', saboresConfigurados);
+                        console.warn('Respuesta de sabores no es un array reconocido, normalizando a array vacío:', saboresConfigurados);
                         saboresConfigurados = [];
                     }
+                } else {
+                    saboresConfigurados = [];
                 }
                 console.log('Sabores configurados cargados:', saboresConfigurados);
 
