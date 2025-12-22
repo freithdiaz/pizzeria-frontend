@@ -2083,10 +2083,19 @@ async function submitOrderWithDiscount(totalWithDiscount, discountPercentage) {
                 name: a.name || a.nombre,
                 price: a.price
             })),
-            segundo_sabor: cartItem.segundo_sabor ? {
-                id: cartItem.segundo_sabor.id,
-                nombre: cartItem.segundo_sabor.name || cartItem.segundo_sabor.nombre
-            } : null
+            // Normalizar segundo_sabor: puede ser objeto, array o string
+            segundo_sabor: (function() {
+                const ss = cartItem.segundo_sabor;
+                if (!ss) return null;
+                if (Array.isArray(ss)) {
+                    return ss.map(s => ({ id: s.id || s.producto_id || null, nombre: s.nombre || s.name || s.nombre_producto || '' }));
+                }
+                if (typeof ss === 'object' && ss !== null) {
+                    return { id: ss.id || ss.producto_id || null, nombre: ss.nombre || ss.name || ss.nombre_producto || '' };
+                }
+                // string
+                return String(ss);
+            })()
         };
 
         items.push(orderItem);
