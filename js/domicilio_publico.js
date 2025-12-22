@@ -1550,6 +1550,27 @@ async function enviarPedido(event) {
             const pedidoCreado = result.data;
             const orderId = pedidoCreado ? pedidoCreado.id : null;
 
+            // Además de guardar en Supabase (cliente), intentar replicar el pedido en el backend
+            // para que la gestión use la misma información y muestre segundos sabores.
+            (async () => {
+                try {
+                    const resp = await fetch(`${API_BASE_URL}/api/orders`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(pedido)
+                    });
+
+                    if (!resp.ok) {
+                        const text = await resp.text();
+                        console.warn('Backend /api/orders responded with error:', resp.status, text);
+                    } else {
+                        console.log('Pedido replicado al backend /api/orders');
+                    }
+                } catch (e) {
+                    console.warn('No fue posible replicar el pedido al backend:', e);
+                }
+            })();
+
             // Intentar notificar al backend para WhatsApp (await para capturar errores de CORS/net)
             if (orderId) {
                 try {
