@@ -2231,7 +2231,7 @@ async function mostrarSeccionDosSaboresMesa(recipeId) {
                             <div class="sabor-opcion p-2 border border-gray-600 rounded-lg cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition flex items-center gap-2"
                                  onclick="seleccionarSegundoSaborCombinadoMesa(${sabor.sabor_producto_id || sabor.id}, '${(sabor.nombre||'').replace(/'/g, "\\'")}', this, '${tipo}')">
                                 ${sabor.imagen_url ? `<img src="${sabor.imagen_url}" class="w-10 h-10 rounded object-cover">` : `<div class="w-10 h-10 rounded bg-gray-600 flex items-center justify-center"><i class="fas fa-pizza-slice text-gray-400"></i></div>`}
-                                <span class="text-sm font-medium text-gray-200 truncate">${sabor.nombre}</span>
+                                <span class="text-sm font-medium text-gray-200 break-words">${sabor.nombre}</span>
                             </div>
                         `).join('')}
                     </div>
@@ -2244,7 +2244,7 @@ async function mostrarSeccionDosSaboresMesa(recipeId) {
                 <div class="sabor-opcion p-2 border border-gray-600 rounded-lg cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition flex items-center gap-2"
                      onclick="seleccionarSegundoSaborModoMesa(${sabor.sabor_producto_id || sabor.id}, '${(sabor.nombre||'').replace(/'/g, "\\'")}', this, '${(sabor.tipo_canonico||'').replace(/'/g, "\\'" )}')">
                     ${sabor.imagen_url ? `<img src="${sabor.imagen_url}" class="w-10 h-10 rounded object-cover">` : `<div class="w-10 h-10 rounded bg-gray-600 flex items-center justify-center"><i class="fas fa-pizza-slice text-gray-400"></i></div>`}
-                    <span class="text-sm font-medium text-gray-200 truncate">${sabor.nombre}</span>
+                    <span class="text-sm font-medium text-gray-200 break-words">${sabor.nombre}</span>
                 </div>
             `).join('') + `</div>`;
     }

@@ -15,9 +15,10 @@
     <script type="module" src="./js/supabase-client.js?v=4.1"></script>
     <script src="./js/config.js" defer></script>
     <style>
-        /* Cuando hay múltiples sabores seleccionados en mesas, ocultar imágenes y mostrar nombres legibles */
-        #selector-segundo-sabor-mesa.hide-flavor-images .sabor-opcion img { display: none !important; }
-        #selector-segundo-sabor-mesa.hide-flavor-images .sabor-opcion span { white-space: normal !important; font-size: 1rem !important; }
+        /* Ocultar imágenes del selector de sabores en mesas tan pronto el checkbox esté marcado, y mostrar nombres legibles */
+        #checkbox-dos-sabores-mesa:checked ~ #selector-segundo-sabor-mesa .sabor-opcion img { display: none !important; }
+        #selector-segundo-sabor-mesa .sabor-opcion span { display: block !important; white-space: normal !important; font-size: 1.05rem !important; color: #FFFFFF !important; }
+        #selector-segundo-sabor-mesa .sabor-opcion { min-height: 56px; align-items: flex-start; }
         /* Resumen expandido en modal */
         #saborSeleccionadoMesa.expanded-names { padding: 0.75rem; }
         #saborSeleccionadoMesa.expanded-names #nombreSegundoSaborMesa { display: block; font-size: 1rem; line-height: 1.25; word-break: break-word; }
