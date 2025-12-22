@@ -17,8 +17,16 @@
     <style>
         /* Ocultar imágenes del selector de sabores en mesas tan pronto el checkbox esté marcado, y mostrar nombres legibles */
         #checkbox-dos-sabores-mesa:checked ~ #selector-segundo-sabor-mesa .sabor-opcion img { display: none !important; }
-        #selector-segundo-sabor-mesa .sabor-opcion span { display: block !important; white-space: normal !important; font-size: 1.05rem !important; color: #FFFFFF !important; }
-        #selector-segundo-sabor-mesa .sabor-opcion { min-height: 56px; align-items: flex-start; }
+        #selector-segundo-sabor-mesa .sabor-opcion span { display: block !important; white-space: normal !important; font-size: 1.05rem !important; color: #FFFFFF !important; text-align: left !important; }
+        #selector-segundo-sabor-mesa .sabor-opcion { min-height: 56px; align-items: flex-start; width: 100%; padding-left: 0.5rem; padding-right: 0.5rem; }
+        /* Cuando el checkbox esté activo, forzar que el grid sea una sola columna para que los nombres ocupen todo el ancho */
+        #checkbox-dos-sabores-mesa:checked ~ #selector-segundo-sabor-mesa .grid {
+            grid-template-columns: 1fr !important;
+        }
+        /* Asegurar que el contenedor selector use todo el ancho disponible */
+        #selector-segundo-sabor-mesa { width: 100%; }
+        /* Resumen: ocupar todo el ancho y mayor legibilidad */
+        #saborSeleccionadoMesa.expanded-names { padding: 0.75rem; width: 100%; box-sizing: border-box; }
         /* Resumen expandido en modal */
         #saborSeleccionadoMesa.expanded-names { padding: 0.75rem; }
         #saborSeleccionadoMesa.expanded-names #nombreSegundoSaborMesa { display: block; font-size: 1rem; line-height: 1.25; word-break: break-word; }
