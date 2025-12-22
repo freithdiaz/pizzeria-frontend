@@ -2258,6 +2258,20 @@
             try {
                 const response = await fetch(API_BASE_URL + `/api/productos/${productoId}/sabores`);
                 saboresConfigurados = await response.json();
+                // Normalizar respuesta: asegurar que `saboresConfigurados` sea un array
+                if (!Array.isArray(saboresConfigurados)) {
+                    if (Array.isArray(saboresConfigurados.data)) {
+                        saboresConfigurados = saboresConfigurados.data;
+                    } else if (saboresConfigurados && typeof saboresConfigurados === 'object' && Object.values(saboresConfigurados).every(v => v && v.id)) {
+                        // Si la API devolviera un objeto indexado, convertir a array
+                        saboresConfigurados = Object.values(saboresConfigurados);
+                    } else {
+                        // No es un array conocido -> vaciar
+                        console.warn('Respuesta de sabores no es un array, normalizando a array vacío:', saboresConfigurados);
+                        saboresConfigurados = [];
+                    }
+                }
+                console.log('Sabores configurados cargados:', saboresConfigurados);
 
                 const container = document.getElementById('lista-sabores-configurados');
 
@@ -2295,7 +2309,7 @@
                 select.innerHTML = '<option value="">Selecciona un producto como sabor</option>';
 
                 // Filtrar productos que ya estan agregados
-                const idsAgregados = saboresConfigurados.map(s => s.sabor_producto_id);
+                const idsAgregados = Array.isArray(saboresConfigurados) ? saboresConfigurados.map(s => s.sabor_producto_id) : [];
 
                 productos
                     .filter(p => p.id !== productoDosSaboresSeleccionado?.id && !idsAgregados.includes(p.id))
