@@ -1024,6 +1024,44 @@ function eliminarDelCarrito(index) {
     actualizarContadorCarrito();
 }
 
+// Vaciar el carrito completamente y actualizar la UI
+function vaciarCarrito() {
+    carrito = [];
+    renderizarCarrito();
+    actualizarContadorCarrito();
+
+    // Cerrar modal del carrito si está abierto
+    const carritoModal = document.getElementById('carrito-modal');
+    if (carritoModal) {
+        carritoModal.classList.remove('active');
+        carritoModal.classList.add('hidden');
+    }
+
+    // Limpiar resumen de confirmar
+    const resumenContainer = document.getElementById('resumen-items');
+    if (resumenContainer) resumenContainer.innerHTML = '';
+    const resumenSubtotal = document.getElementById('resumen-subtotal');
+    if (resumenSubtotal) resumenSubtotal.textContent = '$0';
+
+    const carritoSubtotal = document.getElementById('carrito-subtotal');
+    if (carritoSubtotal) carritoSubtotal.textContent = '$0';
+    const carritoTotal = document.getElementById('carrito-total');
+    if (carritoTotal) carritoTotal.textContent = '$0';
+
+    const confirmarTotalEl = document.getElementById('confirmar-total');
+    if (confirmarTotalEl) confirmarTotalEl.textContent = '$0';
+}
+
+// Cierra los modales finales de confirmación (compatibilidad con llamadas anteriores)
+function cerrarModalFinalizar() {
+    if (typeof cerrarModalConfirmar === 'function') cerrarModalConfirmar();
+    const exitoModal = document.getElementById('modal-exito-pedido');
+    if (exitoModal) {
+        exitoModal.classList.remove('active');
+        exitoModal.classList.add('hidden');
+    }
+}
+
 // ==================== BÃšSQUEDA DE CLIENTE ====================
 
 async function buscarClientePorTelefonoInline() {
@@ -1683,3 +1721,5 @@ window.buscarClientePorTelefonoInline = buscarClientePorTelefonoInline;
 window.toggleBusquedaDireccion = toggleBusquedaDireccion;
 window.obtenerUbicacionGPS = obtenerUbicacionGPS;
 window.seleccionarDireccionSugerida = seleccionarDireccionSugerida;
+window.vaciarCarrito = vaciarCarrito;
+window.cerrarModalFinalizar = cerrarModalFinalizar;
