@@ -64,8 +64,7 @@ async function cargarSaboresDisponibles(producto) {
             if (posibles.includes('ESPECIAL')) tipoCanonico = 'ESPECIAL';
             else if (posibles.includes('PREMI')) tipoCanonico = 'PREMIUM';
             else if (posibles.includes('TRADIC')) tipoCanonico = 'TRADICIONAL';
-            // Si no se detecta tipo explícito, asumimos TRADICIONAL
-            if (!tipoCanonico) tipoCanonico = 'TRADICIONAL';
+            // No forzamos TRADICIONAL aquí; dejaremos tipo null si no se detecta
             else {
                 const n = (s.nombre || '').toString().toUpperCase();
                 if (n.includes('ESPECIAL')) tipoCanonico = 'ESPECIAL';
@@ -183,7 +182,14 @@ async function mostrarSeccionDosSabores(producto) {
                     ${(allowedTypesForCombined && allowedTypesForCombined.length >= 2) ? (
             allowedTypesForCombined.map((tipo) => {
                 const tipoLower = tipo.toLowerCase();
-                const opciones = sabores.filter(s => (s.tipo_canonico || '').toString().toUpperCase() === tipo.toUpperCase());
+                const opciones = sabores.filter(s => {
+                    const t = (s.tipo_canonico || '').toString().toUpperCase();
+                    if (tipo.toString().toUpperCase() === 'TRADICIONAL') {
+                        // incluir sabores explícitamente TRADICIONAL y los que no tienen tipo detectado
+                        return t === 'TRADICIONAL' || !t;
+                    }
+                    return t === tipo.toString().toUpperCase();
+                });
                 return `
                                 <div class="mb-3">
                                     <p class="font-medium text-gray-700 mb-2">Sabor para ${tipo}:</p>
