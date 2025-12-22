@@ -1109,6 +1109,30 @@
         function cargarDetallePedidos(pedidos) {
             const cont = document.getElementById('dashboard-pedidos-detalle');
 
+            // Helpers: parsear valores monetarios tolerando formatos con símbolos,
+            // separadores de miles y decimales con coma o punto.
+            function parseMoneyToNumber(v) {
+                if (v == null) return 0;
+                if (typeof v === 'number') return v;
+                let s = String(v).trim();
+                s = s.replace(/\s/g, '').replace(/\$/g, '').replace(/[^0-9.,-]/g, '');
+                if (s === '') return 0;
+                if (s.indexOf(',') > -1 && s.indexOf('.') > -1) {
+                    // Ej: "1.234,56" -> eliminar puntos (miles), usar coma como decimal
+                    s = s.replace(/\./g, '').replace(/,/g, '.');
+                } else if (s.indexOf(',') > -1) {
+                    // Ej: "1234,56" -> convertir coma a punto
+                    s = s.replace(/,/g, '.');
+                }
+                const n = parseFloat(s);
+                return isNaN(n) ? 0 : n;
+            }
+
+            function formatPriceNumber(n) {
+                if (n == null || isNaN(n)) return '0';
+                return n.toLocaleString('es-CO');
+            }
+
             if (!pedidos || pedidos.length === 0) {
                 cont.innerHTML = '<p class="text-gray-400">No hay pedidos para esta fecha</p>';
                 return;
@@ -1208,11 +1232,17 @@
                     }
 
                     const detallesStr = detalles.length > 0 ? `<div class="text-xs ml-4 text-gray-400">${detalles.join(' | ')}</div>` : '';
+
+                    // Calcular precio unitario y subtotal de forma segura evitando NaN
+                    const unitNum = parseMoneyToNumber(item.precio_unitario || item.unit_price || item.price || item.precio || item.valor || 0);
+                    const cantidadNum = Number(item.cantidad || item.quantity || 1) || 1;
+                    const subtotalNum = parseMoneyToNumber(item.subtotal) || unitNum * cantidadNum;
+
                     return `
                     <div class="py-2 border-b border-slate-600">
                         <div class="flex justify-between text-sm">
                             <span class="font-medium">${item.cantidad}x ${item.producto}</span>
-                            <span class="text-green-300 font-semibold">${parseFloat(item.subtotal || (item.precio_unitario * item.cantidad) || 0).toLocaleString('es-CO')}</span>
+                            <span class="text-green-300 font-semibold">$${formatPriceNumber(subtotalNum)}</span>
                         </div>
                         ${badgeHtml}
                         ${detallesStr}
