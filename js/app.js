@@ -1050,6 +1050,7 @@ function renderOrderManagement() {
             const unit = item.unit_price || item.price || item.precio || 0;
             const qty = Number(item.quantity || item.cantidad || 1) || 1;
             const total = item.subtotal || (unit * qty);
+            const displaySize = (item.tamano || item.size || '').toString();
 
             return `
                 <div class="flex justify-between items-start py-2 border-b border-gray-600 last:border-b-0">
@@ -1060,7 +1061,7 @@ function renderOrderManagement() {
                             </span>
                             <div>
                                 <p class="text-white font-semibold">${item.name || item.producto}</p>
-                                ${item.size && item.size !== 'Única' ? `<p class="text-gray-400 text-sm">Tamaño: ${item.size}</p>` : ''}
+                                ${displaySize && displaySize !== 'Única' ? `<p class="text-gray-400 text-sm">Tamaño: ${displaySize}</p>` : ''}
                                 ${additionsHtml}
                                 ${segundoHtml}
                             </div>
