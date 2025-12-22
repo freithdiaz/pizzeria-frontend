@@ -1041,7 +1041,7 @@ function renderOrderManagement() {
             try {
                 if (item.segundos_sabores && Array.isArray(item.segundos_sabores) && item.segundos_sabores.length > 0) {
                     const names = item.segundos_sabores.map(s => (s && (s.nombre || s.name || s.nombre_producto)) || '').filter(Boolean);
-                    if (names.length) badgeHtml = `<div class="mt-1"><span class="inline-block bg-orange-500 text-white text-xs px-2 py-1 rounded">${names.join(', ')}</span></div>`;
+                    // if (names.length) badgeHtml = `<div class="mt-1"><span class="inline-block bg-orange-500 text-white text-xs px-2 py-1 rounded">${names.join(', ')}</span></div>`;
                 }
             } catch (e) {
                 console.warn('Error creando badge en render frontend', e);
