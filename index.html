@@ -27,6 +27,28 @@
         #selector-segundo-sabor-mesa { width: 100%; }
         /* Resumen: ocupar todo el ancho y mayor legibilidad */
         #saborSeleccionadoMesa.expanded-names { padding: 0.75rem; width: 100%; box-sizing: border-box; }
+            /* Ocultar imágenes del selector de sabores en mesas tan pronto el checkbox esté marcado, y mostrar nombres legibles */
+            #checkbox-dos-sabores-mesa:checked ~ #selector-segundo-sabor-mesa .sabor-opcion img { display: none !important; }
+            /* Aplicar mismo comportamiento para domicilio */
+            #checkbox-dos-sabores:checked ~ #selector-segundo-sabor .sabor-opcion img { display: none !important; }
+
+            /* Nombres legibles y ocupando todo el ancho */
+            #selector-segundo-sabor-mesa .sabor-opcion span,
+            #selector-segundo-sabor .sabor-opcion span { display: block !important; white-space: normal !important; font-size: 1.05rem !important; color: #FFFFFF !important; text-align: left !important; }
+            #selector-segundo-sabor-mesa .sabor-opcion,
+            #selector-segundo-sabor .sabor-opcion { min-height: 56px; align-items: flex-start; width: 100%; padding-left: 0.5rem; padding-right: 0.5rem; }
+
+            /* Forzar que el grid pase a una columna cuando el checkbox correspondiente esté activo */
+            #checkbox-dos-sabores-mesa:checked ~ #selector-segundo-sabor-mesa .grid,
+            #checkbox-dos-sabores:checked ~ #selector-segundo-sabor .grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            /* Asegurar que los selectores usen todo el ancho del modal y sean responsivos */
+            #selector-segundo-sabor-mesa, #selector-segundo-sabor { width: 100%; box-sizing: border-box; }
+
+            /* Resumen: ocupar todo el ancho y mayor legibilidad */
+            #saborSeleccionadoMesa.expanded-names, #sabor-seleccionado-info { padding: 0.75rem; width: 100%; box-sizing: border-box; }
         /* Resumen expandido en modal */
         #saborSeleccionadoMesa.expanded-names { padding: 0.75rem; }
         #saborSeleccionadoMesa.expanded-names #nombreSegundoSaborMesa { display: block; font-size: 1rem; line-height: 1.25; word-break: break-word; }
