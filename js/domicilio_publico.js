@@ -862,8 +862,9 @@ function agregarAlCarrito() {
         });
     }
 
-    const precioUnitario = precioBase + precioAdicionales;
-    const precioTotal = precioUnitario * cantidad;
+    let precioUnitario = (parseFloat(precioBase) || 0) + (parseFloat(precioAdicionales) || 0);
+    precioUnitario = Number(precioUnitario) || 0;
+    const precioTotal = precioUnitario * (Number(cantidad) || 0);
 
     let descripcionProducto = productoActual.nombre;
     if (tamanoSeleccionado && tamanoSeleccionado.length > 0) {
@@ -878,9 +879,26 @@ function agregarAlCarrito() {
 
     let segundoSabor = null;
     if (typeof getSegundoSaborSeleccionado === 'function') {
-        segundoSabor = getSegundoSaborSeleccionado();
-        if (segundoSabor) {
-            descripcionProducto += ` + Mitad ${segundoSabor.nombre}`;
+        try {
+            segundoSabor = getSegundoSaborSeleccionado();
+
+            // Caso 1: null/undefined -> nothing
+            if (!segundoSabor) {
+                // no-op
+            }
+            // Caso 2: arreglo (producto combinada con tipos) -> juntar nombres válidos
+            else if (Array.isArray(segundoSabor)) {
+                const nombres = segundoSabor.filter(s => s && (s.nombre || s.id)).map(s => s && s.nombre ? s.nombre : (`Sabor ${s.id || '?'}`));
+                if (nombres.length > 0) {
+                    descripcionProducto += ` + Mitad ${nombres.join(' / ')}`;
+                }
+            }
+            // Caso 3: objeto simple {id,nombre}
+            else if (typeof segundoSabor === 'object') {
+                descripcionProducto += ` + Mitad ${segundoSabor.nombre || segundoSabor.id}`;
+            }
+        } catch (e) {
+            console.error('Error leyendo segundo sabor:', e);
         }
     }
 
@@ -895,7 +913,14 @@ function agregarAlCarrito() {
         adiciones: adicionesDetalle,
         comentarios: comentarios,
         tamano_id: tamanoSeleccionado ? tamanoSeleccionado[0] : null,
-        segundo_sabor: segundoSabor ? { id: segundoSabor.id, nombre: segundoSabor.nombre } : null
+        // Guardar segundo_sabor en forma consistente: null | {id,nombre} | { combined: true, selections: [...] }
+        segundo_sabor: (function () {
+            if (!segundoSabor) return null;
+            if (Array.isArray(segundoSabor)) {
+                return { combined: true, selections: segundoSabor.filter(s => s).map(s => ({ id: s.id, nombre: s.nombre })) };
+            }
+            return { id: segundoSabor.id, nombre: segundoSabor.nombre };
+        })()
     };
 
     carrito.push(item);
