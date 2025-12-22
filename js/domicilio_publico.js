@@ -1509,15 +1509,39 @@ async function enviarPedido(event) {
             medio_pago: medioPago,
             total_precio: total,
             total_con_descuento: total,
-            items: carrito.map(item => ({
-                producto_id: item.producto_id,
-                tamano_id: item.tamano_id,
-                cantidad: item.cantidad,
-                precio_unitario: item.precio_unitario,
-                comentarios: item.comentarios,
-                adiciones: item.adiciones,
-                segundo_sabor: item.segundo_sabor
-            }))
+            items: carrito.map(item => {
+                // Normalizar formato de segundo_sabor para compatibilidad con backend
+                let segundo = null;
+                if (item.segundo_sabor) {
+                    // Si es objeto combinado {combined:true, selections: [...]}
+                    if (item.segundo_sabor.combined && Array.isArray(item.segundo_sabor.selections)) {
+                        // Enviar como lista de objetos {id,nombre} (backend acepta lista)
+                        segundo = item.segundo_sabor.selections.map(s => ({ id: s.id, nombre: s.nombre }));
+                    }
+                    // Si ya es un array (por compatibilidad), dejar tal cual
+                    else if (Array.isArray(item.segundo_sabor)) {
+                        segundo = item.segundo_sabor;
+                    }
+                    // Si es un objeto simple {id,nombre}, enviar tal cual
+                    else if (typeof item.segundo_sabor === 'object') {
+                        segundo = { id: item.segundo_sabor.id, nombre: item.segundo_sabor.nombre };
+                    }
+                    // Si es string o number, enviar como id
+                    else {
+                        segundo = item.segundo_sabor;
+                    }
+                }
+
+                return {
+                    producto_id: item.producto_id,
+                    tamano_id: item.tamano_id,
+                    cantidad: item.cantidad,
+                    precio_unitario: item.precio_unitario,
+                    comentarios: item.comentarios,
+                    adiciones: item.adiciones,
+                    segundo_sabor: segundo
+                };
+            })
         };
 
         const result = await db.createPedido(pedido);
