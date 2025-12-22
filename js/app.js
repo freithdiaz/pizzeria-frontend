@@ -1800,10 +1800,28 @@ function confirmarPizzaConAdicionales() {
 
     // Crear nombre descriptivo con adicionales y segundo sabor
     let itemName = currentPizzaData.pizzaName;
-
-    // Agregar segundo sabor si existe
-    if (segundoSaborMesa) {
-        itemName += ` (mitad ${segundoSaborMesa.nombre})`;
+    // Determinar segundo_sabor según selecciones (soporta combinadas y modo 3)
+    let segundoForAdd = null;
+    const checkbox = document.getElementById('checkbox-dos-sabores-mesa');
+    const dosSaboresChecked = checkbox ? checkbox.checked : false;
+    if (dosSaboresChecked) {
+        if (modoDosSaboresMesa === 3) {
+            if (segundosMesaSeleccionados && segundosMesaSeleccionados.length > 0) {
+                segundoForAdd = segundosMesaSeleccionados.map(s => ({ id: s.id, nombre: s.nombre }));
+                itemName += ` (3 sabores: ${segundosMesaSeleccionados.map(s => s.nombre).join(', ')})`;
+            }
+        } else {
+            if (allowedTypesForCombinedMesa && allowedTypesForCombinedMesa.length >= 2) {
+                const arr = allowedTypesForCombinedMesa.map(t => combinadoSelectionsMesa[t]).filter(Boolean).map(s => ({ id: s.id, nombre: s.nombre }));
+                if (arr.length) {
+                    segundoForAdd = arr;
+                    itemName += ` (mitad ${arr.map(a => a.nombre).join(', ')})`;
+                }
+            } else if (segundoSaborMesa) {
+                segundoForAdd = { id: segundoSaborMesa.id, nombre: segundoSaborMesa.nombre };
+                itemName += ` (mitad ${segundoSaborMesa.nombre})`;
+            }
+        }
     }
     if (selectedAdicionales.length > 0) {
         const adicionalesNames = selectedAdicionales.map(a => a.name).join(', ');
@@ -1816,7 +1834,7 @@ function confirmarPizzaConAdicionales() {
         itemName,
         totalPrice,
         selectedAdicionales,
-        segundoSaborMesa
+        segundoForAdd
     );
 
     closeAdicionalesModal();
@@ -2122,6 +2140,11 @@ async function submitOrderWithDiscount(totalWithDiscount, discountPercentage) {
 // =============== SISTEMA DE DOS SABORES PARA MESAS ===============
 let segundoSaborMesa = null;
 let saboresDisponiblesMesa = [];
+// Modo y selecciones avanzadas para mesas (soporta combinadas y modo 3)
+let modoDosSaboresMesa = 2; // 2 o 3
+let segundosMesaSeleccionados = []; // para modo 3
+let combinadoSelectionsMesa = {}; // { 'TRADICIONAL': {id,nombre}, ... }
+let allowedTypesForCombinedMesa = [];
 
 // Cargar sabores disponibles desde Supabase
 async function cargarSaboresDisponiblesMesa(productId) {
@@ -2154,28 +2177,92 @@ async function mostrarSeccionDosSaboresMesa(recipeId) {
         return;
     }
 
-    // Cargar sabores disponibles
-    const sabores = await cargarSaboresDisponiblesMesa(productId);
+    // Cargar sabores disponibles usando la lógica enriquecida de dos-sabores.js
+    const saboresResp = await cargarSaboresDisponibles({ id: productId, nombre: recipe.name || recipe.nombre, categoria: { nombre: recipe.category || recipe.categoria } });
+    const combined = saboresResp && saboresResp.combined;
+    const allowedTypes = (saboresResp && saboresResp.allowed_types) ? saboresResp.allowed_types : [];
+    const sabores = (Array.isArray(saboresResp) ? saboresResp : (saboresResp.sabores || []));
 
-    if (sabores.length === 0) {
+    if (!sabores || sabores.length === 0) {
         seccion.classList.add('hidden');
         return;
     }
 
-    // Renderizar sabores
-    container.innerHTML = sabores.map(sabor => `
-        <button onclick="seleccionarSegundoSaborMesa(${sabor.sabor_producto_id}, '${sabor.nombre.replace(/'/g, "\\'")}')"
-                class="bg-gray-700 hover:bg-orange-600 text-white py-2 px-4 rounded-lg transition-colors text-sm text-left">
-            ${sabor.nombre}
-        </button>
-    `).join('');
+    // Guardar allowed types para validación
+    allowedTypesForCombinedMesa = allowedTypes.slice();
 
-    // Mostrar secciÃ³n
+    // Opciones para modo 3
+    const modo3Html = recipe.permite_tres_sabores ? `
+                <label class="inline-flex items-center mr-4">
+                    <input type="radio" name="modo-dos-sabores-mesa" value="2" checked onchange="setModoDosSaboresMesa(2)" class="form-radio">
+                    <span class="ml-2 text-sm">2 sabores (mitad y mitad)</span>
+                </label>
+                <label class="inline-flex items-center">
+                    <input type="radio" name="modo-dos-sabores-mesa" value="3" onchange="setModoDosSaboresMesa(3)" class="form-radio">
+                    <span class="ml-2 text-sm">3 sabores (tercios)</span>
+                </label>
+    ` : '';
+
+    // Construir HTML: checkbox + selector. Reutilizamos estilos del componente dos-sabores
+    let selectorHtml = '';
+    if (allowedTypes && allowedTypes.length >= 2) {
+        // Render por tipo
+        selectorHtml = allowedTypes.map(tipo => {
+            const tipoUpper = String(tipo).toUpperCase();
+            const opciones = sabores.filter(s => {
+                const t = (s.tipo_canonico || '').toString().toUpperCase();
+                if (tipoUpper === 'TRADICIONAL') return t === 'TRADICIONAL' || !t;
+                return t === tipoUpper;
+            });
+            return `
+                <div class="mb-3">
+                    <p class="font-medium text-gray-300 mb-2">Sabor para ${tipo}:</p>
+                    <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto" data-tipo="${tipo}">
+                        ${opciones.map(sabor => `
+                            <div class="sabor-opcion p-2 border border-gray-600 rounded-lg cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition flex items-center gap-2"
+                                 onclick="seleccionarSegundoSaborCombinadoMesa(${sabor.sabor_producto_id || sabor.id}, '${(sabor.nombre||'').replace(/'/g, "\\'")}', this, '${tipo}')">
+                                ${sabor.imagen_url ? `<img src="${sabor.imagen_url}" class="w-10 h-10 rounded object-cover">` : `<div class="w-10 h-10 rounded bg-gray-600 flex items-center justify-center"><i class="fas fa-pizza-slice text-gray-400"></i></div>`}
+                                <span class="text-sm font-medium text-gray-200 truncate">${sabor.nombre}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+        }).join('');
+    } else {
+        // Lista plana
+        selectorHtml = `<div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">` +
+            sabores.map(sabor => `
+                <div class="sabor-opcion p-2 border border-gray-600 rounded-lg cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition flex items-center gap-2"
+                     onclick="seleccionarSegundoSaborModoMesa(${sabor.sabor_producto_id || sabor.id}, '${(sabor.nombre||'').replace(/'/g, "\\'")}', this, '${(sabor.tipo_canonico||'').replace(/'/g, "\\'" )}')">
+                    ${sabor.imagen_url ? `<img src="${sabor.imagen_url}" class="w-10 h-10 rounded object-cover">` : `<div class="w-10 h-10 rounded bg-gray-600 flex items-center justify-center"><i class="fas fa-pizza-slice text-gray-400"></i></div>`}
+                    <span class="text-sm font-medium text-gray-200 truncate">${sabor.nombre}</span>
+                </div>
+            `).join('') + `</div>`;
+    }
+
+    container.innerHTML = `
+        <div class="bg-gray-800 p-3 rounded-lg">
+            <div class="mb-3 text-sm text-gray-300">${modo3Html}</div>
+            <label class="flex items-center gap-3 cursor-pointer mb-3 p-2 bg-gray-700 rounded-lg border border-gray-600">
+                <input type="checkbox" id="checkbox-dos-sabores-mesa" onchange="toggleDosSaboresMesa()" class="w-5 h-5 accent-orange-500">
+                <span class="font-medium text-gray-200">Sí, quiero dos/mas sabores</span>
+            </label>
+            <div id="selector-segundo-sabor-mesa" class="hidden">
+                ${selectorHtml}
+            </div>
+        </div>
+    `;
+
+    // Mostrar sección
     seccion.classList.remove('hidden');
 
-    // Reset
+    // Reset selecciones mesa
     segundoSaborMesa = null;
-    document.getElementById('saborSeleccionadoMesa').classList.add('hidden');
+    segundosMesaSeleccionados = [];
+    combinadoSelectionsMesa = {};
+    allowedTypesForCombinedMesa = allowedTypes.slice();
+    modoDosSaboresMesa = 2;
+    const infoBox = document.getElementById('saborSeleccionadoMesa'); if (infoBox) infoBox.classList.add('hidden');
 }
 
 // Seleccionar segundo sabor
@@ -2214,6 +2301,60 @@ function quitarSegundoSaborMesa() {
             btn.classList.add('bg-gray-700');
         });
     }
+}
+
+// ===== Helpers para dos sabores en mesas =====
+function setModoDosSaboresMesa(modo) {
+    modoDosSaboresMesa = Number(modo) === 3 ? 3 : 2;
+}
+
+function toggleDosSaboresMesa() {
+    const checkbox = document.getElementById('checkbox-dos-sabores-mesa');
+    const selector = document.getElementById('selector-segundo-sabor-mesa');
+    if (!selector) return;
+    if (checkbox && checkbox.checked) selector.classList.remove('hidden'); else selector.classList.add('hidden');
+}
+
+function seleccionarSegundoSaborCombinadoMesa(id, nombre, el, tipo) {
+    tipo = tipo || 'TRADICIONAL';
+    combinadoSelectionsMesa[tipo] = { id, nombre };
+    // marcar seleccionado visualmente dentro del mismo grupo
+    try {
+        const container = el && el.parentElement;
+        if (container) {
+            Array.from(container.children).forEach(ch => ch.classList.remove('border-orange-400', 'bg-orange-50'));
+            el.classList.add('border-orange-400', 'bg-orange-50');
+        }
+    } catch (e) {}
+    // actualizar resumen
+    const info = document.getElementById('saborSeleccionadoMesa');
+    if (info) {
+        info.classList.remove('hidden');
+        const names = Object.values(combinadoSelectionsMesa).map(s => s.nombre).filter(Boolean);
+        const span = document.getElementById('nombreSegundoSaborMesa'); if (span) span.textContent = names.join(' / ');
+    }
+}
+
+function seleccionarSegundoSaborModoMesa(id, nombre, el, tipoCanonico) {
+    if (modoDosSaboresMesa === 3) { seleccionarSegundoSaborModo3Mesa(id, nombre, el); return; }
+    segundoSaborMesa = { id, nombre, tipo: tipoCanonico };
+    const info = document.getElementById('saborSeleccionadoMesa');
+    if (info) {
+        info.classList.remove('hidden');
+        const span = document.getElementById('nombreSegundoSaborMesa'); if (span) span.textContent = nombre;
+    }
+    try { if (el && el.parentElement) { Array.from(el.parentElement.children).forEach(ch => ch.classList.remove('border-orange-400','bg-orange-50')); el.classList.add('border-orange-400','bg-orange-50'); } } catch(e){}
+}
+
+function seleccionarSegundoSaborModo3Mesa(id, nombre, el) {
+    const idx = segundosMesaSeleccionados.findIndex(s => s.id === id);
+    if (idx === -1) segundosMesaSeleccionados.push({ id, nombre }); else segundosMesaSeleccionados.splice(idx, 1);
+    const info = document.getElementById('saborSeleccionadoMesa');
+    if (info) {
+        if (segundosMesaSeleccionados.length === 0) { info.classList.add('hidden'); }
+        else { info.classList.remove('hidden'); const span = document.getElementById('nombreSegundoSaborMesa'); if (span) span.textContent = segundosMesaSeleccionados.map(s => s.nombre).join(' / '); }
+    }
+    try { if (el) el.classList.toggle('border-orange-400'); } catch(e){}
 }
 
 
