@@ -1552,6 +1552,8 @@ async function enviarPedido(event) {
 
             // Además de guardar en Supabase (cliente), intentar replicar el pedido en el backend
             // para que la gestión use la misma información y muestre segundos sabores.
+            /*
+            // YA NO ES NECESARIO: Gestión usa Supabase directamente
             (async () => {
                 try {
                     const resp = await fetch(`${API_BASE_URL}/api/orders`, {
@@ -1570,8 +1572,11 @@ async function enviarPedido(event) {
                     console.warn('No fue posible replicar el pedido al backend:', e);
                 }
             })();
+            */
 
             // Intentar notificar al backend para WhatsApp (await para capturar errores de CORS/net)
+            /*
+            // YA NO ES NECESARIO: El bot Whap escucha directamente la base de datos (Realtime)
             if (orderId) {
                 try {
                     await fetch(`${API_BASE_URL}/api/notifications/notify-order`, {
@@ -1584,6 +1589,7 @@ async function enviarPedido(event) {
                     mostrarNotificacionRapida('No fue posible enviar la notificación externa.', 'warning');
                 }
             }
+            */
 
             mostrarNotificacionRapida('¡Pedido enviado exitosamente!', 'success');
 

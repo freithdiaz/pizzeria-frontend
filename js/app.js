@@ -790,6 +790,8 @@ async function submitOrderToAPI() {
         if (!result.success) throw new Error(result.error);
 
         // Notificar al backend para WhatsApp
+        /*
+        // YA NO ES NECESARIO: El bot Whap escucha directamente la base de datos (Realtime)
         try {
             fetch(`${API_BASE_URL}/api/notify-order`, {
                 method: 'POST',
@@ -797,6 +799,7 @@ async function submitOrderToAPI() {
                 body: JSON.stringify({ order_id: result.id })
             }).catch(e => console.warn('Error enviando notificación al backend:', e));
         } catch (e) { }
+        */
 
         return result;
     } catch (error) {
@@ -1016,9 +1019,9 @@ function renderOrderManagement() {
                 <p class="text-yellow-400 text-sm mt-1">
                     <i class="fas fa-plus-circle mr-1"></i>
                     ${(() => {
-                        const names = (item.additions || []).map(a => (a && (a.name || a.nombre)) || a).filter(x => x && String(x).trim() !== '');
-                        return names.length ? names.join(', ') : '';
-                    })()}
+                    const names = (item.additions || []).map(a => (a && (a.name || a.nombre)) || a).filter(x => x && String(x).trim() !== '');
+                    return names.length ? names.join(', ') : '';
+                })()}
                 </p>
             ` : '';
 
@@ -2084,7 +2087,7 @@ async function submitOrderWithDiscount(totalWithDiscount, discountPercentage) {
                 price: a.price
             })),
             // Normalizar segundo_sabor: puede ser objeto, array o string
-            segundo_sabor: (function() {
+            segundo_sabor: (function () {
                 const ss = cartItem.segundo_sabor;
                 if (!ss) return null;
                 if (Array.isArray(ss)) {
@@ -2229,7 +2232,7 @@ async function mostrarSeccionDosSaboresMesa(recipeId) {
                     <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto" data-tipo="${tipo}">
                         ${opciones.map(sabor => `
                             <div class="sabor-opcion p-2 border border-gray-600 rounded-lg cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition flex items-center gap-2"
-                                 onclick="seleccionarSegundoSaborCombinadoMesa(${sabor.sabor_producto_id || sabor.id}, '${(sabor.nombre||'').replace(/'/g, "\\'")}', this, '${tipo}')">
+                                 onclick="seleccionarSegundoSaborCombinadoMesa(${sabor.sabor_producto_id || sabor.id}, '${(sabor.nombre || '').replace(/'/g, "\\'")}', this, '${tipo}')">
                                 ${sabor.imagen_url ? `<img src="${sabor.imagen_url}" class="w-10 h-10 rounded object-cover">` : `<div class="w-10 h-10 rounded bg-gray-600 flex items-center justify-center"><i class="fas fa-pizza-slice text-gray-400"></i></div>`}
                                 <span class="text-sm font-medium text-gray-200 break-words">${sabor.nombre}</span>
                             </div>
@@ -2242,7 +2245,7 @@ async function mostrarSeccionDosSaboresMesa(recipeId) {
         selectorHtml = `<div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">` +
             sabores.map(sabor => `
                 <div class="sabor-opcion p-2 border border-gray-600 rounded-lg cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition flex items-center gap-2"
-                     onclick="seleccionarSegundoSaborModoMesa(${sabor.sabor_producto_id || sabor.id}, '${(sabor.nombre||'').replace(/'/g, "\\'")}', this, '${(sabor.tipo_canonico||'').replace(/'/g, "\\'" )}')">
+                     onclick="seleccionarSegundoSaborModoMesa(${sabor.sabor_producto_id || sabor.id}, '${(sabor.nombre || '').replace(/'/g, "\\'")}', this, '${(sabor.tipo_canonico || '').replace(/'/g, "\\'")}')">
                     ${sabor.imagen_url ? `<img src="${sabor.imagen_url}" class="w-10 h-10 rounded object-cover">` : `<div class="w-10 h-10 rounded bg-gray-600 flex items-center justify-center"><i class="fas fa-pizza-slice text-gray-400"></i></div>`}
                     <span class="text-sm font-medium text-gray-200 break-words">${sabor.nombre}</span>
                 </div>
@@ -2360,7 +2363,7 @@ function seleccionarSegundoSaborCombinadoMesa(id, nombre, el, tipo) {
             Array.from(container.children).forEach(ch => ch.classList.remove('border-orange-400', 'bg-orange-50'));
             el.classList.add('border-orange-400', 'bg-orange-50');
         }
-    } catch (e) {}
+    } catch (e) { }
     // actualizar resumen
     const info = document.getElementById('saborSeleccionadoMesa');
     if (info) {
@@ -2379,7 +2382,7 @@ function seleccionarSegundoSaborModoMesa(id, nombre, el, tipoCanonico) {
         info.classList.remove('hidden');
         const span = document.getElementById('nombreSegundoSaborMesa'); if (span) span.textContent = nombre;
     }
-    try { if (el && el.parentElement) { Array.from(el.parentElement.children).forEach(ch => ch.classList.remove('border-orange-400','bg-orange-50')); el.classList.add('border-orange-400','bg-orange-50'); } } catch(e){}
+    try { if (el && el.parentElement) { Array.from(el.parentElement.children).forEach(ch => ch.classList.remove('border-orange-400', 'bg-orange-50')); el.classList.add('border-orange-400', 'bg-orange-50'); } } catch (e) { }
     updateMesaFlavorDisplay();
 }
 
@@ -2391,7 +2394,7 @@ function seleccionarSegundoSaborModo3Mesa(id, nombre, el) {
         if (segundosMesaSeleccionados.length === 0) { info.classList.add('hidden'); }
         else { info.classList.remove('hidden'); const span = document.getElementById('nombreSegundoSaborMesa'); if (span) span.textContent = segundosMesaSeleccionados.map(s => s.nombre).join(' / '); }
     }
-    try { if (el) el.classList.toggle('border-orange-400'); } catch(e){}
+    try { if (el) el.classList.toggle('border-orange-400'); } catch (e) { }
     updateMesaFlavorDisplay();
 }
 
