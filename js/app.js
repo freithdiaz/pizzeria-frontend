@@ -1840,7 +1840,19 @@ function confirmarPizzaConAdicionales() {
         segundoForAdd
     );
 
+
     closeAdicionalesModal();
+}
+
+function closeAdicionalesModal() {
+    const modal = document.getElementById('modal-adicionales');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+    // Limpiar estado
+    currentPizzaData = null;
+    selectedAdicionales = [];
+    document.getElementById('adicionales-grid').innerHTML = '';
 }
 
 // ==================== LÓGICA DE CAJA (SESIONES) ====================
