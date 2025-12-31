@@ -5,7 +5,7 @@ let allRecipes = [];
 let currentCart = [];
 let tableOrders = {}; // Almacenar pedidos por mesa
 
-// FunciÛn para obtener el carrito actual (expuesta globalmente)
+// Funci√≥n para obtener el carrito actual (expuesta globalmente)
 window.getCurrentCart = function () {
     return currentCart;
 };
@@ -18,11 +18,11 @@ const adminPanelView = document.getElementById('admin-panel-view');
 const checkoutBtn = document.getElementById('checkout-btn');
 const headerText = document.getElementById('header-text');
 
-// FunciÛn para formatear fecha y hora (es-CO / Bogota)
+// Funci√≥n para formatear fecha y hora (es-CO / Bogota)
 function formatDateTime(dateInput) {
     if (!dateInput) return 'Fecha desconocida';
     const date = new Date(dateInput);
-    if (isNaN(date.getTime())) return 'Fecha inv·lida';
+    if (isNaN(date.getTime())) return 'Fecha inv√°lida';
     return date.toLocaleString('es-CO', {
         timeZone: 'America/Bogota',
         year: 'numeric',
@@ -34,14 +34,14 @@ function formatDateTime(dateInput) {
     });
 }
 
-// FunciÛn para formatear precios como enteros
+// Funci√≥n para formatear precios como enteros
 function formatPrice(price) {
     // Ahora los precios vienen ya en pesos enteros desde el backend
     const numPrice = typeof price === 'string' ? parseFloat(price) : price;
     return Math.round(numPrice).toLocaleString('es-CO');
 }
 
-// Iniciar la app mostrando la vista de selecciÛn de mesa
+// Iniciar la app mostrando la vista de selecci√≥n de mesa
 document.addEventListener('DOMContentLoaded', async () => {
     const mainContent = document.getElementById('main-content');
     if (mainContent) {
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Cargar todas las recetas desde Supabase
 async function loadRecipes() {
     try {
-        // Esperar a que db estÈ disponible (supabase-client.js se carga como mÛdulo)
+        // Esperar a que db est√© disponible (supabase-client.js se carga como m√≥dulo)
         let retries = 0;
         while (typeof db === 'undefined' && retries < 50) {
             await new Promise(resolve => setTimeout(resolve, 100));
@@ -78,7 +78,7 @@ async function loadRecipes() {
         }
 
         if (typeof db === 'undefined') {
-            throw new Error('El cliente de base de datos no se inicializÛ correctamente.');
+            throw new Error('El cliente de base de datos no se inicializ√≥ correctamente.');
         }
 
         const prodsWithPrices = await db.getProductos();
@@ -93,7 +93,7 @@ async function loadRecipes() {
                         size_id: precio.id,
                         name: producto.nombre,
                         description: producto.descripcion || '',
-                        size: precio.tamano_nombre || '˙nica',
+                        size: precio.tamano_nombre || '√∫nica',
                         sale_price: parseFloat(precio.precio) || 0,
                         category: producto.categorias_config ? producto.categorias_config.nombre : '',
                         image_url: producto.imagen_url,
@@ -106,7 +106,7 @@ async function loadRecipes() {
                     product_id: producto.id,
                     name: producto.nombre,
                     description: producto.descripcion || '',
-                    size: '˙nica',
+                    size: '√∫nica',
                     sale_price: producto.precio_base || 0,
                     category: producto.categorias_config ? producto.categorias_config.nombre : '',
                     image_url: producto.imagen_url,
@@ -181,7 +181,7 @@ function startOrder(orderType) {
     updateCartDisplay();
 }
 
-// FunciÛn para alternar categor√©¬≠as
+// Funci√≥n para alternar categor√É¬©√Ç¬≠as
 async function toggleCategory(categoryId) {
     const content = document.getElementById(`${categoryId}-content`);
     const icon = document.getElementById(`${categoryId}-icon`);
@@ -206,7 +206,7 @@ async function toggleCategory(categoryId) {
     }
 }
 
-// Cargar todas las categor√©¬≠as con Supabase
+// Cargar todas las categor√É¬©√Ç¬≠as con Supabase
 async function loadAllCategories() {
     try {
         const categorias = await db.getCategorias();
@@ -248,28 +248,28 @@ async function loadAllCategories() {
         });
 
     } catch (error) {
-        console.error('Error cargando categorÌas:', error);
+        console.error('Error cargando categor√≠as:', error);
     }
 }
 
-// Cargar productos por categor√©¬≠a desde Supabase
+// Cargar productos por categor√É¬©√Ç¬≠a desde Supabase
 async function loadCategoryProducts(categoryId) {
     const gridId = `${categoryId}-grid`;
     try {
-        // Encontrar la categorÌa por nombre (slug/id de texto)
+        // Encontrar la categor√≠a por nombre (slug/id de texto)
         const categorias = await db.getCategorias();
         const categoria = categorias.find(cat => cat.nombre.toLowerCase() === categoryId.toLowerCase());
 
         if (!categoria) {
-            console.warn(`CategorÌa ${categoryId} no encontrada`);
+            console.warn(`Categor√≠a ${categoryId} no encontrada`);
             return;
         }
 
-        // Obtener productos de esta categorÌa con sus precios (usando el cliente db que maneja el join manual)
+        // Obtener productos de esta categor√≠a con sus precios (usando el cliente db que maneja el join manual)
         const allProds = await db.getProductos();
         const productos = allProds.filter(p => p.categoria_id === categoria.id && (p.activo === true || p.activo === 1 || p.activo === undefined));
 
-        // Convertir productos a formato compatible con el cÛdigo existente
+        // Convertir productos a formato compatible con el c√≥digo existente
         const recipes = [];
         productos.forEach(producto => {
             if (producto.precios && producto.precios.length > 0) {
@@ -279,7 +279,7 @@ async function loadCategoryProducts(categoryId) {
                         product_id: producto.id,
                         name: producto.nombre,
                         description: producto.descripcion || '',
-                        size: precio.tamano_nombre || '˙nica',
+                        size: precio.tamano_nombre || '√∫nica',
                         sale_price: parseFloat(precio.precio) || 0,
                         category: producto.categorias_config ? producto.categorias_config.nombre : '',
                         image_url: producto.imagen_url,
@@ -294,7 +294,7 @@ async function loadCategoryProducts(categoryId) {
                     product_id: producto.id,
                     name: producto.nombre,
                     description: producto.descripcion || '',
-                    size: '˙nica',
+                    size: '√∫nica',
                     sale_price: producto.precio_base || 0,
                     category: producto.categorias_config ? producto.categorias_config.nombre : '',
                     image_url: producto.imagen_url,
@@ -306,31 +306,31 @@ async function loadCategoryProducts(categoryId) {
         });
 
         renderPizzaCategory(recipes, gridId);
-        console.log(`Productos cargados para categorÌa ${categoryId} desde Supabase: ${recipes.length}`);
+        console.log(`Productos cargados para categor√≠a ${categoryId} desde Supabase: ${recipes.length}`);
 
     } catch (error) {
-        console.error(`Error cargando productos para categorÌa ${categoryId}:`, error);
+        console.error(`Error cargando productos para categor√≠a ${categoryId}:`, error);
     }
 }
 
-// Renderizar categorÌa de pizzas (agrupadas por sabor)
+// Renderizar categor√≠a de pizzas (agrupadas por sabor)
 function renderPizzaCategory(recipes, gridId) {
     const grid = document.getElementById(gridId);
     grid.innerHTML = '';
 
-    // Solo las bebidas usan renderizado simple (botÛn directo)
-    // Verificar si la categorÌa es especÌficamente "bebidas"
+    // Solo las bebidas usan renderizado simple (bot√≥n directo)
+    // Verificar si la categor√≠a es espec√≠ficamente "bebidas"
     const esCategoriaBebidasDedicada = gridId === 'bebidas-grid';
     if (esCategoriaBebidasDedicada && recipes.length > 0 && recipes[0].es_bebida) {
         renderBebidasCategory(recipes, gridId);
         return;
     }
 
-    // Agrupar recetas por nombre base - para pizzas y productos con tama√©¬±o
+    // Agrupar recetas por nombre base - para pizzas y productos con tama√É¬©√Ç¬±o
     const groupedRecipes = {};
     recipes.forEach(recipe => {
         // Para agrupar correctamente, usar el nombre completo como clave
-        // porque ya viene sin el tamaÒo incluido en el nombre
+        // porque ya viene sin el tama√±o incluido en el nombre
         const baseName = recipe.name.trim();
         if (!groupedRecipes[baseName]) {
             groupedRecipes[baseName] = [];
@@ -343,7 +343,7 @@ function renderPizzaCategory(recipes, gridId) {
         const card = document.createElement('div');
         card.className = 'bg-gray-600 rounded-xl p-4 border border-gray-500';
 
-        // Ordenar por tamaÒo
+        // Ordenar por tama√±o
         const sizeOrder = ['personal', 'ejecutiva', 'mediana', 'grande', 'familiar', 'extra familiar'];
         recipeGroup.sort((a, b) => {
             return sizeOrder.indexOf(a.size.toLowerCase()) - sizeOrder.indexOf(b.size.toLowerCase());
@@ -354,13 +354,13 @@ function renderPizzaCategory(recipes, gridId) {
             <p class="text-gray-300 text-sm mb-3">${recipeGroup[0].description || 'Deliciosa pizza'}</p>
             <button onclick="showPizzaSizes('${baseName}', ${JSON.stringify(recipeGroup).replace(/"/g, '&quot;')})" 
                     class="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg transition-colors font-semibold">
-                Seleccionar TamaÒo
+                Seleccionar Tama√±o
             </button>
             <div id="sizes-${baseName.replace(/\s+/g, '-')}" class="mt-3 space-y-2 hidden">
                 ${recipeGroup.map(recipe => {
             const sizeDisplay = recipe.size.charAt(0).toUpperCase() + recipe.size.slice(1);
             // Pasar siempre el ID como string para evitar que el motor de templates lo trate como
-            // un literal num√©¬©rico (por ejemplo 75_61) y produzca valores inesperados.
+            // un literal num√É¬©√Ç¬©rico (por ejemplo 75_61) y produzca valores inesperados.
             return `
                         <button onclick="showPizzaAdicionales('${recipe.id}', '${recipe.name}', ${recipe.sale_price}, '${sizeDisplay}')" 
                                 class="w-full bg-gray-700 hover:bg-green-600 text-white py-2 px-3 rounded-lg transition-colors flex justify-between items-center">
@@ -375,7 +375,7 @@ function renderPizzaCategory(recipes, gridId) {
     });
 }
 
-// Renderizar bebidas y productos sin tama√©¬±os
+// Renderizar bebidas y productos sin tama√É¬©√Ç¬±os
 function renderBebidasCategory(recipes, gridId) {
     const grid = document.getElementById(gridId);
     grid.innerHTML = '';
@@ -395,7 +395,7 @@ function renderBebidasCategory(recipes, gridId) {
             </div>
         `;
 
-        // Agregar event listener al botÛn
+        // Agregar event listener al bot√≥n
         const button = card.querySelector('.add-to-cart-btn');
         button.addEventListener('click', () => {
             addToCart(recipe.id, recipe.name, recipe.sale_price);
@@ -404,11 +404,11 @@ function renderBebidasCategory(recipes, gridId) {
     });
 }
 
-// Mostrar tama√©¬±os de pizza
+// Mostrar tama√É¬©√Ç¬±os de pizza
 function showPizzaSizes(pizzaName, recipeGroup) {
     const sizesContainer = document.getElementById(`sizes-${pizzaName.replace(/\s+/g, '-')}`);
     if (sizesContainer.classList.contains('hidden')) {
-        // Ocultar todos los otros tama√©¬±os abiertos
+        // Ocultar todos los otros tama√É¬©√Ç¬±os abiertos
         document.querySelectorAll('[id^="sizes-"]').forEach(container => {
             container.classList.add('hidden');
         });
@@ -419,7 +419,7 @@ function showPizzaSizes(pizzaName, recipeGroup) {
     }
 }
 
-// Renderizar categor√©¬≠a simple (sin agrupaciÛn)
+// Renderizar categor√É¬©√Ç¬≠a simple (sin agrupaci√≥n)
 function renderSimpleCategory(recipes, gridId) {
     const grid = document.getElementById(gridId);
     grid.innerHTML = '';
@@ -451,10 +451,10 @@ function addToCart(recipeId, name, price) {
     console.log('Adding to cart:', { recipeId, name, price });
     console.log('Available recipes:', allRecipes.length);
 
-    // Buscar la receta completa para obtener informaciÛn adicional
+    // Buscar la receta completa para obtener informaci√≥n adicional
     const recipe = allRecipes.find(r => r.id === recipeId);
 
-    // Crear el item con la informaciÛn disponible
+    // Crear el item con la informaci√≥n disponible
     const item = {
         id: recipeId,
         name: name,
@@ -462,7 +462,7 @@ function addToCart(recipeId, name, price) {
         quantity: 1
     };
 
-    // Si encontramos la receta, agregar informaciÛn adicional
+    // Si encontramos la receta, agregar informaci√≥n adicional
     if (recipe) {
         item.product_id = recipe.product_id;
         item.size_id = recipe.size_id;
@@ -479,7 +479,7 @@ function addToCart(recipeId, name, price) {
             if (item.size_id === 0) item.size_id = null;
             console.log('Extracted from ID:', { product_id: item.product_id, size_id: item.size_id });
         } else if (!isNaN(parseInt(recipeId))) {
-            // Si es solo un n√©¬∫mero, usarlo como product_id
+            // Si es solo un n√É¬©√Ç¬∫mero, usarlo como product_id
             item.product_id = parseInt(recipeId);
             item.size_id = null;
             console.log('Using as product_id:', item.product_id);
@@ -507,9 +507,9 @@ function addToCart(recipeId, name, price) {
     showNotification(`${name} agregado al carrito de ${typeof currentTable === 'number' ? 'Mesa ' + currentTable : currentTable}`);
 }
 
-// Actualizar botÛn del carrito
+// Actualizar bot√≥n del carrito
 function updateCartDisplay() {
-    if (!checkoutBtn) return; // Modo domicilio no tiene este botÛn
+    if (!checkoutBtn) return; // Modo domicilio no tiene este bot√≥n
 
     const cartCount = currentCart.reduce((sum, item) => sum + item.quantity, 0);
     const cartTotal = currentCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -524,7 +524,7 @@ function updateCartDisplay() {
         checkoutBtn.classList.remove('pulse-active');
         checkoutBtn.innerHTML = `
             <i class="fas fa-shopping-cart mr-2"></i>
-            Carrito VacÌo
+            Carrito Vac√≠o
         `;
     }
 }
@@ -532,7 +532,7 @@ function updateCartDisplay() {
 // Mostrar carrito
 function showCart() {
     if (currentCart.length === 0) {
-        showNotification('Tu carrito est· vacÌo. °AÒade algunos productos!', 'error');
+        showNotification('Tu carrito est√° vac√≠o. ¬°A√±ade algunos productos!', 'error');
         return;
     }
 
@@ -548,7 +548,7 @@ function showCart() {
         // View mode (mesa)
         showView('cart-view');
 
-        // Actualizar la informaciÛn de la mesa
+        // Actualizar la informaci√≥n de la mesa
         const cartTableDisplay = document.getElementById('cart-table-display');
         if (cartTableDisplay) {
             cartTableDisplay.textContent = currentTable;
@@ -720,7 +720,7 @@ function removeFromCart(index) {
         } else {
             showView('main-menu-view');
         }
-        showNotification('Carrito vacÌo. Contin˙a agregando productos.', 'info');
+        showNotification('Carrito vac√≠o. Contin√∫a agregando productos.', 'info');
     } else {
         // Re-render based on mode
         const cartModal = document.getElementById('cart-modal');
@@ -733,12 +733,12 @@ function removeFromCart(index) {
     updateCartDisplay();
 }
 
-// Confirmar y enviar pedido (funciÛn de respaldo)
+// Confirmar y enviar pedido (funci√≥n de respaldo)
 async function confirmAndSendOrder() {
-    // Validar SesiÛn de Caja Abierta
+    // Validar Sesi√≥n de Caja Abierta
     const cajaOpen = localStorage.getItem('cajaSesionStart');
     if (!cajaOpen) {
-        showNotification('? CAJA CERRADA: Debe abrir caja en AdministraciÛn para hacer pedidos.', 'error');
+        showNotification('? CAJA CERRADA: Debe abrir caja en Administraci√≥n para hacer pedidos.', 'error');
         return;
     }
 
@@ -746,9 +746,9 @@ async function confirmAndSendOrder() {
     showDiscountModal();
 }
 
-// FunciÛn para enviar pedido (respaldo o modal) usando Supabase
+// Funci√≥n para enviar pedido (respaldo o modal) usando Supabase
 async function submitOrderToAPI() {
-    // Validar SesiÛn de Caja Abierta (Doble comprobaciÛn)
+    // Validar Sesi√≥n de Caja Abierta (Doble comprobaci√≥n)
     if (!localStorage.getItem('cajaSesionStart')) {
         showNotification('? CAJA CERRADA: No se pueden procesar pedidos.', 'error');
         return;
@@ -811,7 +811,7 @@ async function submitOrderToAPI() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ order_id: result.id })
-            }).catch(e => console.warn('Error enviando notificaciÛn al backend:', e));
+            }).catch(e => console.warn('Error enviando notificaci√≥n al backend:', e));
         } catch (e) { }
         */
 
@@ -822,12 +822,12 @@ async function submitOrderToAPI() {
     }
 }
 
-// FunciÛn para calcular el total del carrito
+// Funci√≥n para calcular el total del carrito
 function calculateTotal() {
     return currentCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 }
 
-// Mostrar notificaciÛn
+// Mostrar notificaci√≥n
 function showNotification(message, type = 'success') {
     const notification = document.createElement('div');
     const bgColor = type === 'error' ? 'bg-red-500' : 'bg-green-500';
@@ -847,7 +847,7 @@ async function showOrderManagement() {
     currentStatusFilter = 'all'; // Resetear filtro al mostrar la vista
     await loadOrderManagement();
 
-    // Activar el botÛn "Todos" por defecto
+    // Activar el bot√≥n "Todos" por defecto
     setTimeout(() => {
         filterOrdersByStatus('all');
     }, 100);
@@ -855,7 +855,7 @@ async function showOrderManagement() {
     startOrderManagementUpdates();
 }
 
-// FunciÛn para recargar pedidos despuÈs de crear uno nuevo
+// Funci√≥n para recargar pedidos despu√©s de crear uno nuevo
 function reloadOrderManagement() {
     if (document.getElementById('order-management-view').style.display !== 'none') {
         loadOrderManagement();
@@ -868,13 +868,13 @@ let currentStatusFilter = 'all';
 let orderManagementInterval;
 let lastPendingDeliveryCount = 0;
 let lastNotifiedDeliveryId = parseInt(localStorage.getItem('lastNotifiedDeliveryId')) || 0;
-let lastCreatedOrderId = null; // Variable para guardar el ID del ˙ltimo pedido creado
+let lastCreatedOrderId = null; // Variable para guardar el ID del √∫ltimo pedido creado
 
-// FunciÛn para convertir estados del backend a formato legible
+// Funci√≥n para convertir estados del backend a formato legible
 function formatStatusForDisplay(backendStatus) {
     const statusDisplayMapping = {
         'pendiente': 'Pendiente',
-        'preparando': 'En PreparaciÛn',
+        'preparando': 'En Preparaci√≥n',
         'listo': 'Listo',
         'entregado': 'Entregado',
         'cancelado': 'Cancelado'
@@ -882,11 +882,11 @@ function formatStatusForDisplay(backendStatus) {
     return statusDisplayMapping[backendStatus] || backendStatus;
 }
 
-// FunciÛn para convertir estados legibles a formato backend
+// Funci√≥n para convertir estados legibles a formato backend
 function formatStatusForBackend(displayStatus) {
     const statusBackendMapping = {
         'Pendiente': 'pendiente',
-        'En PreparaciÛn': 'preparando',
+        'En Preparaci√≥n': 'preparando',
         'Listo': 'listo',
         'Entregado': 'entregado',
         'Cancelado': 'cancelado'
@@ -894,7 +894,7 @@ function formatStatusForBackend(displayStatus) {
     return statusBackendMapping[displayStatus] || displayStatus;
 }
 
-// Iniciar nueva sesiÛn de caja (SOLO PARA ADMIN - Esta funciÛn se invoca desde admin.html, pero mantenemos compatibilidad por si acaso)
+// Iniciar nueva sesi√≥n de caja (SOLO PARA ADMIN - Esta funci√≥n se invoca desde admin.html, pero mantenemos compatibilidad por si acaso)
 /*
 function startNewShift() {
     // Deprecated: Usar sistema de admin.html
@@ -905,7 +905,7 @@ async function loadOrderManagement() {
     try {
         const orders = await db.getPedidos();
 
-        // Filtrar por sesiÛn de caja si existe (establecida desde Admin)
+        // Filtrar por sesi√≥n de caja si existe (establecida desde Admin)
         const cajaStart = localStorage.getItem('cajaSesionStart'); // Clave unificada con Admin
         let sessionOrders = orders;
 
@@ -926,7 +926,7 @@ async function loadOrderManagement() {
         // Actualizar notificaciones de domicilios
         updateDeliveryNotifications();
 
-        // Solo renderizar la lista completa si estamos en la vista de gestiÛn
+        // Solo renderizar la lista completa si estamos en la vista de gesti√≥n
         const managementView = document.getElementById('order-management-view');
         if (managementView && managementView.style.display !== 'none') {
             renderOrderManagement();
@@ -935,7 +935,7 @@ async function loadOrderManagement() {
         console.error('Error al cargar pedidos:', error);
 
         // Si no hay pedidos previos (error en carga inicial), mostrar mensaje de error
-        // Si ya existen pedidos (error en actualizaciÛn), no destruimos la UI existente
+        // Si ya existen pedidos (error en actualizaci√≥n), no destruimos la UI existente
         if (allOrders.length === 0) {
             const container = document.getElementById('order-management-container');
             if (container) {
@@ -950,8 +950,8 @@ async function loadOrderManagement() {
                 `;
             }
         } else {
-            // Error silencioso en actualizaciÛn autom·tica para no molestar al usuario
-            console.warn('Fallo en actualizaciÛn autom·tica de pedidos (Red inestable o timeout)');
+            // Error silencioso en actualizaci√≥n autom√°tica para no molestar al usuario
+            console.warn('Fallo en actualizaci√≥n autom√°tica de pedidos (Red inestable o timeout)');
         }
     }
 }
@@ -998,7 +998,7 @@ function renderOrderManagement() {
         const orderCard = document.createElement('div');
         orderCard.className = 'bg-gray-700 p-6 rounded-2xl shadow-md border-l-4';
 
-        // Color del borde seg˙n el estado
+        // Color del borde seg√∫n el estado
         const borderColor = {
             'pendiente': 'border-yellow-500',
             'preparando': 'border-orange-500',
@@ -1015,15 +1015,15 @@ function renderOrderManagement() {
 
         const tableInfo = order.tipo_pedido === 'domicilio' ? 'Domicilio' : (order.mesa || 'Para Llevar');
 
-        // InformaciÛn del cliente para domicilios
+        // Informaci√≥n del cliente para domicilios
         let clienteInfo = '';
         if (order.tipo_pedido === 'domicilio') {
             clienteInfo = `
                 <div class="bg-yellow-900/30 border border-yellow-600 rounded-lg p-3 mb-3">
-                    <h6 class="text-yellow-400 font-semibold mb-2"><i class="fas fa-motorcycle mr-2"></i>InformaciÛn de Entrega</h6>
+                    <h6 class="text-yellow-400 font-semibold mb-2"><i class="fas fa-motorcycle mr-2"></i>Informaci√≥n de Entrega</h6>
                     ${order.cliente_nombre ? `<p class="text-white text-sm"><i class="fas fa-user mr-2"></i><strong>Cliente:</strong> ${order.cliente_nombre}</p>` : ''}
-                    ${order.telefono_cliente ? `<p class="text-white text-sm"><i class="fas fa-phone mr-2"></i><strong>TelÈfono:</strong> ${order.telefono_cliente}</p>` : ''}
-                    ${order.direccion_entrega ? `<p class="text-white text-sm"><i class="fas fa-map-marker-alt mr-2"></i><strong>DirecciÛn:</strong> ${order.direccion_entrega}</p>` : ''}
+                    ${order.telefono_cliente ? `<p class="text-white text-sm"><i class="fas fa-phone mr-2"></i><strong>Tel√©fono:</strong> ${order.telefono_cliente}</p>` : ''}
+                    ${order.direccion_entrega ? `<p class="text-white text-sm"><i class="fas fa-map-marker-alt mr-2"></i><strong>Direcci√≥n:</strong> ${order.direccion_entrega}</p>` : ''}
                 </div>
             `;
         }
@@ -1120,7 +1120,7 @@ function renderOrderManagement() {
                             </span>
                             <div>
                                 <p class="text-white font-semibold">${item.name || item.producto}</p>
-                                ${displaySize && displaySize !== '⁄nica' ? `<p class="text-gray-400 text-sm">TamaÒo: ${displaySize}</p>` : ''}
+                                ${displaySize && displaySize !== '√önica' ? `<p class="text-gray-400 text-sm">Tama√±o: ${displaySize}</p>` : ''}
                                 ${additionsHtml}
                                 ${segundoHtml}
                             </div>
@@ -1216,7 +1216,7 @@ function updateDeliveryNotifications() {
         return;
     }
 
-    // Filtrar domicilios que estÈn en estado 'pendiente' (case insensitive por seguridad)
+    // Filtrar domicilios que est√©n en estado 'pendiente' (case insensitive por seguridad)
     const pendingDeliveries = allOrders.filter(o =>
         o.tipo_pedido === 'domicilio' && (o.estado.toLowerCase() === 'pendiente')
     );
@@ -1234,24 +1234,24 @@ function updateDeliveryNotifications() {
             badge.classList.remove('hidden');
             badge.textContent = count;
         }
-        // Re-sincronizar con localStorage por si otra pestaÒa actualizÛ el ID
+        // Re-sincronizar con localStorage por si otra pesta√±a actualiz√≥ el ID
         const storedId = parseInt(localStorage.getItem('lastNotifiedDeliveryId')) || 0;
         if (storedId > lastNotifiedDeliveryId) {
             lastNotifiedDeliveryId = storedId;
         }
 
-        // Obtener el ID m·s alto de los domicilios pendientes actuales
+        // Obtener el ID m√°s alto de los domicilios pendientes actuales
         const ids = pendingDeliveries.map(o => parseInt(o.id)).filter(id => !isNaN(id) && id > 0);
         const maxId = ids.length > 0 ? Math.max(...ids) : 0;
 
-        // Reproducir sonido SOLO si hay un ID nuevo v·lido que nunca hemos notificado
+        // Reproducir sonido SOLO si hay un ID nuevo v√°lido que nunca hemos notificado
         if (maxId > 0 && maxId > lastNotifiedDeliveryId) {
             // Actualizar el estado INMEDIATAMENTE para evitar re-notificaciones en intervalos paralelos
             const oldId = lastNotifiedDeliveryId;
             lastNotifiedDeliveryId = maxId;
             localStorage.setItem('lastNotifiedDeliveryId', maxId);
 
-            console.log(`NotificaciÛn: Nuevo maxId ${maxId} detectado (previo: ${oldId})`);
+            console.log(`Notificaci√≥n: Nuevo maxId ${maxId} detectado (previo: ${oldId})`);
 
             if (sound) {
                 sound.currentTime = 0;
@@ -1260,7 +1260,7 @@ function updateDeliveryNotifications() {
                 });
             }
 
-            // NotificaciÛn de escritorio
+            // Notificaci√≥n de escritorio
             if ("Notification" in window && Notification.permission === "granted") {
                 try {
                     new Notification("?? Nuevo Domicilio Pendiente", {
@@ -1268,7 +1268,7 @@ function updateDeliveryNotifications() {
                         icon: "./niss.ico"
                     });
                 } catch (e) {
-                    console.warn('Error al mostrar notificaciÛn de escritorio:', e);
+                    console.warn('Error al mostrar notificaci√≥n de escritorio:', e);
                 }
             }
         }
@@ -1307,7 +1307,7 @@ function updateFilterButtonCounts() {
         entregado: allOrders.filter(o => o.estado === 'entregado').length
     };
 
-    // Actualizar cada botÛn con su contador
+    // Actualizar cada bot√≥n con su contador
     Object.keys(counts).forEach(status => {
         const button = document.getElementById(`filter-${status}`);
         if (button) {
@@ -1315,7 +1315,7 @@ function updateFilterButtonCounts() {
             const iconHTML = icon ? icon.outerHTML : '';
             const text = button.textContent.replace(/\d+/g, '').trim();
 
-            // Actualizar contenido del botÛn con badge de contador
+            // Actualizar contenido del bot√≥n con badge de contador
             if (counts[status] > 0) {
                 button.innerHTML = `
                     ${iconHTML}
@@ -1339,7 +1339,7 @@ function filterOrdersByStatus(status) {
         btn.classList.remove('ring-4', 'ring-white', 'ring-opacity-50', 'scale-105');
     });
 
-    // Destacar el botÛn activo
+    // Destacar el bot√≥n activo
     const activeButton = document.getElementById(`filter-${status}`);
     if (activeButton) {
         activeButton.classList.add('ring-4', 'ring-white', 'ring-opacity-50', 'scale-105');
@@ -1348,19 +1348,19 @@ function filterOrdersByStatus(status) {
     renderOrderManagement();
 }
 
-// FunciÛn para cancelar un pedido
+// Funci√≥n para cancelar un pedido
 async function cancelarPedido(orderId) {
-    if (!confirm('øEst·s seguro de que deseas CANCELAR este pedido? Esta acciÛn no se puede deshacer.')) {
+    if (!confirm('¬øEst√°s seguro de que deseas CANCELAR este pedido? Esta acci√≥n no se puede deshacer.')) {
         return;
     }
 
     try {
-        // Usar db.updateOrderStatus que es la funciÛn correcta en el cliente
+        // Usar db.updateOrderStatus que es la funci√≥n correcta en el cliente
         const result = await db.updateOrderStatus(orderId, 'cancelado');
         if (result.success) {
             showNotification('Pedido cancelado exitosamente', 'success');
             loadOrderManagement(); // Recargar la lista
-            // TambiÈn actualizar estadÌsticas si est· visible el dashboard
+            // Tambi√©n actualizar estad√≠sticas si est√° visible el dashboard
             if (typeof loadSessionStats === 'function') loadSessionStats();
         } else {
             throw new Error(result.error || 'Error desconocido');
@@ -1377,7 +1377,7 @@ function handleStatusChange(orderId, selectElement) {
 
     if (newStatus) {
         updateOrderStatus(orderId, newStatus);
-        // Resetear el select despu√©¬©s de un breve delay
+        // Resetear el select despu√É¬©√Ç¬©s de un breve delay
         setTimeout(() => {
             selectElement.value = '';
         }, 100);
@@ -1401,14 +1401,14 @@ async function updateOrderStatus(orderId, newStatus) {
         }
     } catch (error) {
         console.error('Error al actualizar estado:', error);
-        showNotification('Error de conexiÛn al actualizar el estado', 'error');
+        showNotification('Error de conexi√≥n al actualizar el estado', 'error');
     }
 }
 
 function startOrderManagementUpdates() {
     if (orderManagementInterval) return; // Evitar duplicar intervalos
     orderManagementInterval = setInterval(loadOrderManagement, 10000); // Actualizar cada 10 segundos
-    console.log('Intervalo de actualizaciÛn de pedidos iniciado');
+    console.log('Intervalo de actualizaci√≥n de pedidos iniciado');
 }
 
 function stopOrderManagementUpdates() {
@@ -1418,12 +1418,12 @@ function stopOrderManagementUpdates() {
     }
 }
 
-// FunciÛn para mostrar el panel de administraciÛn
+// Funci√≥n para mostrar el panel de administraci√≥n
 function showAdminPanel() {
     showView('admin-panel-view');
 }
 
-// FunciÛn para mostrar mensajes
+// Funci√≥n para mostrar mensajes
 function showMessageBox(message) {
     const messageBox = document.getElementById('message-box');
     const messageText = document.getElementById('message-text');
@@ -1435,11 +1435,11 @@ function closeMessageBox() {
     document.getElementById('message-box').style.display = 'none';
 }
 
-// FunciÛn para imprimir (placeholder)
-// FunciÛn para imprimir usando iframe (evita bloqueos de popup)
+// Funci√≥n para imprimir (placeholder)
+// Funci√≥n para imprimir usando iframe (evita bloqueos de popup)
 async function printOrder(orderId) {
     try {
-        // ValidaciÛn de ID
+        // Validaci√≥n de ID
         if (!orderId && lastCreatedOrderId) {
             orderId = lastCreatedOrderId;
         }
@@ -1449,7 +1449,7 @@ async function printOrder(orderId) {
             return;
         }
 
-        console.log(`Iniciando impresiÛn para pedido #${orderId}`);
+        console.log(`Iniciando impresi√≥n para pedido #${orderId}`);
         showNotification('Generando factura...', 'info');
 
         // Obtener datos
@@ -1460,7 +1460,7 @@ async function printOrder(orderId) {
 
         const order = result.data;
 
-        // Preparar iframe de impresiÛn
+        // Preparar iframe de impresi√≥n
         let printFrame = document.getElementById('print-frame');
         if (!printFrame) {
             printFrame = document.createElement('iframe');
@@ -1488,7 +1488,7 @@ async function printOrder(orderId) {
             try {
                 printFrame.contentWindow.focus();
                 printFrame.contentWindow.print();
-                console.log(`Pedido #${orderId} enviado a impresiÛn (iframe)`);
+                console.log(`Pedido #${orderId} enviado a impresi√≥n (iframe)`);
                 showNotification('Enviado a impresora', 'success');
             } catch (err) {
                 console.error('Error al invocar print() en iframe:', err);
@@ -1497,8 +1497,8 @@ async function printOrder(orderId) {
         }, 500);
 
     } catch (error) {
-        console.error('Error en proceso de impresiÛn:', error);
-        showNotification('Error al generar impresiÛn', 'error');
+        console.error('Error en proceso de impresi√≥n:', error);
+        showNotification('Error al generar impresi√≥n', 'error');
     }
 }
 
@@ -1519,7 +1519,7 @@ function generateReceiptHTML(order) {
                     <style>
                         @page {
                             margin: 0;
-                            size: 80mm auto; /* Forzar ancho de papel tÈrmico y altura autom·tica */
+                            size: 80mm auto; /* Forzar ancho de papel t√©rmico y altura autom√°tica */
                         }
                         @media print {
                             body, html {
@@ -1582,7 +1582,7 @@ function generateReceiptHTML(order) {
                 </head>
                 <body>
                     <div class="header">
-                        <h3>?? PIZZERÕA NISSI</h3>
+                        <h3>?? PIZZER√çA NISSI</h3>
                         <p>Nit: 12345678-9</p>  
                         <div class="divider"></div>
                         <p><strong>TICKET: #${order.numero_pedido || order.id}</strong></p>
@@ -1629,7 +1629,7 @@ function generateReceiptHTML(order) {
                     </div>
                     
                     <div class="footer">
-                        <p>°Gracias por su compra!</p>
+                        <p>¬°Gracias por su compra!</p>
                         <p>Servicio a Domicilio</p>
                     </div>
                 </body>
@@ -1637,9 +1637,9 @@ function generateReceiptHTML(order) {
     `;
 }
 
-// FunciÛn alternativa de impresiÛn cuando las ventanas emergentes est·n bloqueadas
+// Funci√≥n alternativa de impresi√≥n cuando las ventanas emergentes est√°n bloqueadas
 function printAlternative(order) {
-    // Crear un elemento temporal para impresiÛn
+    // Crear un elemento temporal para impresi√≥n
     const printDiv = document.createElement('div');
     printDiv.innerHTML = `
         <style>
@@ -1717,7 +1717,7 @@ function printAlternative(order) {
         </style>
         <div class="print-content">
             <div class="print-header">
-                <h3>?? PIZZERÕA NISSI</h3>
+                <h3>?? PIZZER√çA NISSI</h3>
                 <p>FACTURA #${order.id}</p>
                 <p>${new Date(order.created_at).toLocaleString('es-CO')}</p>
             </div>
@@ -1769,7 +1769,7 @@ function printAlternative(order) {
             </div>
             
             <div class="print-footer">
-                <p>°Gracias por su compra!</p>
+                <p>¬°Gracias por su compra!</p>
                 <p>www.pizzerianiss.com</p>
             </div>
         </div>
@@ -1788,8 +1788,8 @@ function printAlternative(order) {
     // Restaurar contenido original
     document.body.innerHTML = originalContent;
 
-    console.log(`Pedido #${order.id} enviado a impresiÛn (mÈtodo alternativo)`);
-    showNotification('Pedido enviado a impresiÛn', 'success');
+    console.log(`Pedido #${order.id} enviado a impresi√≥n (m√©todo alternativo)`);
+    showNotification('Pedido enviado a impresi√≥n', 'success');
 }
 
 // ============= SISTEMA DE ADICIONALES =============
@@ -1797,7 +1797,7 @@ function printAlternative(order) {
 let currentPizzaData = null;
 let availableAdicionales = [];
 let selectedAdicionales = [];
-let currentPizzaSize = 'Personal'; // TamaÒo actual para calcular precios de adiciones
+let currentPizzaSize = 'Personal'; // Tama√±o actual para calcular precios de adiciones
 
 // Mostrar modal de adicionales para pizza
 async function showPizzaAdicionales(recipeId, pizzaName, basePrice, sizeDisplay) {
@@ -1808,17 +1808,17 @@ async function showPizzaAdicionales(recipeId, pizzaName, basePrice, sizeDisplay)
         sizeDisplay: sizeDisplay
     };
 
-    // Extraer el tama√©¬±o base del sizeDisplay (ej: "Personal ($25.900)" -> "Personal")
+    // Extraer el tama√É¬©√Ç¬±o base del sizeDisplay (ej: "Personal ($25.900)" -> "Personal")
     currentPizzaSize = sizeDisplay.split(' ')[0];
 
-    // Actualizar informaciÛn de la pizza seleccionada
+    // Actualizar informaci√≥n de la pizza seleccionada
     document.getElementById('pizzaSeleccionada').textContent =
         `${pizzaName} - ${sizeDisplay} - $${formatPrice(basePrice)}`;
 
     // Limpiar lista de adicionales disponibles
     availableAdicionales = [];
 
-    // Intentar cargar vinculaciones / productos vinculados del producto para mostrarlos tambi√©¬©n como adiciones
+    // Intentar cargar vinculaciones / productos vinculados del producto para mostrarlos tambi√É¬©√Ç¬©n como adiciones
     try {
         // recipeId puede ser compuesto 'productId_sizeId'
         const parts = String(recipeId).split('_');
@@ -1830,7 +1830,7 @@ async function showPizzaAdicionales(recipeId, pizzaName, basePrice, sizeDisplay)
         console.warn('Error cargando vinculados para el producto en mesa:', e);
     }
 
-    // Limpiar selecciÛn anterior
+    // Limpiar selecci√≥n anterior
     selectedAdicionales = [];
     updateTotalPrice();
 
@@ -1897,17 +1897,17 @@ function renderAdicionales() {
     availableAdicionales.forEach(adicional => {
         const isSelected = selectedAdicionales.some(sel => sel.id === adicional.id);
 
-        // Obtener el precio para el tama√©¬±o actual
+        // Obtener el precio para el tama√É¬©√Ç¬±o actual
         let precio = 0;
         try {
             if (adicional.precios && typeof adicional.precios === 'object') {
-                // Preferir precio por tama√©¬±o actual
+                // Preferir precio por tama√É¬©√Ç¬±o actual
                 if (currentPizzaSize && adicional.precios[currentPizzaSize]) {
                     precio = parseFloat(adicional.precios[currentPizzaSize].precio) || 0;
                 } else if (adicional.precios['Personal']) {
                     precio = parseFloat(adicional.precios['Personal'].precio) || 0;
                 } else {
-                    // Si no hay key por nombre de tama√©¬±o, tomar el primer precio disponible
+                    // Si no hay key por nombre de tama√É¬©√Ç¬±o, tomar el primer precio disponible
                     const keys = Object.keys(adicional.precios);
                     if (keys.length > 0 && adicional.precios[keys[0]] && adicional.precios[keys[0]].precio) {
                         precio = parseFloat(adicional.precios[keys[0]].precio) || 0;
@@ -1950,12 +1950,12 @@ function renderAdicionales() {
     });
 }
 
-// Alternar selecciÛn de adicional
+// Alternar selecci√≥n de adicional
 function toggleAdicional(adicionalId) {
     const adicional = availableAdicionales.find(a => a.id === adicionalId);
     if (!adicional) return;
 
-    // Obtener el precio para el tama√©¬±o actual (cuando se hace toggle)
+    // Obtener el precio para el tama√É¬©√Ç¬±o actual (cuando se hace toggle)
     let precioData = null;
     if (adicional.precios && typeof adicional.precios === 'object') {
         precioData = adicional.precios[currentPizzaSize] || adicional.precios['Personal'] || adicional.precios[Object.keys(adicional.precios)[0]];
@@ -1968,7 +1968,7 @@ function toggleAdicional(adicionalId) {
         // Remover adicional
         selectedAdicionales.splice(existingIndex, 1);
     } else {
-        // Agregar adicional con precio especÌfico para el tama√©¬±o
+        // Agregar adicional con precio espec√≠fico para el tama√É¬©√Ç¬±o
         selectedAdicionales.push({
             id: adicional.id,
             name: adicional.nombre,
@@ -1999,7 +1999,7 @@ function confirmarPizzaConAdicionales() {
 
     // Crear nombre descriptivo con adicionales y segundo sabor
     let itemName = currentPizzaData.pizzaName;
-    // Determinar segundo_sabor seg˙n selecciones (soporta combinadas y modo 3)
+    // Determinar segundo_sabor seg√∫n selecciones (soporta combinadas y modo 3)
     let segundoForAdd = null;
     const checkbox = document.getElementById('checkbox-dos-sabores-mesa');
     const dosSaboresChecked = checkbox ? checkbox.checked : false;
@@ -2040,9 +2040,26 @@ function confirmarPizzaConAdicionales() {
     closeAdicionalesModal();
 }
 
+function closeAdicionalesModal() {
+    const modal = document.getElementById('adicionalesModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+    // RESTAURAR carrito
+    if (typeof checkoutBtn !== 'undefined' && checkoutBtn) {
+        checkoutBtn.style.display = 'block';
+        updateCartDisplay();
+    }
+    // Limpiar estado
+    currentPizzaData = null;
+    selectedAdicionales = [];
+    const grid = document.getElementById('adicionalesGrid');
+    if (grid) grid.innerHTML = '';
+}
 
 
-// ==================== L”GICA DE CAJA (SESIONES) ====================
+
+// ==================== L√ìGICA DE CAJA (SESIONES) ====================
 let sesionActual = null;
 
 function checkCajaStatus() {
@@ -2076,7 +2093,7 @@ function confirmarInicioCaja() {
         return;
     }
 
-    // Guardar sesiÛn
+    // Guardar sesi√≥n
     const now = new Date();
     localStorage.setItem('cajaSesionStart', now.toISOString());
     localStorage.setItem('cajaUsuario', nombre);
@@ -2095,13 +2112,13 @@ function confirmarInicioCaja() {
 }
 
 function cerrarSesionCaja() {
-    if (!confirm('øSeguro que deseas cerrar la caja y terminar el turno?')) return;
+    if (!confirm('¬øSeguro que deseas cerrar la caja y terminar el turno?')) return;
 
     // Calcular totales finales (opcional: guardar en BD historial)
     const ventas = document.getElementById('sesion-ventas-total')?.innerText || '$0';
     const pedidos = document.getElementById('sesion-pedidos-count')?.innerText || '0';
 
-    // Limpiar sesiÛn
+    // Limpiar sesi√≥n
     localStorage.removeItem('cajaSesionStart');
     localStorage.removeItem('cajaUsuario');
     sesionActual = null;
@@ -2129,7 +2146,7 @@ function mostrarPanelCajaAbierta() {
     }
 }
 
-// ==================== L”GICA DE MESEROS (TRAZABILIDAD) ====================
+// ==================== L√ìGICA DE MESEROS (TRAZABILIDAD) ====================
 let meseroActual = localStorage.getItem('meseroNombre') || null;
 
 function checkMeseroStatus() {
@@ -2169,18 +2186,18 @@ function confirmarRegistroMesero() {
     checkMeseroStatus();
 }
 
-// Cargar estadÌsticas de la sesiÛn actual
+// Cargar estad√≠sticas de la sesi√≥n actual
 async function loadSessionStats() {
     if (!sesionActual) return;
 
     try {
-        // Obtenemos pedidos desde Supabase que sean POSTERIORES al inicio de sesiÛn
+        // Obtenemos pedidos desde Supabase que sean POSTERIORES al inicio de sesi√≥n
         // Nota: Esto asume 'fecha' en formato ISO en la BD
         const { data: orders, error } = await window.supabase
             .from('pedidos')
             .select('*')
             .gte('fecha', sesionActual.inicio.toISOString())
-            .order('fecha', { ascending: false }); // M·s recientes primero
+            .order('fecha', { ascending: false }); // M√°s recientes primero
 
         if (error) throw error;
 
@@ -2190,7 +2207,7 @@ async function loadSessionStats() {
 
         const count = activeOrders.length;
 
-        // Actualizar UI estadÌsticas
+        // Actualizar UI estad√≠sticas
         document.getElementById('sesion-ventas-total').textContent = `$${formatPrice(totalVentas)}`;
         document.getElementById('sesion-pedidos-count').textContent = count;
 
@@ -2207,7 +2224,7 @@ async function loadSessionStats() {
             if (o.estado === 'cancelado') {
                 sessionOrderNumberHtml = '<span class="text-red-500 font-bold">CANCELADO</span>';
             } else {
-                // Encontrar el Ìndice en la lista de activos (que est· ordenada DESC)
+                // Encontrar el √≠ndice en la lista de activos (que est√° ordenada DESC)
                 const activeIndex = activeOrders.findIndex(ao => ao.id === o.id);
                 const sessionOrderNumber = count - activeIndex;
                 sessionOrderNumberHtml = `#${sessionOrderNumber}`;
@@ -2243,12 +2260,12 @@ function getEstadoColor(estado) {
 
 // Acceso Admin simple
 function checkAdminPassword() {
-    const pass = prompt("Ingresa cÛdigo de administrador:");
-    if (pass === "1234") { // ContraseÒa simple por ahora, configurar mejor despuÈs
+    const pass = prompt("Ingresa c√≥digo de administrador:");
+    if (pass === "1234") { // Contrase√±a simple por ahora, configurar mejor despu√©s
         document.getElementById('btn-admin-access').style.display = 'inline-flex';
         showNotification('Modo Admin habilitado', 'success');
     } else {
-        showNotification('CÛdigo incorrecto', 'error');
+        showNotification('C√≥digo incorrecto', 'error');
     }
 }
 
@@ -2262,7 +2279,7 @@ window.showView = function (viewId) {
     }
 };
 
-// Cerrar modal gen√©¬©rico
+// Cerrar modal gen√É¬©√Ç¬©rico
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
@@ -2272,7 +2289,7 @@ function closeModal(modalId) {
 
 // Agregar al carrito con adicionales
 function addToCartWithAdicionales(recipeId, itemName, totalPrice, adicionales, segundoSabor = null) {
-    // Buscar la receta completa para obtener informaciÛn adicional
+    // Buscar la receta completa para obtener informaci√≥n adicional
     const recipe = allRecipes.find(r => r.id === recipeId);
 
     const existingItem = currentCart.find(item =>
@@ -2292,7 +2309,7 @@ function addToCartWithAdicionales(recipeId, itemName, totalPrice, adicionales, s
             segundo_sabor: segundoSabor
         };
 
-        // Si encontramos la receta, agregar informaciÛn adicional
+        // Si encontramos la receta, agregar informaci√≥n adicional
         if (recipe) {
             newItem.product_id = recipe.product_id;
             newItem.size_id = recipe.size_id;
@@ -2309,7 +2326,7 @@ function addToCartWithAdicionales(recipeId, itemName, totalPrice, adicionales, s
                 if (newItem.size_id === 0) newItem.size_id = null;
                 console.log('Extracted IDs from composite ID:', { product_id: newItem.product_id, size_id: newItem.size_id });
             } else if (!isNaN(parseInt(recipeId))) {
-                // Si es solo un n√©¬∫mero, usarlo como product_id
+                // Si es solo un n√É¬©√Ç¬∫mero, usarlo como product_id
                 newItem.product_id = parseInt(recipeId);
                 newItem.size_id = null;
                 console.log('Using as product_id:', newItem.product_id);
@@ -2334,7 +2351,7 @@ let subtotalAmount = 0;
 
 function showDiscountModal() {
     if (currentCart.length === 0) {
-        showNotification('Tu carrito est· vacÌo. °AÒade algunos productos!', 'error');
+        showNotification('Tu carrito est√° vac√≠o. ¬°A√±ade algunos productos!', 'error');
         return;
     }
 
@@ -2394,7 +2411,7 @@ function updateDiscountDisplay() {
 
 async function confirmOrderWithDiscount() {
     if (currentCart.length === 0) {
-        showNotification('Tu carrito est· vacÌo. °AÒade algunos productos!', 'error');
+        showNotification('Tu carrito est√° vac√≠o. ¬°A√±ade algunos productos!', 'error');
         return;
     }
 
@@ -2404,39 +2421,39 @@ async function confirmOrderWithDiscount() {
 
         const orderResponse = await submitOrderWithDiscount(totalWithDiscount, currentDiscount);
 
-        // Guardar el ID del ˙ltimo pedido creado para poder imprimirlo
+        // Guardar el ID del √∫ltimo pedido creado para poder imprimirlo
         lastCreatedOrderId = orderResponse.id || orderResponse.pedido_id || null;
         const displayOrderNumber = orderResponse.numero_pedido || orderResponse.id || orderResponse.pedido_id || '';
 
-        // Cambiar el estado del pedido a "En PreparaciÛn"
+        // Cambiar el estado del pedido a "En Preparaci√≥n"
         if (tableOrders[currentTable]) {
-            tableOrders[currentTable].status = 'En PreparaciÛn';
+            tableOrders[currentTable].status = 'En Preparaci√≥n';
             tableOrders[currentTable].order_id = lastCreatedOrderId;
         }
 
         // Cerrar modal
         closeDiscountModal();
 
-        // Limpiar el carrito despu√©¬©s de enviarlo
+        // Limpiar el carrito despu√É¬©√Ç¬©s de enviarlo
         currentCart = [];
         tableOrders[currentTable].cart = [];
         tableOrders[currentTable].total = 0;
         updateCartDisplay();
 
-        // Regresar al men√©¬∫ principal
+        // Regresar al men√É¬©√Ç¬∫ principal
         showView('main-menu-view');
 
-        // Mostrar notificaciÛn de √©¬©xito
-        showNotification(`°Pedido #${displayOrderNumber} enviado exitosamente!`, 'success');
+        // Mostrar notificaci√≥n de √É¬©√Ç¬©xito
+        showNotification(`¬°Pedido #${displayOrderNumber} enviado exitosamente!`, 'success');
 
-        // Recargar la gestiÛn de pedidos si est√° abierta
+        // Recargar la gesti√≥n de pedidos si est√É¬° abierta
         reloadOrderManagement();
 
-        // Imprimir factura autom·ticamente despuÈs de un breve delay
+        // Imprimir factura autom√°ticamente despu√©s de un breve delay
         setTimeout(async () => {
-            console.log(`Imprimiendo factura autom·ticamente para pedido #${displayOrderNumber}`);
+            console.log(`Imprimiendo factura autom√°ticamente para pedido #${displayOrderNumber}`);
             try {
-                // printOrder espera el ID interno; usar orderResponse.data.id si est· disponible
+                // printOrder espera el ID interno; usar orderResponse.data.id si est√° disponible
                 const orderId = orderResponse.data ? orderResponse.data.id : (orderResponse.id || orderResponse.pedido_id);
                 if (orderId) {
                     await printOrder(orderId);
@@ -2479,7 +2496,7 @@ async function submitOrderWithDiscount(totalWithDiscount, discountPercentage) {
         }
 
         if (!product_id) {
-            console.error('Item sin product_id v·lido:', cartItem);
+            console.error('Item sin product_id v√°lido:', cartItem);
             continue;
         }
 
@@ -2513,7 +2530,7 @@ async function submitOrderWithDiscount(totalWithDiscount, discountPercentage) {
     }
 
     if (items.length === 0) {
-        throw new Error('No hay items v·lidos para enviar');
+        throw new Error('No hay items v√°lidos para enviar');
     }
 
     const orderData = {
@@ -2533,18 +2550,18 @@ async function submitOrderWithDiscount(totalWithDiscount, discountPercentage) {
 
     console.log('Enviando pedido a Supabase:', orderData);
 
-    // Usar db.createPedido que maneja creaciÛn e inventario
+    // Usar db.createPedido que maneja creaci√≥n e inventario
     const result = await db.createPedido(orderData);
 
     if (!result.success) {
         throw new Error(result.error || 'Error al crear el pedido en Supabase');
     }
 
-    // Nota: La notificaciÛn de WhatsApp a˙n se maneja en el backend.
-    // PodrÌamos hacer una llamada a un endpoint simplificado del backend solo para esto,
-    // o el backend podrÌa escuchar cambios en la base de datos de Supabase.
-    // Por ahora, para minimizar cambios, el usuario dijo que la lÛgica compleja queda en Render.
-    // Una opciÛn es NOTIFICAR al backend que se creÛ un pedido para que envÌe WhatsApp.
+    // Nota: La notificaci√≥n de WhatsApp a√∫n se maneja en el backend.
+    // Podr√≠amos hacer una llamada a un endpoint simplificado del backend solo para esto,
+    // o el backend podr√≠a escuchar cambios en la base de datos de Supabase.
+    // Por ahora, para minimizar cambios, el usuario dijo que la l√≥gica compleja queda en Render.
+    // Una opci√≥n es NOTIFICAR al backend que se cre√≥ un pedido para que env√≠e WhatsApp.
 
     try {
         const notifOrderId = result.data ? result.data.id : result.id;
@@ -2553,7 +2570,7 @@ async function submitOrderWithDiscount(totalWithDiscount, discountPercentage) {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ order_id: notifOrderId })
-            }).catch(e => console.warn('Error enviando notificaciÛn al backend (CORS esperado en local):', e));
+            }).catch(e => console.warn('Error enviando notificaci√≥n al backend (CORS esperado en local):', e));
         }
     } catch (e) { }
     return result;
@@ -2582,7 +2599,7 @@ async function cargarSaboresDisponiblesMesa(productId) {
     }
 }
 
-// Mostrar secci√≥n de dos sabores en el modal de mesas
+// Mostrar secci√É¬≥n de dos sabores en el modal de mesas
 async function mostrarSeccionDosSaboresMesa(recipeId) {
     const seccion = document.getElementById('seccionDosSaboresMesa');
     const container = document.getElementById('saboresDisponiblesMesa');
@@ -2601,7 +2618,7 @@ async function mostrarSeccionDosSaboresMesa(recipeId) {
         return;
     }
 
-    // Cargar sabores disponibles usando la lÛgica enriquecida de dos-sabores.js
+    // Cargar sabores disponibles usando la l√≥gica enriquecida de dos-sabores.js
     const saboresResp = await cargarSaboresDisponibles({ id: productId, nombre: recipe.name || recipe.nombre, categoria: { nombre: recipe.category || recipe.categoria } });
     const combined = saboresResp && saboresResp.combined;
     const allowedTypes = (saboresResp && saboresResp.allowed_types) ? saboresResp.allowed_types : [];
@@ -2612,7 +2629,7 @@ async function mostrarSeccionDosSaboresMesa(recipeId) {
         return;
     }
 
-    // Guardar allowed types para validaciÛn
+    // Guardar allowed types para validaci√≥n
     allowedTypesForCombinedMesa = allowedTypes.slice();
 
     // Opciones para modo 3
@@ -2669,7 +2686,7 @@ async function mostrarSeccionDosSaboresMesa(recipeId) {
             <div class="mb-3 text-sm text-gray-300">${modo3Html}</div>
             <label class="flex items-center gap-3 cursor-pointer mb-3 p-2 bg-gray-700 rounded-lg border border-gray-600">
                 <input type="checkbox" id="checkbox-dos-sabores-mesa" onchange="toggleDosSaboresMesa()" class="w-5 h-5 accent-orange-500">
-                <span class="font-medium text-gray-200">SÌ, quiero dos/mas sabores</span>
+                <span class="font-medium text-gray-200">S√≠, quiero dos/mas sabores</span>
             </label>
             <div id="selector-segundo-sabor-mesa" class="hidden">
                 ${selectorHtml}
@@ -2677,7 +2694,7 @@ async function mostrarSeccionDosSaboresMesa(recipeId) {
         </div>
     `;
 
-    // Mostrar secciÛn
+    // Mostrar secci√≥n
     seccion.classList.remove('hidden');
 
     // Reset selecciones mesa
@@ -2699,7 +2716,7 @@ function seleccionarSegundoSaborMesa(saborId, saborNombre) {
     document.getElementById('nombreSegundoSaborMesa').textContent = saborNombre;
     document.getElementById('saborSeleccionadoMesa').classList.remove('hidden');
 
-    // Destacar bot√≥n seleccionado
+    // Destacar bot√É¬≥n seleccionado
     const container = document.getElementById('saboresDisponiblesMesa');
     container.querySelectorAll('button').forEach(btn => {
         if (btn.textContent.trim() === saborNombre) {
@@ -2728,7 +2745,7 @@ function quitarSegundoSaborMesa() {
     updateMesaFlavorDisplay();
 }
 
-// Actualizar visual del selector de sabores en mesas: ocultar im·genes y expandir nombres
+// Actualizar visual del selector de sabores en mesas: ocultar im√°genes y expandir nombres
 function updateMesaFlavorDisplay() {
     try {
         const selector = document.getElementById('selector-segundo-sabor-mesa');
@@ -2810,13 +2827,13 @@ function seleccionarSegundoSaborModo3Mesa(id, nombre, el) {
     updateMesaFlavorDisplay();
 }
 
-// FunciÛn global para acceso a Admin (simulada)
+// Funci√≥n global para acceso a Admin (simulada)
 window.checkAdminAccess = function () {
-    const password = prompt("Ingrese la contraseÒa de administrador:");
-    if (password === "1234") { // ContraseÒa hardcoded simple
+    const password = prompt("Ingrese la contrase√±a de administrador:");
+    if (password === "1234") { // Contrase√±a hardcoded simple
         window.location.href = "admin.html";
     } else if (password !== null) {
-        alert("ContraseÒa incorrecta.");
+        alert("Contrase√±a incorrecta.");
     }
 };
 
