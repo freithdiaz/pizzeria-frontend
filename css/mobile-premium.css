@@ -165,7 +165,7 @@
 
     /* Ajuste equilibrado del carrito */
     #checkout-btn {
-        bottom: 30px !important;
+        bottom: 85px !important;
         width: calc(100% - 4rem) !important;
         margin: 0 2rem;
         left: 0 !important;
