@@ -209,7 +209,13 @@ async function toggleCategory(categoryId) {
 // Cargar todas las categorÃ©Â­as con Supabase
 async function loadAllCategories() {
     try {
-        const categorias = await db.getCategorias();
+        let categorias = await db.getCategorias();
+
+        // Filtrar categorías activas y visibles
+        categorias = categorias.filter(categoria =>
+            (categoria.activo === 1 || categoria.activo === true) &&
+            (categoria.visible_en_publico === 1 || categoria.visible_en_publico === true || categoria.visible_en_publico === undefined)
+        );
 
         const menuContainer = document.getElementById('main-menu-view');
         if (!menuContainer) return;
