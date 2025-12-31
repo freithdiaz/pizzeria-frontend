@@ -48,6 +48,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         mainContent.classList.remove('opacity-0');
         await loadRecipes();
         showView('table-view');
+
+        // Iniciar actualizaciones en segundo plano para notificaciones
+        startOrderManagementUpdates();
+
+        // Solicitar permiso para notificaciones de escritorio
+        if ("Notification" in window && Notification.permission === "default") {
+            Notification.requestPermission();
+        }
     } else {
         // Modo domicilio - solo cargar recetas
         await loadRecipes();
@@ -111,9 +119,8 @@ async function loadRecipes() {
 
 // Helper function to switch views
 function showView(viewId) {
-    if (typeof stopOrderManagementUpdates === 'function') {
-        stopOrderManagementUpdates();
-    }
+    // Ya no desactivamos las actualizaciones para que las notificaciones funcionen en segundo plano
+    // if (typeof stopOrderManagementUpdates === 'function') stopOrderManagementUpdates();
 
     document.querySelectorAll('.view-section').forEach(section => {
         section.style.display = 'none';
@@ -852,6 +859,7 @@ function reloadOrderManagement() {
 let allOrders = [];
 let currentStatusFilter = 'all';
 let orderManagementInterval;
+let lastPendingDeliveryCount = 0;
 let lastCreatedOrderId = null; // Variable para guardar el ID del último pedido creado
 
 // Función para convertir estados del backend a formato legible
@@ -906,7 +914,15 @@ async function loadOrderManagement() {
             ...order,
             status: formatStatusForDisplay(order.estado)
         }));
-        renderOrderManagement();
+
+        // Actualizar notificaciones de domicilios
+        updateDeliveryNotifications();
+
+        // Solo renderizar la lista completa si estamos en la vista de gestión
+        const managementView = document.getElementById('order-management-view');
+        if (managementView && managementView.style.display !== 'none') {
+            renderOrderManagement();
+        }
     } catch (error) {
         console.error('Error al cargar pedidos:', error);
         const container = document.getElementById('order-management-container');
@@ -1160,6 +1176,61 @@ function renderOrderManagement() {
 
         container.appendChild(orderCard);
     });
+}
+
+function updateDeliveryNotifications() {
+    if (!allOrders || allOrders.length === 0) {
+        const badge = document.getElementById('nav-orders-badge');
+        const alertDiv = document.getElementById('delivery-notification-alert');
+        if (badge) badge.classList.add('hidden');
+        if (alertDiv) alertDiv.classList.add('hidden');
+        return;
+    }
+
+    // Filtrar domicilios que estén en estado 'pendiente' (case insensitive por seguridad)
+    const pendingDeliveries = allOrders.filter(o =>
+        o.tipo_pedido === 'domicilio' && (o.estado.toLowerCase() === 'pendiente')
+    );
+
+    const count = pendingDeliveries.length;
+    const alertDiv = document.getElementById('delivery-notification-alert');
+    const countSpan = document.getElementById('pending-deliveries-count');
+    const badge = document.getElementById('nav-orders-badge');
+    const sound = document.getElementById('notification-sound');
+
+    if (count > 0) {
+        if (alertDiv) alertDiv.classList.remove('hidden');
+        if (countSpan) countSpan.textContent = count;
+        if (badge) {
+            badge.classList.remove('hidden');
+            badge.textContent = count;
+        }
+
+        // Reproducir sonido si el número de domicilios pendientes aumentó
+        if (count > lastPendingDeliveryCount) {
+            if (sound) {
+                sound.currentTime = 0;
+                sound.play().catch(e => console.warn('Audio play blocked by browser. User interaction needed.', e));
+            }
+
+            // Notificación de escritorio (si el navegador lo permite)
+            if ("Notification" in window) {
+                if (Notification.permission === "granted") {
+                    new Notification("🚀 Nuevo Domicilio Pendiente", {
+                        body: `Tienes ${count} domicilios esperando despacho.`,
+                        icon: "./niss.ico"
+                    });
+                } else if (Notification.permission !== "denied") {
+                    Notification.requestPermission();
+                }
+            }
+        }
+    } else {
+        if (alertDiv) alertDiv.classList.add('hidden');
+        if (badge) badge.classList.add('hidden');
+    }
+
+    lastPendingDeliveryCount = count;
 }
 
 function getStatusColor(status) {

@@ -135,6 +135,17 @@
     <!-- Main Container -->
     <div id="main-content"
         class="bg-gray-800 w-full min-h-screen p-4 lg:p-6 space-y-6 opacity-0 transition-opacity duration-1000">
+
+        <!-- Notificaciones de Domicilio -->
+        <div id="delivery-notification-alert"
+            class="hidden bg-red-600 hover:bg-red-700 text-white p-4 rounded-xl text-center font-bold animate-pulse shadow-lg cursor-pointer transition-all"
+            onclick="filterOrdersByStatus('all'); showOrderManagement();">
+            <i class="fas fa-motorcycle mr-2 text-xl"></i>
+            <span>¡Tienes <span id="pending-deliveries-count">0</span> domicilios pendientes! Ver ahora</span>
+        </div>
+        <audio id="notification-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"
+            preload="auto"></audio>
+
         <!-- Top Navigation Buttons -->
         <div class="fixed top-2 sm:top-4 right-2 sm:right-4 z-40 flex gap-2">
             <a href="domicilio.html"
@@ -175,10 +186,12 @@
                 <span class="sm:hidden">🍽️ Mesas</span>
             </button>
             <button onclick="showOrderManagement()"
-                class="nav-item w-full sm:w-auto text-white font-semibold py-2 px-4 rounded-lg sm:rounded-full hover:bg-gray-600 transition-colors">
+                class="nav-item relative w-full sm:w-auto text-white font-semibold py-2 px-4 rounded-lg sm:rounded-full hover:bg-gray-600 transition-colors">
                 <i class="fas fa-clipboard-list mr-2"></i>
                 <span class="hidden sm:inline">Gestión de Pedidos</span>
                 <span class="sm:hidden">📝 Pedidos</span>
+                <span id="nav-orders-badge"
+                    class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold border-2 border-gray-700">0</span>
             </button>
         </nav>
 
