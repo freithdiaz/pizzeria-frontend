@@ -1399,16 +1399,25 @@ function generateReceiptHTML(order) {
                     <style>
                         @page {
                             margin: 0;
-                            size: 80mm auto; /* Forzar ancho de papel térmico */
+                            size: 80mm auto; /* Forzar ancho de papel térmico y altura automática */
+                        }
+                        @media print {
+                            body, html {
+                                width: 80mm;
+                                margin: 0;
+                                padding: 0;
+                                height: auto !important;
+                                overflow: visible !important;
+                            }
                         }
                         body { 
                             margin: 0;
-                            padding: 5px;
+                            padding: 10px 5px;
                             font-family: 'Courier New', monospace; 
-                            font-size: 12px; 
-                            line-height: 1.2;
+                            font-size: 13px; 
+                            line-height: 1.3;
                             width: 100%;
-                            max-width: 80mm; /* Ancho máximo para impresoras de 80mm */
+                            max-width: 80mm;
                             color: #000;
                             background: #fff;
                         }
@@ -1418,47 +1427,52 @@ function generateReceiptHTML(order) {
                             padding-bottom: 10px; 
                             margin-bottom: 10px;
                         }
-                        .header h3 { margin: 0; font-size: 16px; font-weight: bold; }
-                        .header p { margin: 2px 0; font-size: 12px; }
+                        .header h3 { margin: 0; font-size: 18px; font-weight: bold; }
+                        .header p { margin: 2px 0; font-size: 13px; }
                         
-                        .info { margin-bottom: 10px; font-size: 12px; border-bottom: 1px dashed #000; padding-bottom: 5px; }
-                        .info p { margin: 2px 0; }
+                        .divider { border-top: 1px dashed #000; margin: 10px 0; }
+                        
+                        .info { margin-bottom: 10px; font-size: 13px; padding-bottom: 5px; }
+                        .info p { margin: 4px 0; }
                         
                         .items { margin-bottom: 10px; }
                         .item { 
                             display: flex; 
                             justify-content: space-between;
-                            margin-bottom: 5px;
-                            font-size: 12px;
+                            margin-bottom: 8px;
+                            font-size: 13px;
                         }
-                        .item-qty { width: 10%; text-align: center; font-weight: bold; }
-                        .item-desc { width: 65%; padding-left: 5px; }
-                        .item-price { width: 25%; text-align: right; }
+                        .item-qty { width: 40px; font-weight: bold; }
+                        .item-desc { flex: 1; padding: 0 5px; }
+                        .item-price { width: 80px; text-align: right; }
                         
-                        .sub-item { font-size: 10px; font-style: italic; margin-left: 5px; color: #333; }
+                        .sub-item { font-size: 11px; margin-top: 2px; color: #333; }
                         
                         .totals { 
-                            border-top: 1px dashed #000;
-                            margin-top: 5px;
-                            padding-top: 5px;
+                            border-top: 2px solid #000;
+                            margin-top: 10px;
+                            padding-top: 8px;
                             text-align: right;
-                            font-size: 13px;
+                            font-size: 16px;
                             font-weight: bold;
                         }
                         
-                        .footer { text-align: center; font-size: 11px; margin-top: 15px; border-top: 1px solid #000; padding-top: 10px; }
+                        .footer { text-align: center; font-size: 12px; margin-top: 20px; border-top: 1px dashed #000; padding-top: 10px; }
                     </style>
                 </head>
                 <body>
                     <div class="header">
                         <h3>🍕 PIZZERÍA NISSI</h3>
                         <p>Nit: 12345678-9</p>  
-                        <p>Ticket: #${order.numero_pedido || order.id}</p>
+                        <div class="divider"></div>
+                        <p><strong>TICKET: #${order.numero_pedido || order.id}</strong></p>
                         <p>${fecha}</p>
                     </div>
                     
+                    <div class="divider"></div>
+                    
                     <div class="info">
-                        <p><strong>Mesa:</strong> ${order.tipo_pedido === 'domicilio' ? 'DOMICILIO' : (order.mesa || 'Llevar')}</p>
+                        <p><strong>MESA:</strong> ${order.tipo_pedido === 'domicilio' ? 'DOMICILIO' : (order.mesa || 'LLEVAR')}</p>
                         ${order.nombre_cliente ? `<p>Cliente: ${order.nombre_cliente}</p>` : ''}
                         ${order.telefono_cliente ? `<p>Tel: ${order.telefono_cliente}</p>` : ''}
                         ${order.direccion_entrega ? `<p>Dir: ${order.direccion_entrega}</p>` : ''}
@@ -1487,6 +1501,8 @@ function generateReceiptHTML(order) {
                             `;
     }).join('')}
                     </div>
+                    
+                    <div class="divider"></div>
                     
                     <div class="totals">
                         TOTAL: $${formatPrice(order.total_con_descuento || order.total_precio)}
