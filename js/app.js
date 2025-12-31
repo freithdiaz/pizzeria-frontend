@@ -944,8 +944,16 @@ function renderOrderManagement() {
 
     filteredOrders.forEach((order, displayIndex) => {
         // Find this order's position in the full session list (excluding cancelled)
-        const sessionIndex = allOrders.filter(o => o.estado !== 'cancelado').findIndex(o => o.id === order.id);
-        const sessionOrderNumber = sessionIndex >= 0 ? (totalOrdersInSession - sessionIndex) : (displayIndex + 1);
+        const activeOrdersInSession = allOrders.filter(o => o.estado !== 'cancelado');
+        const sessionIndex = activeOrdersInSession.findIndex(o => o.id === order.id);
+
+        let sessionHeader = '';
+        if (order.estado === 'cancelado') {
+            sessionHeader = '<span class="text-red-500 font-bold">CANCELADO</span>';
+        } else {
+            const sessionOrderNumber = sessionIndex >= 0 ? (totalOrdersInSession - sessionIndex) : '?';
+            sessionHeader = `#${sessionOrderNumber}`;
+        }
 
         const orderCard = document.createElement('div');
         orderCard.className = 'bg-gray-700 p-6 rounded-2xl shadow-md border-l-4';
@@ -1090,7 +1098,7 @@ function renderOrderManagement() {
         orderCard.innerHTML = `
             <div class="flex justify-between items-start mb-4">
                 <div>
-                    <h4 class="text-xl font-bold text-white">Pedido #${sessionOrderNumber}</h4>
+                    <h4 class="text-xl font-bold text-white">Pedido ${sessionHeader}</h4>
                     <p class="text-gray-500 text-xs">ID: ${order.id}</p>
                     <p class="text-gray-300 text-lg">
                         <i class="fas fa-utensils mr-2"></i>${tableInfo}
@@ -1229,7 +1237,8 @@ async function cancelarPedido(orderId) {
     }
 
     try {
-        const result = await db.updatePedido(orderId, { estado: 'cancelado' });
+        // Usar db.updateOrderStatus que es la función correcta en el cliente
+        const result = await db.updateOrderStatus(orderId, 'cancelado');
         if (result.success) {
             showNotification('Pedido cancelado exitosamente', 'success');
             loadOrderManagement(); // Recargar la lista
@@ -2002,36 +2011,39 @@ async function loadSessionStats() {
 
         if (error) throw error;
 
-        const totalVentas = orders
-            .filter(o => o.estado !== 'cancelado')
+        const activeOrders = orders.filter(o => o.estado !== 'cancelado');
+        const totalVentas = activeOrders
             .reduce((sum, o) => sum + parseFloat(o.total_con_descuento || o.total_precio || 0), 0);
 
-        const count = orders.length;
+        const count = activeOrders.length;
 
         // Actualizar UI estadísticas
         document.getElementById('sesion-ventas-total').textContent = `$${formatPrice(totalVentas)}`;
         document.getElementById('sesion-pedidos-count').textContent = count;
 
         // Renderizar lista "Visualmente #1..N"
-        // Como 'orders' está ordenado DESC (N..1), el índice inverso nos da el número secuencial
-        // Pero visualmente queremos ver el último pedido arriba.
-        // Así que: Pedido más reciente = #Count. Pedido más antiguo = #1.
-
+        // Solo numeramos los pedidos activos. Los cancelados se muestran con un tag especial.
         const lista = document.getElementById('sesion-pedidos-lista');
-        if (count === 0) {
+        if (orders.length === 0) {
             lista.innerHTML = '<p class="text-center text-gray-400 py-4">No hay pedidos en este turno.</p>';
             return;
         }
 
         lista.innerHTML = orders.map((o, index) => {
-            // El número de pedido en esta sesión es: (Total - index)
-            // Ejemplo: 5 pedidos. Index 0 (más reciente) es #5. Index 4 (más viejo) es #1.
-            const sessionOrderNumber = count - index;
+            let sessionOrderNumberHtml = '';
+            if (o.estado === 'cancelado') {
+                sessionOrderNumberHtml = '<span class="text-red-500 font-bold">CANCELADO</span>';
+            } else {
+                // Encontrar el índice en la lista de activos (que está ordenada DESC)
+                const activeIndex = activeOrders.findIndex(ao => ao.id === o.id);
+                const sessionOrderNumber = count - activeIndex;
+                sessionOrderNumberHtml = `#${sessionOrderNumber}`;
+            }
 
             return `
                 <div class="bg-gray-800 p-3 rounded flex justify-between items-center border-l-4 ${getEstadoColor(o.estado)}">
                     <div>
-                        <span class="font-bold text-white">#${sessionOrderNumber} - ${o.cliente_nombre || 'Cliente'}</span>
+                        <span class="font-bold text-white">${sessionOrderNumberHtml} - ${o.cliente_nombre || 'Cliente'}</span>
                         <p class="text-xs text-gray-400">${formatDateTime(o.fecha)}</p>
                     </div>
                     <div class="text-right">
