@@ -56,6 +56,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         if ("Notification" in window && Notification.permission === "default") {
             Notification.requestPermission();
         }
+
+        // Verificar estado del mesero local
+        if (typeof checkMeseroStatus === 'function') {
+            checkMeseroStatus();
+        }
     } else {
         // Modo domicilio - solo cargar recetas
         await loadRecipes();
@@ -2087,6 +2092,46 @@ function mostrarPanelCajaAbierta() {
     }
 }
 
+// ==================== LÓGICA DE MESEROS (TRAZABILIDAD) ====================
+let meseroActual = localStorage.getItem('meseroNombre') || null;
+
+function checkMeseroStatus() {
+    const meseroDisplay = document.getElementById('mesero-nombre-display');
+    if (meseroDisplay) {
+        meseroDisplay.textContent = meseroActual || 'Sin asignar';
+    }
+}
+
+function abrirModalMesero() {
+    const modal = document.getElementById('modal-sesion-mesero');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('active');
+        const input = document.getElementById('input-nombre-mesero');
+        if (input) {
+            input.value = meseroActual || '';
+            input.focus();
+        }
+    }
+}
+
+function confirmarRegistroMesero() {
+    const nombre = document.getElementById('input-nombre-mesero').value.trim();
+    if (!nombre) {
+        showNotification('Por favor ingresa tu nombre de mesero', 'warning');
+        return;
+    }
+
+    localStorage.setItem('meseroNombre', nombre);
+    meseroActual = nombre;
+
+    document.getElementById('modal-sesion-mesero').classList.remove('active');
+    document.getElementById('modal-sesion-mesero').classList.add('hidden');
+
+    showNotification(`Mesero registrado: ${nombre}`, 'success');
+    checkMeseroStatus();
+}
+
 // Cargar estadísticas de la sesión actual
 async function loadSessionStats() {
     if (!sesionActual) return;
@@ -2445,7 +2490,8 @@ async function submitOrderWithDiscount(totalWithDiscount, discountPercentage) {
         metodo_pago: 'pendiente',
         // Session traceability fields
         cajero: localStorage.getItem('cajaUsuario') || null,
-        sesion_inicio: localStorage.getItem('cajaSesionStart') || null
+        sesion_inicio: localStorage.getItem('cajaSesionStart') || null,
+        mesero: localStorage.getItem('meseroNombre') || null
     };
 
     console.log('Enviando pedido a Supabase:', orderData);

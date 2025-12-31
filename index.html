@@ -401,6 +401,23 @@
                     </div>
                 </div>
 
+                <!-- Info Mesero (Nuevo) -->
+                <div class="bg-slate-700/50 p-4 rounded-xl border border-blue-500/50 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-blue-900 flex items-center justify-center text-blue-400">
+                            <i class="fas fa-concierge-bell"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400">Mesero Registrado</p>
+                            <h4 class="font-bold text-white" id="mesero-nombre-display">Sin asignar</h4>
+                        </div>
+                    </div>
+                    <button onclick="abrirModalMesero()"
+                        class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition-colors">
+                        <i class="fas fa-user-edit mr-1"></i>Cambiar
+                    </button>
+                </div>
+
                 <!-- Estadísticas Rápidas -->
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-gray-700 p-4 rounded-xl">
@@ -442,6 +459,27 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- Modal para registrar Mesero (Nuevo) -->
+    <div id="modal-sesion-mesero" class="modal">
+        <div class="modal-content max-w-sm">
+            <div class="modal-header">
+                <h3 class="text-xl font-bold"><i class="fas fa-concierge-bell mr-2"></i>Identificación de Mesero</h3>
+                <button onclick="cerrarModal('modal-sesion-mesero')" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="text-gray-400 mb-4">Ingresa tu nombre para que tus pedidos queden registrados bajo tu cuenta.
+                </p>
+                <input type="text" id="input-nombre-mesero"
+                    class="w-full bg-slate-700 border-2 border-slate-600 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none mb-4"
+                    placeholder="Tu nombre aquí...">
+                <button onclick="confirmarRegistroMesero()"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all">
+                    Guardar y Continuar
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Modal para actualizar estado de pedido -->
