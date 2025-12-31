@@ -1314,7 +1314,6 @@ async function printOrder(orderId) {
         frameDoc.close();
 
         // Esperar a que cargue y llamar a print
-        // Usamos un pequeño delay para asegurar renderizado
         setTimeout(() => {
             try {
                 printFrame.contentWindow.focus();
@@ -1323,7 +1322,6 @@ async function printOrder(orderId) {
                 showNotification('Enviado a impresora', 'success');
             } catch (err) {
                 console.error('Error al invocar print() en iframe:', err);
-                // Fallback extremo: nueva ventana
                 printAlternative(order);
             }
         }, 500);
@@ -1334,75 +1332,84 @@ async function printOrder(orderId) {
     }
 }
 
-// Generador de HTML de factura separado para limpieza
+// Generador de HTML de factura
 function generateReceiptHTML(order) {
+    // Detectar si es domicilio para mostrar info extra
+    const isDomicilio = order.tipo_pedido === 'domicilio';
+
+    // Formatear fecha (fallback seguro)
+    const fechaStr = order.created_at || order.fecha || new Date().toISOString();
+    const fecha = new Date(fechaStr).toLocaleString('es-CO');
+
     return `
+            <!DOCTYPE html>
             <html>
                 <head>
-                    <title>Factura #${order.id}</title>
+                    <title>Ticket #${order.numero_pedido || order.id}</title>
                     <style>
-                        @media print {
-                            @page { margin: 0; size: 80mm auto; }
-                            body { margin: 0; }
+                        @page {
+                            margin: 0;
+                            size: 80mm auto; /* Forzar ancho de papel térmico */
                         }
                         body { 
+                            margin: 0;
+                            padding: 5px;
                             font-family: 'Courier New', monospace; 
                             font-size: 12px; 
                             line-height: 1.2;
-                            margin: 5px; 
-                            max-width: 300px;
-                            color: black;
-                            background: white;
+                            width: 100%;
+                            max-width: 80mm; /* Ancho máximo para impresoras de 80mm */
+                            color: #000;
+                            background: #fff;
                         }
                         .header { 
                             text-align: center; 
                             border-bottom: 1px dashed #000; 
-                            padding-bottom: 5px; 
-                            margin-bottom: 5px;
+                            padding-bottom: 10px; 
+                            margin-bottom: 10px;
                         }
-                        .header h3 { margin: 0; font-size: 14px; font-weight: bold; }
-                        .header p { margin: 2px 0; font-size: 11px; }
+                        .header h3 { margin: 0; font-size: 16px; font-weight: bold; }
+                        .header p { margin: 2px 0; font-size: 12px; }
                         
-                        .info { margin-bottom: 5px; font-size: 11px; }
+                        .info { margin-bottom: 10px; font-size: 12px; border-bottom: 1px dashed #000; padding-bottom: 5px; }
                         .info p { margin: 2px 0; }
                         
-                        .items { margin-bottom: 5px; }
+                        .items { margin-bottom: 10px; }
                         .item { 
                             display: flex; 
                             justify-content: space-between;
-                            margin-bottom: 3px;
-                            font-size: 11px;
+                            margin-bottom: 5px;
+                            font-size: 12px;
                         }
-                        .item-qty { width: 25px; }
-                        .item-desc { flex: 1; margin-right: 5px; }
-                        .item-price { text-align: right; }
+                        .item-qty { width: 10%; text-align: center; font-weight: bold; }
+                        .item-desc { width: 65%; padding-left: 5px; }
+                        .item-price { width: 25%; text-align: right; }
                         
-                        .sub-item { font-size: 10px; color: #333; margin-left: 25px; }
+                        .sub-item { font-size: 10px; font-style: italic; margin-left: 5px; color: #333; }
                         
                         .totals { 
                             border-top: 1px dashed #000;
-                            border-bottom: 1px dashed #000;
-                            margin: 5px 0;
-                            padding: 5px 0;
+                            margin-top: 5px;
+                            padding-top: 5px;
                             text-align: right;
-                            font-size: 12px;
+                            font-size: 13px;
                             font-weight: bold;
                         }
                         
-                        .footer { text-align: center; font-size: 10px; margin-top: 10px; }
+                        .footer { text-align: center; font-size: 11px; margin-top: 15px; border-top: 1px solid #000; padding-top: 10px; }
                     </style>
                 </head>
                 <body>
                     <div class="header">
                         <h3>🍕 PIZZERÍA NISSI</h3>
                         <p>Nit: 12345678-9</p>  
-                        <p>Factura de Venta: #${order.id}</p>
-                        <p>${formatDateTime(order.created_at || order.fecha)}</p>
+                        <p>Ticket: #${order.numero_pedido || order.id}</p>
+                        <p>${fecha}</p>
                     </div>
                     
                     <div class="info">
-                        <p>Mesa: ${order.tipo_pedido === 'domicilio' ? 'DOMICILIO' : (order.mesa || 'Llevar')}</p>
-                        ${order.cliente_nombre ? `<p>Cliente: ${order.cliente_nombre}</p>` : ''}
+                        <p><strong>Mesa:</strong> ${order.tipo_pedido === 'domicilio' ? 'DOMICILIO' : (order.mesa || 'Llevar')}</p>
+                        ${order.nombre_cliente ? `<p>Cliente: ${order.nombre_cliente}</p>` : ''}
                         ${order.telefono_cliente ? `<p>Tel: ${order.telefono_cliente}</p>` : ''}
                         ${order.direccion_entrega ? `<p>Dir: ${order.direccion_entrega}</p>` : ''}
                     </div>
@@ -1412,7 +1419,7 @@ function generateReceiptHTML(order) {
         const totalItem = (parseFloat(item.price || item.precio_unitario || 0) * (item.quantity || 1));
         let extras = [];
         if (item.tamano) extras.push(item.tamano);
-        if (item.segundo_sabor) extras.push(`2do: ${item.segundo_sabor}`);
+        if (item.segundo_sabor) extras.push(`Mitad: ${item.segundo_sabor}`);
         if (item.additions && item.additions.length) {
             const addNames = item.additions.map(a => a.name || a.nombre || a).join(',');
             extras.push(`+${addNames}`);
@@ -1422,7 +1429,7 @@ function generateReceiptHTML(order) {
                                 <div class="item">
                                     <div class="item-qty">${item.quantity}</div>
                                     <div class="item-desc">
-                                        ${item.name}
+                                        ${item.name || item.producto}
                                         ${extras.length ? `<div class="sub-item">${extras.join(' | ')}</div>` : ''}
                                     </div>
                                     <div class="item-price">$${formatPrice(totalItem)}</div>
@@ -2312,7 +2319,7 @@ async function submitOrderWithDiscount(totalWithDiscount, discountPercentage) {
     try {
         const notifOrderId = result.data ? result.data.id : result.id;
         if (notifOrderId) {
-            fetch(`${API_BASE_URL} / api / notify - order`, {
+            fetch(`${API_BASE_URL}/api/notify-order`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ order_id: notifOrderId })
