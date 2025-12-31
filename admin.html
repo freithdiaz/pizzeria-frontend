@@ -181,10 +181,7 @@
     <div class="bg-slate-800 border-b border-slate-700">
         <div class="container mx-auto px-4">
             <nav class="flex space-x-1">
-                <button onclick="mostrarSeccion('dashboard')" id="tab-dashboard"
-                    class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
-                    <i class="fas fa-chart-line mr-2"></i>Dashboard
-                </button>
+
                 <button onclick="mostrarSeccion('categorias')" id="tab-categorias"
                     class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
                     <i class="fas fa-folder mr-2"></i>Categorias
@@ -210,100 +207,7 @@
                     <i class="fas fa-cog mr-2"></i>Configuracion
                 </button>
             </nav>
-            <!-- SECCIÃ©â€œN: DASHBOARD -->
-            <div id="seccion-dashboard" class="seccion hidden">
-                <h2 class="text-3xl font-bold mb-6">Dashboard de Ventas</h2>
 
-                <!-- Control de Caja -->
-                <div class="bg-gradient-to-r from-blue-900 to-purple-900 rounded-lg p-6 mb-8">
-                    <h3 class="text-2xl font-semibold mb-4 flex items-center">
-                        <i class="fas fa-cash-register mr-3 text-green-400"></i>
-                        Control de Caja
-                    </h3>
-                    <div id="caja-estado" class="flex items-center justify-between">
-                        <div>
-                            <div id="caja-info" class="text-lg mb-2">Verificando estado...</div>
-                            <div id="caja-monto-inicial" class="text-sm text-gray-300"></div>
-                        </div>
-                        <div class="flex gap-4">
-                            <button id="btn-abrir-caja" onclick="mostrarModalAbrirCaja()"
-                                class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold hidden">
-                                <i class="fas fa-lock-open mr-2"></i>Abrir Caja
-                            </button>
-                            <button id="btn-cerrar-caja" onclick="cerrarCaja()"
-                                class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-semibold hidden">
-                                <i class="fas fa-lock mr-2"></i>Cerrar Caja
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                    <div class="bg-slate-800 rounded-lg p-6">
-                        <h3 class="text-xl font-semibold mb-4 flex items-center">
-                            <i class="fas fa-chart-line mr-2 text-green-400"></i>
-                            Ventas del Dia
-                        </h3>
-                        <div class="mb-4">
-                            <label class="block text-sm mb-2">Fecha:</label>
-                            <input type="date" id="dashboard-fecha"
-                                class="bg-slate-700 px-4 py-2 rounded border border-slate-600 text-white" />
-                            <button onclick="cargarVentasDia()"
-                                class="ml-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Ver</button>
-                        </div>
-                        <div id="dashboard-ventas-dia" class="text-2xl font-bold text-green-300 mb-2">$0</div>
-                        <div id="dashboard-pedidos-count" class="text-sm text-gray-400">0 pedidos</div>
-                    </div>
-                    <div class="bg-slate-800 rounded-lg p-6">
-                        <h3 class="text-xl font-semibold mb-4 flex items-center">
-                            <i class="fas fa-history mr-2 text-yellow-400"></i>
-                            Historial de Cierres de Caja
-                        </h3>
-                        <div id="dashboard-historial-caja" class="space-y-2 text-sm max-h-64 overflow-y-auto">
-                            Cargando historial...
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Detalle de Pedidos del Dia -->
-                <div class="bg-slate-800 rounded-lg p-6">
-                    <h3 class="text-xl font-semibold mb-4 flex items-center">
-                        <i class="fas fa-receipt mr-2 text-blue-400"></i>
-                        Detalle de Pedidos
-                    </h3>
-                    <div id="dashboard-pedidos-detalle" class="space-y-4">
-                        <p class="text-gray-400">Selecciona una fecha para ver los pedidos</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Modal: Abrir Caja -->
-            <div id="modal-abrir-caja"
-                class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
-                <div class="bg-slate-800 rounded-lg p-8 max-w-md w-full mx-4">
-                    <h3 class="text-2xl font-bold mb-4">Abrir Caja</h3>
-                    <div class="mb-4">
-                        <label class="block text-sm mb-2">Usuario que abre la caja:</label>
-                        <input type="text" id="usuario-apertura" placeholder="Nombre de usuario (sin contrasena)"
-                            class="w-full bg-slate-700 px-4 py-2 rounded border border-slate-600 mb-3">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm mb-2">Monto inicial en caja:</label>
-                        <input type="number" id="monto-inicial-caja" step="0.01" min="0" placeholder="0.00"
-                            class="w-full bg-slate-700 px-4 py-2 rounded border border-slate-600">
-                    </div>
-                    <div class="flex gap-4">
-                        <button onclick="abrirCaja()"
-                            class="flex-1 bg-green-600 hover:bg-green-700 px-6 py-3 rounded font-semibold">
-                            <i class="fas fa-check mr-2"></i>Abrir
-                        </button>
-                        <button onclick="cerrarModalAbrirCaja()"
-                            class="flex-1 bg-gray-600 hover:bg-gray-700 px-6 py-3 rounded font-semibold">
-                            Cancelar
-                        </button>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -1067,242 +971,6 @@
         let productoActual = null;
         let preciosContador = 0;
 
-        // ==================== DASHBOARD ====================
-        // Obtener fecha en zona horaria de Colombia
-        function getFechaColombia() {
-            const ahora = new Date();
-            // Colombia es UTC-5
-            const offsetColombia = -5 * 60;
-            const offsetLocal = ahora.getTimezoneOffset();
-            const diferenciaMinutos = offsetColombia - offsetLocal;
-            const fechaColombia = new Date(ahora.getTime() + diferenciaMinutos * 60000);
-            return fechaColombia.toISOString().slice(0, 10);
-        }
-
-        async function cargarVentasDia() {
-            const inputFecha = document.getElementById('dashboard-fecha');
-            const fecha = inputFecha.value || getFechaColombia();
-            inputFecha.value = fecha;
-
-            try {
-                // Cargar total de ventas
-                const resp = await fetch(`${API_BASE_URL}/api/caja/ventas-dia?fecha=${fecha}`);
-                const data = await resp.json();
-                document.getElementById('dashboard-ventas-dia').textContent = `$${data.total_ventas?.toFixed(2) || 0}`;
-
-                // Cargar detalles de pedidos
-                const respPedidos = await fetch(`${API_BASE_URL}/api/caja/pedidos-dia?fecha=${fecha}`);
-                const dataPedidos = await respPedidos.json();
-
-                document.getElementById('dashboard-pedidos-count').textContent = `${dataPedidos.total_pedidos || 0} pedidos`;
-
-                // Mostrar detalle de pedidos
-                cargarDetallePedidos(dataPedidos.pedidos || []);
-            } catch (e) {
-                document.getElementById('dashboard-ventas-dia').textContent = 'Error';
-                document.getElementById('dashboard-pedidos-detalle').innerHTML =
-                    `<p class="text-red-400">Error cargando datos: ${e.message}</p>`;
-                console.error('Error cargando ventas:', e);
-            }
-        }
-
-        function cargarDetallePedidos(pedidos) {
-            const cont = document.getElementById('dashboard-pedidos-detalle');
-
-            // Helpers: parsear valores monetarios tolerando formatos con símbolos,
-            // separadores de miles y decimales con coma o punto.
-            function parseMoneyToNumber(v) {
-                if (v == null) return 0;
-                if (typeof v === 'number') return v;
-                let s = String(v).trim();
-                s = s.replace(/\s/g, '').replace(/\$/g, '').replace(/[^0-9.,-]/g, '');
-                if (s === '') return 0;
-                if (s.indexOf(',') > -1 && s.indexOf('.') > -1) {
-                    // Ej: "1.234,56" -> eliminar puntos (miles), usar coma como decimal
-                    s = s.replace(/\./g, '').replace(/,/g, '.');
-                } else if (s.indexOf(',') > -1) {
-                    // Ej: "1234,56" -> convertir coma a punto
-                    s = s.replace(/,/g, '.');
-                }
-                const n = parseFloat(s);
-                return isNaN(n) ? 0 : n;
-            }
-
-            function formatPriceNumber(n) {
-                if (n == null || isNaN(n)) return '0';
-                return n.toLocaleString('es-CO');
-            }
-
-            if (!pedidos || pedidos.length === 0) {
-                cont.innerHTML = '<p class="text-gray-400">No hay pedidos para esta fecha</p>';
-                return;
-            }
-
-            cont.innerHTML = pedidos.map(pedido => {
-                const estadoColor = {
-                    'pendiente': 'bg-yellow-600',
-                    'en_preparacion': 'bg-blue-600',
-                    'listo': 'bg-green-600',
-                    'entregado': 'bg-gray-600',
-                    'cancelado': 'bg-red-600'
-                }[pedido.estado] || 'bg-gray-600';
-
-                // Agrupar items por producto+tamano para combinar segundos sabores (mitad/mitad)
-                let itemsToRender = [];
-                try {
-                    if (pedido.items && pedido.items.length > 0) {
-                        const grouped = {};
-                        pedido.items.forEach(it => {
-                            const prod = it.producto || it.name || '';
-                            const tam = it.tamano || it.size || '';
-                            const price = it.precio_unitario || it.unit_price || it.price || 0;
-                            // FIX: Incluir adiciones y sabores en la clave para evitar agrupar items distintos
-                            const adicKey = JSON.stringify(it.adiciones || []);
-                            const saborKey = it.segundo_sabor ? JSON.stringify(it.segundo_sabor) : (it.segundos_sabores ? JSON.stringify(it.segundos_sabores) : '');
-
-                            const key = `${prod}||${tam}||${price}||${adicKey}||${saborKey}`;
-
-                            // Normalizar segundos_sabores del item actual
-                            let ssList = [];
-                            if (Array.isArray(it.segundos_sabores) && it.segundos_sabores.length > 0) {
-                                ssList = it.segundos_sabores.map(s => ({ producto_id: s.producto_id || s.id || null, nombre: s.nombre || s.name || (s.nombre_producto || '') }));
-                            } else if (it.segundo_sabor) {
-                                if (Array.isArray(it.segundo_sabor)) {
-                                    ssList = it.segundo_sabor.map(s => ({ producto_id: s.id || s.producto_id || null, nombre: s.nombre || s.name || '' }));
-                                } else if (typeof it.segundo_sabor === 'string' && it.segundo_sabor.trim() !== '') {
-                                    ssList = it.segundo_sabor.split(',').map(s => ({ producto_id: null, nombre: s.trim() }));
-                                }
-                            }
-
-                            if (!grouped[key]) {
-                                grouped[key] = Object.assign({}, it);
-                                grouped[key].cantidad = Number(it.cantidad || it.quantity || 1);
-                                grouped[key].segundos_sabores = ssList.slice();
-                            } else {
-                                grouped[key].cantidad = Number(grouped[key].cantidad || 0) + Number(it.cantidad || it.quantity || 1);
-                                // No mergear segundos sabores si son items idénticos (la clave ya los iguala)
-                            }
-                        });
-
-                        itemsToRender = Object.values(grouped);
-                    }
-                } catch (e) {
-                    console.warn('Error agrupando items para segundos sabores:', e);
-                    itemsToRender = pedido.items || [];
-                }
-
-                const itemsHtml = (itemsToRender || []).map(item => {
-                    let detalles = [];
-                    if (item.tamano) detalles.push(`<span class="text-blue-300">${item.tamano}</span>`);
-                    // Resolver segundo(s) sabor(es) de forma robusta: puede venir en 'segundo_sabor' (string)
-                    // o en 'segundos_sabores' (lista de objetos {nombre}). Evitar mostrar 'undefined'.
-                    let segundoDisplay = '';
-                    try {
-                        if (item.segundos_sabores && Array.isArray(item.segundos_sabores) && item.segundos_sabores.length > 0) {
-                            const names = item.segundos_sabores.map(s => (s && (s.nombre || s.name)) || s).filter(x => x && String(x).trim() !== '');
-                            if (names.length) segundoDisplay = names.join(', ');
-                        }
-                        if (!segundoDisplay && (item.segundo_sabor || item.segundo)) {
-                            // puede venir como string o como objeto
-                            const ss = item.segundo_sabor || item.segundo;
-                            if (typeof ss === 'string') segundoDisplay = ss;
-                            else if (Array.isArray(ss)) {
-                                const names = ss.map(s => (s && (s.nombre || s.name)) || s).filter(x => x && String(x).trim() !== '');
-                                if (names.length) segundoDisplay = names.join(', ');
-                            } else if (typeof ss === 'object' && ss !== null) {
-                                segundoDisplay = ss.nombre || ss.name || '';
-                            }
-                        }
-                    } catch (e) {
-                        console.warn('Error resolving segundos sabores display', e);
-                    }
-                    if (segundoDisplay) detalles.push(`<span class="text-orange-300">mitad ${segundoDisplay}</span>`);
-
-                    // Badge con nombres de segundos sabores (si existen)
-                    let badgeHtml = '';
-                    try {
-                        if (item.segundos_sabores && Array.isArray(item.segundos_sabores) && item.segundos_sabores.length > 0) {
-                            const names = item.segundos_sabores.map(s => (s && (s.nombre || s.name || s.nombre_producto)) || '').filter(Boolean);
-                            if (names.length) {
-                                badgeHtml = `<div class="mt-1"><span class="inline-block bg-orange-500 text-white text-xs px-2 py-1 rounded">${names.join(', ')}</span></div>`;
-                            }
-                        }
-                    } catch (e) {
-                        console.warn('Error creando badge de segundos sabores', e);
-                    }
-
-                    const detallesStr = detalles.length > 0 ? `<div class="text-xs ml-4 text-gray-400">${detalles.join(' | ')}</div>` : '';
-
-                    // Calcular precio unitario y subtotal de forma segura evitando NaN
-                    const unitNum = parseMoneyToNumber(item.precio_unitario || item.unit_price || item.price || item.precio || item.valor || 0);
-                    const cantidadNum = Number(item.cantidad || item.quantity || 1) || 1;
-                    const subtotalNum = parseMoneyToNumber(item.subtotal) || unitNum * cantidadNum;
-
-                    return `
-                    <div class="py-2 border-b border-slate-600">
-                        <div class="flex justify-between text-sm">
-                            <span class="font-medium">${item.cantidad}x ${item.producto}</span>
-                            <span class="text-green-300 font-semibold">$${formatPriceNumber(subtotalNum)}</span>
-                        </div>
-                        ${badgeHtml}
-                        ${detallesStr}
-                    </div>`;
-                }).join('');
-
-                // Formatear fecha y hora para Colombia
-                const formatearFecha = (fechaStr) => {
-                    if (!fechaStr) return 'N/A';
-                    // La fecha viene de SQLite sin zona horaria, tratarla como local (Colombia)
-                    // Agregar 'T' si no tiene y no agregar 'Z' para que no se interprete como UTC
-                    let fechaLocal = String(fechaStr).replace(' ', 'T');
-                    if (!fechaLocal.includes('T')) {
-                        // Si es solo fecha sin hora
-                        fechaLocal += 'T00:00:00';
-                    }
-                    // Parsear sin el sufijo Z para que se trate como hora local
-                    const fecha = new Date(fechaLocal);
-                    if (isNaN(fecha.getTime())) return fechaStr; // Fallback text
-
-                    // Formatear manualmente
-                    const dia = fecha.getDate().toString().padStart(2, '0');
-                    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
-                    const anio = fecha.getFullYear();
-                    let horas = fecha.getHours();
-                    const minutos = fecha.getMinutes().toString().padStart(2, '0');
-                    const ampm = horas >= 12 ? 'p. m.' : 'a. m.';
-                    horas = horas % 12 || 12;
-
-                    return `${dia}/${mes}/${anio}, ${horas}:${minutos} ${ampm}`;
-                };
-
-                return `
-                    <div class="bg-slate-700 rounded-lg p-4 hover:bg-slate-600 transition">
-                        <div class="flex justify-between items-start mb-3">
-                            <div>
-                                <h4 class="font-semibold text-lg">Pedido #${pedido.numero_pedido || pedido.id}</h4>
-                                <p class="text-sm text-gray-400"><i class="fas fa-clock mr-1"></i>${formatearFecha(pedido.fecha_pedido)}</p>
-                                ${pedido.nombre_cliente ? `<p class="text-sm"><i class="fas fa-user mr-1"></i>${pedido.nombre_cliente}</p>` : ''}
-                                ${pedido.telefono_cliente ? `<p class="text-sm"><i class="fas fa-phone mr-1"></i>${pedido.telefono_cliente}</p>` : ''}
-                                ${pedido.tipo_pedido === 'domicilio' && pedido.direccion_entrega ? `<p class="text-sm text-yellow-300"><i class="fas fa-map-marker-alt mr-1"></i>${pedido.direccion_entrega}</p>` : ''}
-                                ${pedido.tipo_pedido === 'domicilio' && pedido.direccion_entrega ? `<p class="text-sm text-yellow-300"><i class="fas fa-map-marker-alt mr-1"></i>${pedido.direccion_entrega}</p>` : ''}
-                                ${pedido.tipo_pedido === 'domicilio' && pedido.direccion_entrega ? `<p class="text-sm text-yellow-300"><i class="fas fa-map-marker-alt mr-1"></i>${pedido.direccion_entrega}</p>` : ''}
-                            </div>
-                            <div class="text-right">
-                                <span class="${estadoColor} text-xs px-3 py-1 rounded-full">${pedido.estado}</span>
-                                <p class="text-2xl font-bold text-green-300 mt-2">$${parseFloat(pedido.total).toFixed(2)}</p>
-                                <p class="text-xs text-gray-400">${pedido.tipo_pedido || 'Local'}</p>
-                            </div>
-                        </div>
-                        <div class="mt-3 pt-3 border-t border-slate-600">
-                            <p class="text-xs text-gray-400 mb-2"><i class="fas fa-list mr-1"></i>Items:</p>
-                            ${itemsHtml}
-                        </div>
-                            ${itemsHtml}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
 
         // ==================== FUNCIONES DE UTILIDAD (Reemplazo de admin.js) ====================
 
@@ -1328,11 +996,7 @@
             }
 
             // Cargar datos especificos
-            // Cargar datos especificos
-            if (seccion === 'dashboard') {
-                if (typeof cargarVentasDia === 'function') cargarVentasDia();
-                if (typeof cargarHistorialCierres === 'function') cargarHistorialCierres();
-            } else if (seccion === 'categorias') {
+            if (seccion === 'categorias') {
                 if (typeof cargarCategorias === 'function') cargarCategorias();
             } else if (seccion === 'productos') {
                 if (typeof cargarProductos === 'function') cargarProductos();
@@ -1357,13 +1021,10 @@
         // ==================== INICIALIZACIÓN ====================
         document.addEventListener('DOMContentLoaded', function () {
             // Inicializar Navegacion
-            mostrarSeccion('dashboard');
-
-            // Inicializar Estado Caja (Nueva logica)
-            if (typeof inicializarEstadoCaja === 'function') inicializarEstadoCaja();
+            mostrarSeccion('categorias');
 
             // Inicializar Ventas
-            cargarVentasDia();
+            // cargarVentasDia(); // REMOVED
         });
 
 
@@ -2950,117 +2611,10 @@
             const numPrice = typeof price === 'string' ? parseFloat(price) : price;
             return Math.round(numPrice).toLocaleString('es-CO');
         }
-        // ============= SISTEMA DE CAJA =============
 
-        function inicializarEstadoCaja() {
-            const cajaStart = localStorage.getItem('cajaSesionStart');
-            console.log('Verificando estado de caja. Fecha inicio:', cajaStart);
-
-            const btnAbrir = document.getElementById('btn-abrir-caja');
-            const btnCerrar = document.getElementById('btn-cerrar-caja');
-            const estadoInfo = document.getElementById('caja-info');
-            const usuarioOpen = localStorage.getItem('cajaUsuario');
-
-            // Asegurar estado inicial (ocultar ambos)
-            if (btnAbrir) btnAbrir.style.display = 'none';
-            if (btnCerrar) btnCerrar.style.display = 'none';
-
-            if (cajaStart && cajaStart !== 'undefined' && cajaStart !== 'null') {
-                // CAJA ABIERTA
-                console.log('Estado detectado: ABIERTA');
-                if (btnCerrar) btnCerrar.style.display = 'block'; // Mostrar Cerrar
-                if (estadoInfo) {
-                    estadoInfo.className = 'text-lg mb-2 p-2 bg-green-900 bg-opacity-50 rounded border border-green-500';
-                    estadoInfo.innerHTML = `
-                        <div class="flex items-center">
-                            <span class="text-3xl mr-2">🟢</span>
-                            <div>
-                                <span class="text-green-400 font-bold text-xl">CAJA ABIERTA</span>
-                                <div class="text-xs text-gray-300">Desde: ${new Date(cajaStart).toLocaleTimeString()}</div>
-                                <div class="text-xs text-gray-300">Usuario: ${usuarioOpen || 'Admin'}</div>
-                            </div>
-                        </div>`;
-                }
-            } else {
-                // CAJA CERRADA
-                console.log('Estado detectado: CERRADA');
-                // Limpieza preventiva
-                ['cajaSesionStart', 'cajaStartTime', 'cajaUsuario'].forEach(k => localStorage.removeItem(k));
-
-                if (btnAbrir) btnAbrir.style.display = 'block'; // Mostrar Abrir
-                if (estadoInfo) {
-                    estadoInfo.className = 'text-lg mb-2 p-2 bg-red-900 bg-opacity-50 rounded border border-red-500';
-                    estadoInfo.innerHTML = `
-                        <div class="flex items-center">
-                            <span class="text-3xl mr-2">🔴</span>
-                            <div>
-                                <span class="text-red-400 font-bold text-xl">CAJA CERRADA</span>
-                                <div class="text-xs text-gray-300">Sin sesión activa</div>
-                            </div>
-                        </div>`;
-                }
-            }
-        }
-
-        // Sincronizar pestañas
-        window.addEventListener('storage', (e) => {
-            if (e.key === 'cajaSesionStart') {
-                console.log('Detectado cambio de sesión en otra pestaña');
-                inicializarEstadoCaja();
-            }
-        });
-
-        function mostrarModalAbrirCaja() {
-            const modal = document.getElementById('modal-abrir-caja');
-            modal.classList.add('show');
-            document.getElementById('monto-inicial-caja').value = '';
-            document.getElementById('usuario-apertura').value = '';
-        }
-
-        function cerrarModalAbrirCaja() {
-            document.getElementById('modal-abrir-caja').classList.remove('show');
-        }
-
-        function abrirCaja() {
-            const usuario = document.getElementById('usuario-apertura').value || 'Admin';
-            const monto = document.getElementById('monto-inicial-caja').value || 0;
-
-            // Guardar inicio de sesion (clave compartida con app.js)
-            const startTime = new Date().toISOString();
-            localStorage.setItem('cajaSesionStart', startTime);
-            localStorage.setItem('cajaUsuario', usuario);
-            localStorage.setItem('cajaMontoInicial', monto);
-
-            cerrarModalAbrirCaja();
-            inicializarEstadoCaja();
-            showNotification('Caja abierta exitosamente. Los pedidos se filtrarán a partir de ahora.', 'success');
-        }
-
-        function cerrarCaja() {
-            if (confirm('¿Seguro que deseas CERRAR CAJA? Esto finalizará la sesion actual.')) {
-                // Calcular total ventas (mock por ahora)
-                const ventas = document.getElementById('dashboard-ventas-dia')?.innerText || '$0';
-
-                // Limpieza Profunda de Sesión
-                console.log('Cerrando caja y limpiando sesión...');
-                localStorage.removeItem('cajaSesionStart');
-                localStorage.removeItem('cajaUsuario');
-                localStorage.removeItem('cajaMontoInicial');
-                localStorage.removeItem('cajaStartTime'); // Limpiar clave legacy por seguridad
-
-                // Forzar UI a estado cerrado
-                inicializarEstadoCaja();
-
-                alert(`Caja Cerrada Exitosamente.\nVentas registradas: ${ventas}`);
-                console.log('Caja cerrada. Claves eliminadas.');
-            }
-        }
 
         // Initialize App
-        document.addEventListener('DOMContentLoaded', () => {
-            inicializarEstadoCaja();
-            // ... resto de inicializaciones ...
-        });
+
 
         // ... (resto de funciones existentes)
     </script>
