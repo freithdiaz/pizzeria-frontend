@@ -1,0 +1,197 @@
+/* 
+   ============================================
+   MOBILE PREMIUM UI - NISSI PIZZA
+   ============================================
+   Design Tokens & Modern Aesthetics
+*/
+
+:root {
+    --glass-bg: rgba(30, 41, 59, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --accent-orange: #f97316;
+    --accent-blue: #3b82f6;
+    --accent-green: #10b981;
+    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Glassmorphism Classes */
+.glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+}
+
+.glass-light {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Vibrancy Effects */
+.glow-orange { filter: drop-shadow(0 0 8px rgba(249, 115, 22, 0.4)); }
+.glow-blue { filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.4)); }
+
+/* ============================================
+   BOTTOM NAVIGATION BAR
+   ============================================ */
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(70px + var(--safe-area-bottom));
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding-bottom: var(--safe-area-bottom);
+    z-index: 100;
+    border-top: 1px solid var(--glass-border);
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -10px 25px rgba(0,0,0,0.3);
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-size: 0.75rem;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    width: 25%;
+    gap: 4px;
+}
+
+.nav-item.active {
+    color: var(--accent-orange);
+    transform: translateY(-8px);
+}
+
+.nav-item.active i {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    color: white;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    box-shadow: 0 8px 15px rgba(249, 115, 22, 0.4);
+    font-size: 1.25rem;
+}
+
+.nav-item i {
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+/* ============================================
+   RESPONSIVE CARD ADAPTATIONS (ADMIN)
+   ============================================ */
+
+@media (max-width: 640px) {
+    .mobile-tab-scroll {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        gap: 8px;
+        padding-bottom: 8px;
+    }
+    
+    .mobile-tab-scroll button {
+        scroll-snap-align: start;
+        flex-shrink: 0;
+    }
+
+    /* Convert Table to Cards */
+    .mobile-card-list table, 
+    .mobile-card-list thead, 
+    .mobile-card-list tbody, 
+    .mobile-card-list th, 
+    .mobile-card-list td, 
+    .mobile-card-list tr { 
+        display: block; 
+    }
+    
+    .mobile-card-list thead tr { 
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+    
+    .mobile-card-list tr { 
+        margin-bottom: 1rem;
+        background: rgba(30, 41, 59, 1);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 12px;
+    }
+    
+    .mobile-card-list td { 
+        border: none;
+        position: relative;
+        padding-left: 50% !important; 
+        text-align: right;
+        min-height: 32px;
+    }
+    
+    .mobile-card-list td:before { 
+        position: absolute;
+        left: 12px;
+        width: 45%; 
+        padding-right: 10px; 
+        white-space: nowrap;
+        text-align: left;
+        font-weight: bold;
+        color: #94a3b8;
+        content: attr(data-label);
+    }
+}
+
+/* ============================================
+   UI POLISH & ACCESSIBILITY
+   ============================================ */
+
+/* Larger touch targets */
+button, .clickable {
+    min-height: 44px;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Scroll smooth */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Hide scrollbar for mobile tab lists */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Custom Modals for Mobile */
+@media (max-width: 640px) {
+    .modal-content {
+        margin: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        max-height: 92vh !important;
+        border-radius: 24px 24px 0 0 !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        animation: slideUp 0.3s ease-out forwards;
+    }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}

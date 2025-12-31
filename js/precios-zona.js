@@ -110,22 +110,22 @@ function renderizarTablaZonas() {
             tr.className = zona.activo ? 'hover:bg-slate-700' : 'bg-slate-900 opacity-60';
 
             tr.innerHTML = `
-                <td class="px-6 py-4 whitespace-nowrap">
+                <td class="px-6 py-4 whitespace-nowrap" data-label="Municipio">
                     ${index === 0 ? `<span class="font-semibold text-white">${zona.municipio}</span>` : ''}
                 </td>
-                <td class="px-6 py-4">
+                <td class="px-6 py-4" data-label="Barrio">
                     ${zona.barrio ?
                     `<span class="text-white">${zona.barrio}</span>` :
                     `<span class="text-gray-400 italic">Todos los barrios</span>`
                 }
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap">
+                <td class="px-6 py-4 whitespace-nowrap" data-label="Precio">
                     <span class="text-lg font-bold text-green-400">$${formatPrice(zona.precio)}</span>
                 </td>
-                <td class="px-6 py-4 text-sm text-gray-300">
+                <td class="px-6 py-4 text-sm text-gray-300" data-label="Observaciones">
                     ${zona.observaciones || '—'}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" data-label="Acciones">
                     <button onclick="editarZona(${zona.id})" 
                             class="text-blue-400 hover:text-blue-300 mr-3">
                         <i class="fas fa-edit"></i> Editar

@@ -12,6 +12,7 @@
     <!-- Usar la misma versión de Font Awesome que el resto de plantillas para evitar inconsistencias -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/mobile-premium.css">
     <script type="module" src="./js/supabase-client.js?v=4.1"></script>
     <script src="./js/config.js" defer></script>
     <style>
@@ -134,7 +135,7 @@
 
     <!-- Main Container -->
     <div id="main-content"
-        class="bg-gray-800 w-full min-h-screen p-4 lg:p-6 space-y-6 opacity-0 transition-opacity duration-1000">
+        class="bg-gray-800/80 w-full min-h-screen p-4 lg:p-6 space-y-6 opacity-0 transition-opacity duration-1000 glass">
 
         <!-- Notificaciones de Domicilio -->
         <div id="delivery-notification-alert"
@@ -147,7 +148,7 @@
             preload="auto"></audio>
 
         <!-- Top Navigation Buttons -->
-        <div class="fixed top-2 sm:top-4 right-2 sm:right-4 z-40 flex gap-2">
+        <div class="fixed top-2 sm:top-4 right-2 sm:right-4 z-40 hidden sm:flex gap-2">
             <a href="domicilio.html"
                 class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg shadow-lg transition-colors duration-200 flex items-center space-x-1 sm:space-x-2 text-sm sm:text-base">
                 <i class="fas fa-motorcycle"></i>
@@ -836,6 +837,26 @@
             </div>
         </div>
     </div>
+
+    <!-- Bottom Navigation (Mobile Only) -->
+    <nav class="bottom-nav glass sm:hidden" id="mobile-bottom-nav">
+        <button onclick="showTableView()" class="nav-item active" id="nav-item-mesas">
+            <i class="fas fa-table"></i>
+            <span>Mesas</span>
+        </button>
+        <button onclick="showOrderManagement()" class="nav-item" id="nav-item-pedidos">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Pedidos</span>
+        </button>
+        <button onclick="showView('dashboard-view')" class="nav-item" id="nav-item-caja">
+            <i class="fas fa-cash-register"></i>
+            <span>Caja</span>
+        </button>
+        <button onclick="checkAdminAccess()" class="nav-item">
+            <i class="fas fa-cog"></i>
+            <span>Admin</span>
+        </button>
+    </nav>
 
     <script src="./js/notifications.js" defer></script>
     <script src="./js/dos-sabores.js" defer></script>
