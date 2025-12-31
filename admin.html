@@ -680,50 +680,51 @@
                     </div>
                 </form>
             </div>
+        </div>
 
-            <!-- SECCIÓN: HISTORIAL DE SESIONES -->
-            <div id="seccion-historial" class="seccion hidden">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                    <h2 class="text-3xl font-bold">Historial de Pedidos y Sesiones</h2>
-                    <div class="flex flex-wrap gap-3 items-center">
-                        <label class="text-sm text-gray-300">Fecha:</label>
-                        <input type="date" id="historial-fecha"
-                            class="bg-slate-700 px-4 py-2 rounded-lg border border-slate-600 text-white"
-                            onchange="cargarHistorialPedidos()">
-                        <button onclick="cargarHistorialPedidos()"
-                            class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold transition">
-                            <i class="fas fa-search mr-2"></i>Buscar
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Resumen del día -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-slate-800 rounded-lg p-4 border border-slate-700">
-                        <p class="text-gray-400 text-sm">Total Ventas del Día</p>
-                        <h3 class="text-2xl font-bold text-green-400" id="historial-total-dia">$0</h3>
-                    </div>
-                    <div class="bg-slate-800 rounded-lg p-4 border border-slate-700">
-                        <p class="text-gray-400 text-sm">Pedidos del Día</p>
-                        <h3 class="text-2xl font-bold text-blue-400" id="historial-pedidos-dia">0</h3>
-                    </div>
-                    <div class="bg-slate-800 rounded-lg p-4 border border-slate-700">
-                        <p class="text-gray-400 text-sm">Sesiones Activas</p>
-                        <h3 class="text-2xl font-bold text-purple-400" id="historial-sesiones-dia">0</h3>
-                    </div>
-                </div>
-
-                <!-- Lista de pedidos agrupados por sesión -->
-                <div class="bg-slate-800 rounded-lg p-4 border border-slate-700">
-                    <h3 class="text-xl font-semibold mb-4 flex items-center">
-                        <i class="fas fa-receipt mr-2 text-orange-400"></i>
-                        Pedidos por Sesión
-                    </h3>
-                    <div id="historial-lista-sesiones" class="space-y-4">
-                        <p class="text-center text-gray-400 py-8">Selecciona una fecha para ver el historial.</p>
-                    </div>
+        <!-- SECCIÓN: HISTORIAL DE SESIONES -->
+        <div id="seccion-historial" class="seccion hidden">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <h2 class="text-3xl font-bold">Historial de Pedidos y Sesiones</h2>
+                <div class="flex flex-wrap gap-3 items-center">
+                    <label class="text-sm text-gray-300">Fecha:</label>
+                    <input type="date" id="historial-fecha"
+                        class="bg-slate-700 px-4 py-2 rounded-lg border border-slate-600 text-white"
+                        onchange="cargarHistorialPedidos()">
+                    <button onclick="cargarHistorialPedidos()"
+                        class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold transition">
+                        <i class="fas fa-search mr-2"></i>Buscar
+                    </button>
                 </div>
             </div>
+
+            <!-- Resumen del día -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                    <p class="text-gray-400 text-sm">Total Ventas del Día</p>
+                    <h3 class="text-2xl font-bold text-green-400" id="historial-total-dia">$0</h3>
+                </div>
+                <div class="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                    <p class="text-gray-400 text-sm">Pedidos del Día</p>
+                    <h3 class="text-2xl font-bold text-blue-400" id="historial-pedidos-dia">0</h3>
+                </div>
+                <div class="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                    <p class="text-gray-400 text-sm">Sesiones Activas</p>
+                    <h3 class="text-2xl font-bold text-purple-400" id="historial-sesiones-dia">0</h3>
+                </div>
+            </div>
+
+            <!-- Lista de pedidos agrupados por sesión -->
+            <div class="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                <h3 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-receipt mr-2 text-orange-400"></i>
+                    Pedidos por Sesión
+                </h3>
+                <div id="historial-lista-sesiones" class="space-y-4">
+                    <p class="text-center text-gray-400 py-8">Selecciona una fecha para ver el historial.</p>
+                </div>
+            </div>
+        </div>
 
     </main>
 
