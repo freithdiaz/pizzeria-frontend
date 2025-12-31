@@ -1852,7 +1852,8 @@ function closeAdicionalesModal() {
     // Limpiar estado
     currentPizzaData = null;
     selectedAdicionales = [];
-    document.getElementById('adicionales-grid').innerHTML = '';
+    const grid = document.getElementById('adicionalesGrid');
+    if (grid) grid.innerHTML = '';
 }
 
 // ==================== LÓGICA DE CAJA (SESIONES) ====================
