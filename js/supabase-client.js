@@ -140,6 +140,7 @@ export const db = {
                 // Session traceability
                 cajero: rawInfo.cajero || null,
                 sesion_inicio: rawInfo.sesion_inicio || null,
+                mesero: rawInfo.mesero || null,
                 fecha: new Date().toISOString()
             };
 

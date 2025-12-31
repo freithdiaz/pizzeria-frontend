@@ -1124,6 +1124,11 @@ function renderOrderManagement() {
                     <p class="text-gray-300 text-lg">
                         <i class="fas fa-utensils mr-2"></i>${tableInfo}
                     </p>
+                    ${order.mesero ? `
+                        <p class="text-blue-400 text-sm font-semibold mt-1">
+                            <i class="fas fa-concierge-bell mr-1"></i>Mesero: ${order.mesero}
+                        </p>
+                    ` : ''}
                     <p class="text-sm text-gray-400">
                         <i class="fas fa-clock mr-1"></i>${formatDateTime(order.created_at || order.fecha)}
                     </p>
