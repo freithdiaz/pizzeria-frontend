@@ -1333,32 +1333,68 @@ async function seleccionarDireccionSugerida(placeId) {
 
 async function calcularPrecioDomicilio(municipio, barrio) {
     try {
-        const params = new URLSearchParams({ municipio: municipio || 'No especificado' });
-        if (barrio) params.append('barrio', barrio);
+        console.log(`Calculando domicilio para: ${municipio} - ${barrio}`);
 
-        const response = await fetch(`${API_BASE_URL}/api/delivery/calculate-delivery-price?${params}`);
-
-        // Si el backend responde 404 o error, usar precio por defecto 3000
-        if (!response.ok) {
-            console.warn('Backend de entrega no disponible (404), usando valor por defecto 3000');
-            window.precioDomicilio = 3000;
-            actualizarResumenPrecio();
-            return 3000;
+        // 1. Obtener zonas configuradas desde Supabase
+        let zonas = [];
+        try {
+            zonas = await db.getZonasPrecios();
+        } catch (e) {
+            console.warn('Error obteniendo zonas de Supabase:', e);
         }
 
-        const resultado = await response.json();
-
-        if (resultado.success) {
-            window.precioDomicilio = resultado.precio;
-            localStorage.setItem('precioDomicilio', resultado.precio);
-            actualizarResumenPrecio();
-            return resultado.precio;
-        } else {
-            return window.precioDomicilio || 3000;
+        // 2. Obtener configuración base (precio por defecto)
+        let precio = 3000; // Fallback hardcoded
+        try {
+            const config = await db.getPreciosZonaConfig();
+            if (config && config.precio_base) {
+                precio = parseFloat(config.precio_base);
+            }
+        } catch (e) {
+            console.warn('Error obteniendo config base:', e);
         }
+
+        // 3. Lógica de coincidencia
+        if (municipio) {
+            const mNorm = municipio.toLowerCase().trim();
+            const bNorm = (barrio || '').toLowerCase().trim();
+
+            // A. Buscar coincidencia exacta de Barrio + Municipio
+            const coincidenciaBarrio = zonas.find(z =>
+                (z.municipio || '').toLowerCase().trim() === mNorm &&
+                (z.barrio || '').toLowerCase().trim() === bNorm &&
+                z.activo !== false
+            );
+
+            if (coincidenciaBarrio) {
+                precio = parseFloat(coincidenciaBarrio.precio);
+                console.log('Precio por barrio encontrado:', precio);
+            } else {
+                // B. Buscar coincidencia solo por Municipio (Barrio vacío/nulo)
+                const coincidenciaMunicipio = zonas.find(z =>
+                    (z.municipio || '').toLowerCase().trim() === mNorm &&
+                    (!z.barrio || z.barrio.trim() === '') &&
+                    z.activo !== false
+                );
+
+                if (coincidenciaMunicipio) {
+                    precio = parseFloat(coincidenciaMunicipio.precio);
+                    console.log('Precio por municipio encontrado:', precio);
+                }
+            }
+        }
+
+        window.precioDomicilio = precio;
+        localStorage.setItem('precioDomicilio', precio);
+        actualizarResumenPrecio();
+        return precio;
+
     } catch (error) {
-        console.error('Error calculando precio de domicilio:', error);
-        return window.precioDomicilio || 3000;
+        console.error('Error calculando precio de domicilio (local):', error);
+        // Fallback seguro
+        window.precioDomicilio = 3000;
+        actualizarResumenPrecio();
+        return 3000;
     }
 }
 
