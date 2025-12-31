@@ -1933,7 +1933,7 @@ async function loadSessionStats() {
     try {
         // Obtenemos pedidos desde Supabase que sean POSTERIORES al inicio de sesión
         // Nota: Esto asume 'fecha' en formato ISO en la BD
-        const { data: orders, error } = await db.supabase
+        const { data: orders, error } = await window.supabase
             .from('pedidos')
             .select('*')
             .gte('fecha', sesionActual.inicio.toISOString())
