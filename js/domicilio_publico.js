@@ -63,6 +63,16 @@ async function inicializarApp() {
 
     await cargarCategorias();
     await cargarProductos();
+
+    // Aplicar categoría predeterminada si existe
+    if (categorias && categorias.length > 0) {
+        const defaultCat = categorias.find(c => c.default_en_domicilio === 1 || c.default_en_domicilio === true);
+        if (defaultCat) {
+            console.log('Aplicando categoría predeterminada:', defaultCat.nombre);
+            filtrarPorCategoria(defaultCat.id);
+        }
+    }
+
     actualizarContadorCarrito();
 
     // Inicializar precio de domicilio
