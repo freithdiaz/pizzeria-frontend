@@ -938,7 +938,15 @@ function renderOrderManagement() {
 
     container.innerHTML = '';
 
-    filteredOrders.forEach(order => {
+    // Calculate session order numbers (oldest order in session = #1, newest = #N)
+    // allOrders is already filtered to session, sorted by date DESC (newest first)
+    const totalOrdersInSession = allOrders.filter(o => o.estado !== 'cancelado').length;
+
+    filteredOrders.forEach((order, displayIndex) => {
+        // Find this order's position in the full session list (excluding cancelled)
+        const sessionIndex = allOrders.filter(o => o.estado !== 'cancelado').findIndex(o => o.id === order.id);
+        const sessionOrderNumber = sessionIndex >= 0 ? (totalOrdersInSession - sessionIndex) : (displayIndex + 1);
+
         const orderCard = document.createElement('div');
         orderCard.className = 'bg-gray-700 p-6 rounded-2xl shadow-md border-l-4';
 
@@ -1082,7 +1090,8 @@ function renderOrderManagement() {
         orderCard.innerHTML = `
             <div class="flex justify-between items-start mb-4">
                 <div>
-                    <h4 class="text-xl font-bold text-white">Pedido #${order.id}</h4>
+                    <h4 class="text-xl font-bold text-white">Pedido #${sessionOrderNumber}</h4>
+                    <p class="text-gray-500 text-xs">ID: ${order.id}</p>
                     <p class="text-gray-300 text-lg">
                         <i class="fas fa-utensils mr-2"></i>${tableInfo}
                     </p>
@@ -1117,8 +1126,8 @@ function renderOrderManagement() {
                     ${itemsHTML}
                 </div>
             </div>
-            <div class="flex space-x-2">
-                ${order.estado !== 'entregado' ? `
+            <div class="flex flex-wrap gap-2">
+                ${order.estado !== 'entregado' && order.estado !== 'cancelado' ? `
                     <select onchange="handleStatusChange(${order.id}, this)" class="bg-gray-600 text-white rounded-lg px-3 py-2 border border-gray-500">
                         <option value="">Cambiar Estado</option>
                         <option value="pendiente" ${order.estado === 'pendiente' ? 'disabled' : ''}>Pendiente</option>
@@ -1126,6 +1135,14 @@ function renderOrderManagement() {
                         <option value="listo" ${order.estado === 'listo' ? 'disabled' : ''}>Listo</option>
                         <option value="entregado" ${order.estado === 'entregado' ? 'disabled' : ''}>Entregado</option>
                     </select>
+                    <button onclick="cancelarPedido(${order.id})" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg">
+                        <i class="fas fa-times-circle"></i> Cancelar
+                    </button>
+                ` : ''}
+                ${order.estado === 'cancelado' ? `
+                    <span class="bg-red-900 text-red-300 px-3 py-2 rounded-lg font-semibold">
+                        <i class="fas fa-ban mr-2"></i>CANCELADO
+                    </span>
                 ` : ''}
                 <button onclick="printOrder(${order.id})" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg">
                     <i class="fas fa-print"></i> Imprimir
@@ -1143,11 +1160,13 @@ function getStatusColor(status) {
         'preparando': 'bg-orange-500 text-orange-900',
         'listo': 'bg-green-500 text-green-900',
         'entregado': 'bg-gray-500 text-gray-900',
+        'cancelado': 'bg-red-700 text-red-200',
         // Mantener compatibilidad con formatos anteriores
         'Pendiente': 'bg-yellow-500 text-yellow-900',
         'Preparando': 'bg-orange-500 text-orange-900',
         'Listo': 'bg-green-500 text-green-900',
-        'Entregado': 'bg-gray-500 text-gray-900'
+        'Entregado': 'bg-gray-500 text-gray-900',
+        'Cancelado': 'bg-red-700 text-red-200'
     };
     return colors[status] || 'bg-blue-500 text-blue-900';
 }
@@ -1201,6 +1220,28 @@ function filterOrdersByStatus(status) {
     }
 
     renderOrderManagement();
+}
+
+// Función para cancelar un pedido
+async function cancelarPedido(orderId) {
+    if (!confirm('¿Estás seguro de que deseas CANCELAR este pedido? Esta acción no se puede deshacer.')) {
+        return;
+    }
+
+    try {
+        const result = await db.updatePedido(orderId, { estado: 'cancelado' });
+        if (result.success) {
+            showNotification('Pedido cancelado exitosamente', 'success');
+            loadOrderManagement(); // Recargar la lista
+            // También actualizar estadísticas si está visible el dashboard
+            if (typeof loadSessionStats === 'function') loadSessionStats();
+        } else {
+            throw new Error(result.error || 'Error desconocido');
+        }
+    } catch (error) {
+        console.error('Error cancelando pedido:', error);
+        showNotification('Error al cancelar el pedido', 'error');
+    }
 }
 
 function handleStatusChange(orderId, selectElement) {
