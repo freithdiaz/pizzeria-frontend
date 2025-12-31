@@ -361,6 +361,10 @@ async function abrirModalProducto(productoId) {
     // Mostrar modal
     document.getElementById('producto-modal').classList.add('active');
 
+    // OCULTAR carrito flotante para no estorbar
+    const floatingCart = document.getElementById('floating-cart-btn');
+    if (floatingCart) floatingCart.style.display = 'none';
+
     // Mostrar botones rápidos de adiciones DESPUÉS de que se carguen los grupos
     // Esto se hace con un pequeño delay para asegurar que los grupos estén cargados
     setTimeout(() => {
@@ -760,6 +764,10 @@ function cerrarModalProducto() {
     if (typeof resetearDosSabores === 'function') {
         resetearDosSabores();
     }
+
+    // RESTAURAR carrito flotante
+    const floatingCart = document.getElementById('floating-cart-btn');
+    if (floatingCart) floatingCart.style.display = 'flex';
 }
 
 function agregarAlCarrito() {
