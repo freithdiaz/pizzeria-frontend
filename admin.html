@@ -1347,7 +1347,7 @@
             container.innerHTML = data.map(c => `
                 <div class="bg-slate-700 p-3 rounded mb-2 text-sm border-l-4 border-green-500">
                    <div class="flex justify-between items-center mb-1">
-                       <span class="font-bold text-white">${new Date(c.fecha_cierre).toLocaleString('es-CO')}</span>
+                       <span class="font-bold text-white">${formatTime(c.fecha_cierre)}</span>
                        <span class="text-green-400 font-bold">$${parseFloat(c.total_ventas || 0).toLocaleString('es-CO')}</span>
                    </div>
                    <div class="flex justify-between text-gray-400 text-xs">
@@ -2666,10 +2666,26 @@
 
         function formatTime(dateInput) {
             if (!dateInput) return 'N/A';
-            const date = new Date(dateInput);
+
+            // Normalizar entrada de fecha
+            let normalizedInput = dateInput;
+            if (typeof dateInput === 'string') {
+                // Asegurar formato ISO (reemplazar espacio por T)
+                normalizedInput = dateInput.replace(' ', 'T');
+                // Si no tiene indicador de zona horaria (+ o Z), asumimos UTC de Supabase
+                if (!normalizedInput.includes('Z') && !normalizedInput.includes('+')) {
+                    normalizedInput += 'Z';
+                }
+            }
+
+            const date = new Date(normalizedInput);
             if (isNaN(date.getTime())) return 'N/A';
-            return date.toLocaleTimeString('es-CO', {
+
+            return date.toLocaleString('es-CO', {
                 timeZone: 'America/Bogota',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
                 hour: '2-digit',
                 minute: '2-digit',
                 hour12: true
