@@ -134,6 +134,9 @@ export const db = {
                 estado: rawInfo.estado || 'pendiente',
                 medio_pago: rawInfo.metodo_pago || rawInfo.medio_pago || 'pendiente',
                 notas_entrega: rawInfo.observaciones || rawInfo.notas_entrega || '',
+                telefono_cliente: rawInfo.telefono_cliente || rawInfo.telefono || '',
+                direccion_entrega: rawInfo.direccion_entrega || rawInfo.direccion || '',
+                usuario_domicilio_id: rawInfo.usuario_domicilio_id || null, // Si se proporciona
                 fecha: new Date().toISOString()
             };
 
