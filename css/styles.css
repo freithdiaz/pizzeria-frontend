@@ -217,11 +217,23 @@ label.cursor-pointer:hover {
 
     /* Carrito flotante: Ajustar para que esté sobre la barra de navegación */
     #checkout-btn {
-        bottom: 85px !important;
-        right: 1rem !important;
-        padding: 0.75rem 1.5rem !important;
-        font-size: 0.875rem !important;
+        bottom: 120px !important;
+        /* Subir más para no tapar botones de productos */
+        right: 1.5rem !important;
+        padding: 1rem 2rem !important;
+        font-size: 1rem !important;
         z-index: 60 !important;
+        width: calc(100% - 3rem) !important;
+        /* Casi ancho completo para mejor toque */
+        text-align: center;
+        max-width: 400px;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+    }
+
+    /* Asegurar que el contenido final no quede oculto tras la barra nav */
+    #main-content {
+        padding-bottom: 160px !important;
     }
 
     /* Cards de productos más compactas */
