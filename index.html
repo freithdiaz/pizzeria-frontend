@@ -16,42 +16,104 @@
     <script src="./js/config.js" defer></script>
     <style>
         /* Ocultar imágenes del selector de sabores en mesas tan pronto el checkbox esté marcado, y mostrar nombres legibles */
-        #checkbox-dos-sabores-mesa:checked ~ #selector-segundo-sabor-mesa .sabor-opcion img { display: none !important; }
-        #selector-segundo-sabor-mesa .sabor-opcion span { display: block !important; white-space: normal !important; font-size: 1.05rem !important; color: #FFFFFF !important; text-align: left !important; }
-        #selector-segundo-sabor-mesa .sabor-opcion { min-height: 56px; align-items: flex-start; width: 100%; padding-left: 0.5rem; padding-right: 0.5rem; }
+        #checkbox-dos-sabores-mesa:checked~#selector-segundo-sabor-mesa .sabor-opcion img {
+            display: none !important;
+        }
+
+        #selector-segundo-sabor-mesa .sabor-opcion span {
+            display: block !important;
+            white-space: normal !important;
+            font-size: 1.05rem !important;
+            color: #FFFFFF !important;
+            text-align: left !important;
+        }
+
+        #selector-segundo-sabor-mesa .sabor-opcion {
+            min-height: 56px;
+            align-items: flex-start;
+            width: 100%;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+
         /* Cuando el checkbox esté activo, forzar que el grid sea una sola columna para que los nombres ocupen todo el ancho */
-        #checkbox-dos-sabores-mesa:checked ~ #selector-segundo-sabor-mesa .grid {
+        #checkbox-dos-sabores-mesa:checked~#selector-segundo-sabor-mesa .grid {
             grid-template-columns: 1fr !important;
         }
+
         /* Asegurar que el contenedor selector use todo el ancho disponible */
-        #selector-segundo-sabor-mesa { width: 100%; }
+        #selector-segundo-sabor-mesa {
+            width: 100%;
+        }
+
         /* Resumen: ocupar todo el ancho y mayor legibilidad */
-        #saborSeleccionadoMesa.expanded-names { padding: 0.75rem; width: 100%; box-sizing: border-box; }
-            /* Ocultar imágenes del selector de sabores en mesas tan pronto el checkbox esté marcado, y mostrar nombres legibles */
-            #checkbox-dos-sabores-mesa:checked ~ #selector-segundo-sabor-mesa .sabor-opcion img { display: none !important; }
-            /* Aplicar mismo comportamiento para domicilio */
-            #checkbox-dos-sabores:checked ~ #selector-segundo-sabor .sabor-opcion img { display: none !important; }
+        #saborSeleccionadoMesa.expanded-names {
+            padding: 0.75rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
 
-            /* Nombres legibles y ocupando todo el ancho */
-            #selector-segundo-sabor-mesa .sabor-opcion span,
-            #selector-segundo-sabor .sabor-opcion span { display: block !important; white-space: normal !important; font-size: 1.05rem !important; color: #FFFFFF !important; text-align: left !important; }
-            #selector-segundo-sabor-mesa .sabor-opcion,
-            #selector-segundo-sabor .sabor-opcion { min-height: 56px; align-items: flex-start; width: 100%; padding-left: 0.5rem; padding-right: 0.5rem; }
+        /* Ocultar imágenes del selector de sabores en mesas tan pronto el checkbox esté marcado, y mostrar nombres legibles */
+        #checkbox-dos-sabores-mesa:checked~#selector-segundo-sabor-mesa .sabor-opcion img {
+            display: none !important;
+        }
 
-            /* Forzar que el grid pase a una columna cuando el checkbox correspondiente esté activo */
-            #checkbox-dos-sabores-mesa:checked ~ #selector-segundo-sabor-mesa .grid,
-            #checkbox-dos-sabores:checked ~ #selector-segundo-sabor .grid {
-                grid-template-columns: 1fr !important;
-            }
+        /* Aplicar mismo comportamiento para domicilio */
+        #checkbox-dos-sabores:checked~#selector-segundo-sabor .sabor-opcion img {
+            display: none !important;
+        }
 
-            /* Asegurar que los selectores usen todo el ancho del modal y sean responsivos */
-            #selector-segundo-sabor-mesa, #selector-segundo-sabor { width: 100%; box-sizing: border-box; }
+        /* Nombres legibles y ocupando todo el ancho */
+        #selector-segundo-sabor-mesa .sabor-opcion span,
+        #selector-segundo-sabor .sabor-opcion span {
+            display: block !important;
+            white-space: normal !important;
+            font-size: 1.05rem !important;
+            color: #FFFFFF !important;
+            text-align: left !important;
+        }
 
-            /* Resumen: ocupar todo el ancho y mayor legibilidad */
-            #saborSeleccionadoMesa.expanded-names, #sabor-seleccionado-info { padding: 0.75rem; width: 100%; box-sizing: border-box; }
+        #selector-segundo-sabor-mesa .sabor-opcion,
+        #selector-segundo-sabor .sabor-opcion {
+            min-height: 56px;
+            align-items: flex-start;
+            width: 100%;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+
+        /* Forzar que el grid pase a una columna cuando el checkbox correspondiente esté activo */
+        #checkbox-dos-sabores-mesa:checked~#selector-segundo-sabor-mesa .grid,
+        #checkbox-dos-sabores:checked~#selector-segundo-sabor .grid {
+            grid-template-columns: 1fr !important;
+        }
+
+        /* Asegurar que los selectores usen todo el ancho del modal y sean responsivos */
+        #selector-segundo-sabor-mesa,
+        #selector-segundo-sabor {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Resumen: ocupar todo el ancho y mayor legibilidad */
+        #saborSeleccionadoMesa.expanded-names,
+        #sabor-seleccionado-info {
+            padding: 0.75rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
         /* Resumen expandido en modal */
-        #saborSeleccionadoMesa.expanded-names { padding: 0.75rem; }
-        #saborSeleccionadoMesa.expanded-names #nombreSegundoSaborMesa { display: block; font-size: 1rem; line-height: 1.25; word-break: break-word; }
+        #saborSeleccionadoMesa.expanded-names {
+            padding: 0.75rem;
+        }
+
+        #saborSeleccionadoMesa.expanded-names #nombreSegundoSaborMesa {
+            display: block;
+            font-size: 1rem;
+            line-height: 1.25;
+            word-break: break-word;
+        }
     </style>
 </head>
 
@@ -80,8 +142,13 @@
                 <i class="fas fa-motorcycle"></i>
                 <span class="hidden sm:inline">Domicilios</span>
             </a>
-            <a href="admin.html"
-                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg shadow-lg transition-colors duration-200 flex items-center space-x-1 sm:space-x-2 text-sm sm:text-base">
+            <button onclick="showView('dashboard-view')"
+                class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg shadow-lg transition-colors duration-200 flex items-center space-x-1 sm:space-x-2 text-sm sm:text-base">
+                <i class="fas fa-cash-register"></i>
+                <span class="hidden sm:inline">Caja</span>
+            </button>
+            <a href="admin.html" id="btn-admin-access" style="display:none;"
+                class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg shadow-lg transition-colors duration-200 flex items-center space-x-1 sm:space-x-2 text-sm sm:text-base">
                 <i class="fas fa-cog"></i>
                 <span class="hidden sm:inline">Admin</span>
             </a>
@@ -275,6 +342,72 @@
             </div>
 
 
+        </section>
+
+        <!-- Dashboard / Caja View -->
+        <section id="dashboard-view" class="view-section hidden">
+            <h3 class="text-2xl font-bold text-white mb-6 text-center">Control de Caja</h3>
+
+            <!-- Setup Inicial: Iniciar Sesión de Caja -->
+            <div id="caja-cerrada-panel" class="max-w-md mx-auto bg-gray-700 p-8 rounded-2xl shadow-xl text-center">
+                <i class="fas fa-lock text-5xl text-gray-400 mb-4"></i>
+                <h4 class="text-xl font-bold text-white mb-2">Caja Cerrada</h4>
+                <p class="text-gray-300 mb-6">Debes iniciar una sesión de caja para tomar pedidos.</p>
+                <button onclick="abrirModalSesionCaja()"
+                    class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full transition-all transform hover:scale-105">
+                    <i class="fas fa-key mr-2"></i>Iniciar Sesión de Caja
+                </button>
+                <div class="mt-8 border-t border-gray-600 pt-4">
+                    <button onclick="checkAdminPassword()" class="text-gray-500 hover:text-white text-sm">
+                        <i class="fas fa-user-shield mr-1"></i>Acceso Admin
+                    </button>
+                </div>
+            </div>
+
+            <!-- Panel Caja Abierta -->
+            <div id="caja-abierta-panel" class="hidden space-y-6">
+                <!-- Info Sesión -->
+                <div class="bg-gray-800 p-4 rounded-xl border border-green-600 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-full bg-green-900 flex items-center justify-center text-green-400">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Cajero en turno</p>
+                            <h4 class="font-bold text-white text-lg" id="cajero-nombre-display">Usuario</h4>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-xs text-right text-gray-400">Inicio: <span id="caja-inicio-display">--:--</span>
+                        </p>
+                        <button onclick="cerrarSesionCaja()"
+                            class="mt-1 text-red-400 hover:text-red-300 text-sm underline">
+                            Cerrar Caja
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Estadísticas Rápidas -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gray-700 p-4 rounded-xl">
+                        <p class="text-gray-400 text-sm">Ventas Sesión</p>
+                        <h4 class="text-2xl font-bold text-green-400" id="sesion-ventas-total">$0</h4>
+                    </div>
+                    <div class="bg-gray-700 p-4 rounded-xl">
+                        <p class="text-gray-400 text-sm">Pedidos</p>
+                        <h4 class="text-2xl font-bold text-blue-400" id="sesion-pedidos-count">0</h4>
+                    </div>
+                </div>
+
+                <!-- Lista Reciente -->
+                <div class="bg-gray-700 rounded-xl p-4">
+                    <h4 class="font-bold text-white mb-4">Pedidos Recientes de la Sesión</h4>
+                    <div id="sesion-pedidos-lista" class="space-y-3 max-h-96 overflow-y-auto">
+                        <p class="text-center text-gray-400 py-4">No hay pedidos en esta sesión.</p>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- Custom Message Box -->
@@ -622,6 +755,32 @@
                 <button onclick="confirmOrderWithDiscount()"
                     class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl">
                     <i class="fas fa-check mr-2"></i>Confirmar Pedido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Inicio Sesión Caja -->
+    <div id="modal-sesion-caja"
+        class="fixed inset-0 bg-black bg-opacity-80 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-gray-800 rounded-2xl w-full max-w-sm p-6 border border-gray-600">
+            <h3 class="text-2xl font-bold text-white mb-2 text-center">Iniciar Turno</h3>
+            <p class="text-gray-400 text-center mb-6 text-sm">Ingresa tu nombre para registrar las ventas de tu turno.
+            </p>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-gray-300 mb-1 font-medium">Nombre del Cajero</label>
+                    <input type="text" id="input-nombre-cajero" placeholder="Ej: Juan Perez"
+                        class="w-full bg-gray-700 text-white border border-gray-500 rounded-lg px-4 py-3 focus:border-green-500 focus:outline-none placeholder-gray-500">
+                </div>
+                <button onclick="confirmarInicioCaja()"
+                    class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow-lg transition-transform transform active:scale-95">
+                    ABRIR CAJA
+                </button>
+                <button onclick="document.getElementById('modal-sesion-caja').classList.add('hidden')"
+                    class="w-full text-gray-400 hover:text-white py-2 text-sm">
+                    Cancelar
                 </button>
             </div>
         </div>

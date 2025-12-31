@@ -1838,21 +1838,184 @@ function confirmarPizzaConAdicionales() {
         totalPrice,
         selectedAdicionales,
         segundoForAdd
+            ```javascript
     );
 
     closeAdicionalesModal();
 }
 
-// Cerrar modal de adicionales
-function closeAdicionalesModal() {
-    const modal = document.getElementById('adicionalesModal');
-    if (modal) {
-        modal.classList.add('hidden');
+// ==================== LÓGICA DE CAJA (SESIONES) ====================
+let sesionActual = null;
+
+function checkCajaStatus() {
+    // 1. Verificar localStorage
+    const cajaStart = localStorage.getItem('cajaSesionStart');
+    const cajaUser = localStorage.getItem('cajaUsuario');
+
+    if (cajaStart && cajaUser) {
+        sesionActual = {
+            inicio: new Date(cajaStart),
+            usuario: cajaUser
+        };
+        mostrarPanelCajaAbierta();
+        loadSessionStats();
+    } else {
+        sesionActual = null;
+        mostrarPanelCajaCerrada();
     }
-    currentPizzaData = null;
-    selectedAdicionales = [];
-    segundoSaborMesa = null;
 }
+
+function abrirModalSesionCaja() {
+    const modal = document.getElementById('modal-sesion-caja');
+    modal.classList.remove('hidden');
+    document.getElementById('input-nombre-cajero').focus();
+}
+
+function confirmarInicioCaja() {
+    const nombre = document.getElementById('input-nombre-cajero').value.trim();
+    if (!nombre) {
+        showNotification('Por favor ingresa tu nombre', 'warning');
+        return;
+    }
+
+    // Guardar sesión
+    const now = new Date();
+    localStorage.setItem('cajaSesionStart', now.toISOString());
+    localStorage.setItem('cajaUsuario', nombre);
+
+    sesionActual = {
+        inicio: now,
+        usuario: nombre
+    };
+
+    // Cerrar modal y actualizar UI
+    document.getElementById('modal-sesion-caja').classList.add('hidden');
+    showNotification(`Turno iniciado.Bienvenido / a ${ nombre }`, 'success');
+    checkCajaStatus();
+    
+    // Opcional: Registrar inicio en BD (si tabla existe)
+}
+
+function cerrarSesionCaja() {
+    if (!confirm('¿Seguro que deseas cerrar la caja y terminar el turno?')) return;
+
+    // Calcular totales finales (opcional: guardar en BD historial)
+    const ventas = document.getElementById('sesion-ventas-total')?.innerText || '$0';
+    const pedidos = document.getElementById('sesion-pedidos-count')?.innerText || '0';
+
+    // Limpiar sesión
+    localStorage.removeItem('cajaSesionStart');
+    localStorage.removeItem('cajaUsuario');
+    sesionActual = null;
+
+    showNotification(`Caja cerrada.Ventas: ${ ventas }`, 'info');
+    checkCajaStatus();
+}
+
+function mostrarPanelCajaCerrada() {
+    document.getElementById('caja-cerrada-panel').classList.remove('hidden');
+    document.getElementById('caja-abierta-panel').classList.add('hidden');
+}
+
+function mostrarPanelCajaAbierta() {
+    document.getElementById('caja-cerrada-panel').classList.add('hidden');
+    document.getElementById('caja-abierta-panel').classList.remove('hidden');
+
+    if (sesionActual) {
+        document.getElementById('cajero-nombre-display').textContent = sesionActual.usuario;
+        document.getElementById('caja-inicio-display').textContent = sesionActual.inicio.toLocaleTimeString('es-CO', {hour: '2-digit', minute:'2-digit'});
+    }
+}
+
+// Cargar estadísticas de la sesión actual
+async function loadSessionStats() {
+    if (!sesionActual) return;
+
+    try {
+        // Obtenemos pedidos desde Supabase que sean POSTERIORES al inicio de sesión
+        // Nota: Esto asume 'fecha' en formato ISO en la BD
+        const { data: orders, error } = await db.supabase
+            .from('pedidos')
+            .select('*')
+            .gte('fecha', sesionActual.inicio.toISOString())
+            .order('fecha', { ascending: false }); // Más recientes primero
+
+        if (error) throw error;
+
+        const totalVentas = orders
+            .filter(o => o.estado !== 'cancelado')
+            .reduce((sum, o) => sum + parseFloat(o.total_con_descuento || o.total_precio || 0), 0);
+        
+        const count = orders.length;
+
+        // Actualizar UI estadísticas
+        document.getElementById('sesion-ventas-total').textContent = `$${ formatPrice(totalVentas) }`;
+        document.getElementById('sesion-pedidos-count').textContent = count;
+
+        // Renderizar lista "Visualmente #1..N"
+        // Como 'orders' está ordenado DESC (N..1), el índice inverso nos da el número secuencial
+        // Pero visualmente queremos ver el último pedido arriba.
+        // Así que: Pedido más reciente = #Count. Pedido más antiguo = #1.
+        
+        const lista = document.getElementById('sesion-pedidos-lista');
+        if (count === 0) {
+            lista.innerHTML = '<p class="text-center text-gray-400 py-4">No hay pedidos en este turno.</p>';
+            return;
+        }
+
+        lista.innerHTML = orders.map((o, index) => {
+            // El número de pedido en esta sesión es: (Total - index)
+            // Ejemplo: 5 pedidos. Index 0 (más reciente) es #5. Index 4 (más viejo) es #1.
+            const sessionOrderNumber = count - index; 
+            
+            return `
+    < div class= "bg-gray-800 p-3 rounded flex justify-between items-center border-l-4 ${getEstadoColor(o.estado)}" >
+                    <div>
+                        <span class="font-bold text-white">#${sessionOrderNumber} - ${o.cliente_nombre || 'Cliente'}</span>
+                        <p class="text-xs text-gray-400">${formatDateTime(o.fecha)}</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="font-bold text-green-400">$${formatPrice(o.total_con_descuento || o.total_precio)}</span>
+                        <p class="text-xs uppercase">${o.estado}</p>
+                    </div>
+                </div >
+        `;
+        }).join('');
+
+    } catch (e) {
+        console.error('Error loading session stats:', e);
+    }
+}
+
+function getEstadoColor(estado) {
+    switch(estado) {
+        case 'entregado': return 'border-green-500';
+        case 'cancelado': return 'border-red-500';
+        case 'pendiente': return 'border-yellow-500';
+        default: return 'border-blue-500';
+    }
+}
+
+// Acceso Admin simple
+function checkAdminPassword() {
+    const pass = prompt("Ingresa código de administrador:");
+    if (pass === "1234") { // Contraseña simple por ahora, configurar mejor después
+        document.getElementById('btn-admin-access').style.display = 'inline-flex';
+        showNotification('Modo Admin habilitado', 'success');
+    } else {
+        showNotification('Código incorrecto', 'error');
+    }
+}
+
+// Init Dashboard logic on view switch
+// Hook into showView to refresh dashboard
+const originalShowView = window.showView;
+window.showView = function(viewId) {
+    originalShowView(viewId);
+    if (viewId === 'dashboard-view') {
+        checkCajaStatus();
+    }
+};
 
 // Cerrar modal genÃ©Â©rico
 function closeModal(modalId) {
@@ -1891,7 +2054,7 @@ function addToCartWithAdicionales(recipeId, itemName, totalPrice, adicionales, s
             newItem.sale_price = recipe.sale_price;
             console.log('Found recipe for adicionales, added info:', recipe);
         } else {
-            console.warn(`Receta no encontrada para ID: ${recipeId}, extrayendo info del ID`);
+            console.warn(`Receta no encontrada para ID: ${ recipeId }, extrayendo info del ID`);
             console.log('All available recipe IDs:', allRecipes.map(r => r.id));
             // Intentar extraer product_id y size_id del recipeId compuesto
             const parts = recipeId.toString().split('_');
@@ -1934,8 +2097,8 @@ function showDiscountModal() {
     subtotalAmount = currentCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
     // Mostrar subtotal
-    document.getElementById('modal-subtotal').textContent = `$${formatPrice(subtotalAmount)}`;
-    document.getElementById('modal-total').textContent = `$${formatPrice(subtotalAmount)}`;
+    document.getElementById('modal-subtotal').textContent = `$${ formatPrice(subtotalAmount) }`;
+    document.getElementById('modal-total').textContent = `$${ formatPrice(subtotalAmount) }`;
 
     // Resetear descuento
     currentDiscount = 0;
@@ -1972,8 +2135,8 @@ function updateDiscountDisplay() {
 
     // Actualizar elementos del modal
     document.getElementById('discount-percentage').textContent = currentDiscount;
-    document.getElementById('discount-amount').textContent = `$${formatPrice(discountAmount)}`;
-    document.getElementById('modal-total').textContent = `$${formatPrice(totalWithDiscount)}`;
+    document.getElementById('discount-amount').textContent = `$${ formatPrice(discountAmount) }`;
+    document.getElementById('modal-total').textContent = `$${ formatPrice(totalWithDiscount) }`;
 
     // Mostrar/ocultar resumen de descuento
     const discountSummary = document.getElementById('discount-summary');
@@ -2019,14 +2182,14 @@ async function confirmOrderWithDiscount() {
         showView('main-menu-view');
 
         // Mostrar notificación de Ã©Â©xito
-        showNotification(`¡Pedido #${displayOrderNumber} enviado exitosamente!`, 'success');
+        showNotification(`¡Pedido #${ displayOrderNumber } enviado exitosamente!`, 'success');
 
         // Recargar la gestión de pedidos si estÃ¡ abierta
         reloadOrderManagement();
 
         // Imprimir factura automáticamente después de un breve delay
         setTimeout(async () => {
-            console.log(`Imprimiendo factura automáticamente para pedido #${displayOrderNumber}`);
+            console.log(`Imprimiendo factura automáticamente para pedido #${ displayOrderNumber }`);
             try {
                 // printOrder espera el ID interno; usar orderResponse.data.id si está disponible
                 const orderId = orderResponse.data ? orderResponse.data.id : (orderResponse.id || orderResponse.pedido_id);
@@ -2043,7 +2206,7 @@ async function confirmOrderWithDiscount() {
 
     } catch (error) {
         console.error('Error al enviar pedido:', error);
-        showNotification(`Error al enviar el pedido: ${error.message}`, 'error');
+        showNotification(`Error al enviar el pedido: ${ error.message }`, 'error');
     }
 }
 
@@ -2137,7 +2300,7 @@ async function submitOrderWithDiscount(totalWithDiscount, discountPercentage) {
     try {
         const notifOrderId = result.data ? result.data.id : result.id;
         if (notifOrderId) {
-            fetch(`${API_BASE_URL}/api/notify-order`, {
+            fetch(`${ API_BASE_URL } / api / notify - order`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ order_id: notifOrderId })
@@ -2205,7 +2368,7 @@ async function mostrarSeccionDosSaboresMesa(recipeId) {
 
     // Opciones para modo 3
     const modo3Html = recipe.permite_tres_sabores ? `
-                <label class="inline-flex items-center mr-4">
+    < label class= "inline-flex items-center mr-4" >
                     <input type="radio" name="modo-dos-sabores-mesa" value="2" checked onchange="setModoDosSaboresMesa(2)" class="form-radio">
                     <span class="ml-2 text-sm">2 sabores (mitad y mitad)</span>
                 </label>
@@ -2227,7 +2390,7 @@ async function mostrarSeccionDosSaboresMesa(recipeId) {
                 return t === tipoUpper;
             });
             return `
-                <div class="mb-3">
+        < div class= "mb-3" >
                     <p class="font-medium text-gray-300 mb-2">Sabor para ${tipo}:</p>
                     <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto" data-tipo="${tipo}">
                         ${opciones.map(sabor => `
@@ -2238,22 +2401,23 @@ async function mostrarSeccionDosSaboresMesa(recipeId) {
                             </div>
                         `).join('')}
                     </div>
-                </div>`;
+                </div > `;
         }).join('');
     } else {
         // Lista plana
-        selectorHtml = `<div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">` +
+        selectorHtml = `< div class= "grid grid-cols-2 gap-2 max-h-48 overflow-y-auto" > ` +
             sabores.map(sabor => `
-                <div class="sabor-opcion p-2 border border-gray-600 rounded-lg cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition flex items-center gap-2"
-                     onclick="seleccionarSegundoSaborModoMesa(${sabor.sabor_producto_id || sabor.id}, '${(sabor.nombre || '').replace(/'/g, "\\'")}', this, '${(sabor.tipo_canonico || '').replace(/'/g, "\\'")}')">
-                    ${sabor.imagen_url ? `<img src="${sabor.imagen_url}" class="w-10 h-10 rounded object-cover">` : `<div class="w-10 h-10 rounded bg-gray-600 flex items-center justify-center"><i class="fas fa-pizza-slice text-gray-400"></i></div>`}
-                    <span class="text-sm font-medium text-gray-200 break-words">${sabor.nombre}</span>
-                </div>
-            `).join('') + `</div>`;
+    < div class= "sabor-opcion p-2 border border-gray-600 rounded-lg cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition flex items-center gap-2"
+                     onclick = "seleccionarSegundoSaborModoMesa(${sabor.sabor_producto_id || sabor.id}, '${(sabor.nombre || '').replace(/'/g, "\\'")}', this, '${(sabor.tipo_canonico || '').replace(/' / g, "\\'")
+} ')">
+                    ${ sabor.imagen_url ? `<img src="${sabor.imagen_url}" class="w-10 h-10 rounded object-cover">` : `<div class="w-10 h-10 rounded bg-gray-600 flex items-center justify-center"><i class="fas fa-pizza-slice text-gray-400"></i></div>` }
+<span class="text-sm font-medium text-gray-200 break-words">${sabor.nombre}</span>
+                </div >
+    `).join('') + `</div > `;
     }
 
     container.innerHTML = `
-        <div class="bg-gray-800 p-3 rounded-lg">
+        < div class="bg-gray-800 p-3 rounded-lg" >
             <div class="mb-3 text-sm text-gray-300">${modo3Html}</div>
             <label class="flex items-center gap-3 cursor-pointer mb-3 p-2 bg-gray-700 rounded-lg border border-gray-600">
                 <input type="checkbox" id="checkbox-dos-sabores-mesa" onchange="toggleDosSaboresMesa()" class="w-5 h-5 accent-orange-500">
@@ -2262,19 +2426,20 @@ async function mostrarSeccionDosSaboresMesa(recipeId) {
             <div id="selector-segundo-sabor-mesa" class="hidden">
                 ${selectorHtml}
             </div>
-        </div>
+        </div >
+    `;
     `;
 
-    // Mostrar sección
-    seccion.classList.remove('hidden');
+// Mostrar sección
+seccion.classList.remove('hidden');
 
-    // Reset selecciones mesa
-    segundoSaborMesa = null;
-    segundosMesaSeleccionados = [];
-    combinadoSelectionsMesa = {};
-    allowedTypesForCombinedMesa = allowedTypes.slice();
-    modoDosSaboresMesa = 2;
-    const infoBox = document.getElementById('saborSeleccionadoMesa'); if (infoBox) infoBox.classList.add('hidden');
+// Reset selecciones mesa
+segundoSaborMesa = null;
+segundosMesaSeleccionados = [];
+combinadoSelectionsMesa = {};
+allowedTypesForCombinedMesa = allowedTypes.slice();
+modoDosSaboresMesa = 2;
+const infoBox = document.getElementById('saborSeleccionadoMesa'); if (infoBox) infoBox.classList.add('hidden');
 }
 
 // Seleccionar segundo sabor
