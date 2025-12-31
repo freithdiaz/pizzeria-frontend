@@ -136,7 +136,10 @@ export const db = {
                 notas_entrega: rawInfo.observaciones || rawInfo.notas_entrega || '',
                 telefono_cliente: rawInfo.telefono_cliente || rawInfo.telefono || '',
                 direccion_entrega: rawInfo.direccion_entrega || rawInfo.direccion || '',
-                usuario_domicilio_id: rawInfo.usuario_domicilio_id || null, // Si se proporciona
+                usuario_domicilio_id: rawInfo.usuario_domicilio_id || null,
+                // Session traceability
+                cajero: rawInfo.cajero || null,
+                sesion_inicio: rawInfo.sesion_inicio || null,
                 fecha: new Date().toISOString()
             };
 

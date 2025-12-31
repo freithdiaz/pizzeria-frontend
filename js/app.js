@@ -1988,7 +1988,7 @@ async function loadSessionStats() {
             const sessionOrderNumber = count - index;
 
             return `
-    < div class= "bg-gray-800 p-3 rounded flex justify-between items-center border-l-4 ${getEstadoColor(o.estado)}" >
+                <div class="bg-gray-800 p-3 rounded flex justify-between items-center border-l-4 ${getEstadoColor(o.estado)}">
                     <div>
                         <span class="font-bold text-white">#${sessionOrderNumber} - ${o.cliente_nombre || 'Cliente'}</span>
                         <p class="text-xs text-gray-400">${formatDateTime(o.fecha)}</p>
@@ -1997,8 +1997,8 @@ async function loadSessionStats() {
                         <span class="font-bold text-green-400">$${formatPrice(o.total_con_descuento || o.total_precio)}</span>
                         <p class="text-xs uppercase">${o.estado}</p>
                     </div>
-                </div >
-        `;
+                </div>
+            `;
         }).join('');
 
     } catch (e) {
@@ -2298,7 +2298,10 @@ async function submitOrderWithDiscount(totalWithDiscount, discountPercentage) {
         items: items,
         tipo_pedido: (typeof currentTable === 'number' || currentTable === 'Para Llevar') ? 'mesa' : 'domicilio',
         estado: 'pendiente',
-        metodo_pago: 'pendiente'
+        metodo_pago: 'pendiente',
+        // Session traceability fields
+        cajero: localStorage.getItem('cajaUsuario') || null,
+        sesion_inicio: localStorage.getItem('cajaSesionStart') || null
     };
 
     console.log('Enviando pedido a Supabase:', orderData);
@@ -2579,6 +2582,16 @@ function seleccionarSegundoSaborModo3Mesa(id, nombre, el) {
     try { if (el) el.classList.toggle('border-orange-400'); } catch (e) { }
     updateMesaFlavorDisplay();
 }
+
+// Función global para acceso a Admin (simulada)
+window.checkAdminAccess = function () {
+    const password = prompt("Ingrese la contraseña de administrador:");
+    if (password === "1234") { // Contraseña hardcoded simple
+        window.location.href = "admin.html";
+    } else if (password !== null) {
+        alert("Contraseña incorrecta.");
+    }
+};
 
 
 
