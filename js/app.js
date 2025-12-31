@@ -1992,7 +1992,11 @@ function mostrarPanelCajaAbierta() {
 
     if (sesionActual) {
         document.getElementById('cajero-nombre-display').textContent = sesionActual.usuario;
-        document.getElementById('caja-inicio-display').textContent = sesionActual.inicio.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+        document.getElementById('caja-inicio-display').textContent = sesionActual.inicio.toLocaleTimeString('es-CO', {
+            timeZone: 'America/Bogota',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
     }
 }
 

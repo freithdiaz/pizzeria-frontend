@@ -2663,6 +2663,18 @@
             return Math.round(numPrice).toLocaleString('es-CO');
         }
 
+        function formatTime(dateInput) {
+            if (!dateInput) return 'N/A';
+            const date = new Date(dateInput);
+            if (isNaN(date.getTime())) return 'N/A';
+            return date.toLocaleTimeString('es-CO', {
+                timeZone: 'America/Bogota',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+
         // ==================== HISTORIAL DE SESIONES ====================
         async function cargarHistorialPedidos() {
             const fechaInput = document.getElementById('historial-fecha');
@@ -2701,7 +2713,7 @@
                     if (!sesiones[key]) {
                         sesiones[key] = {
                             cajero: p.cajero || 'Desconocido',
-                            inicio: p.sesion_inicio ? new Date(p.sesion_inicio).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'N/A',
+                            inicio: p.sesion_inicio ? formatTime(p.sesion_inicio) : 'N/A',
                             pedidos: [],
                             total: 0,
                             countActivos: 0
@@ -2738,7 +2750,7 @@
                         <div class="flex justify-between items-center py-2 border-b border-slate-600 last:border-0 ${isCancelado ? 'opacity-60' : ''}">
                             <div>
                                 <span class="font-medium text-white">${p.cliente_nombre || p.mesa || 'Pedido'}</span>
-                                <span class="text-xs text-gray-400 ml-2">${new Date(p.fecha).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</span>
+                                <span class="text-xs text-gray-400 ml-2">${formatTime(p.created_at || p.fecha)}</span>
                             </div>
                             <span class="${statusClass}">${statusText}</span>
                         </div>
