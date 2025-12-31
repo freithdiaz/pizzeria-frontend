@@ -206,6 +206,10 @@
                     class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
                     <i class="fas fa-cog mr-2"></i>Configuracion
                 </button>
+                <button onclick="mostrarSeccion('historial')" id="tab-historial"
+                    class="tab-btn px-6 py-3 font-semibold border-b-2 border-transparent hover:border-blue-500 transition">
+                    <i class="fas fa-history mr-2"></i>Historial
+                </button>
             </nav>
 
         </div>
@@ -676,7 +680,50 @@
                     </div>
                 </form>
             </div>
-        </div>
+
+            <!-- SECCIÓN: HISTORIAL DE SESIONES -->
+            <div id="seccion-historial" class="seccion hidden">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                    <h2 class="text-3xl font-bold">Historial de Pedidos y Sesiones</h2>
+                    <div class="flex flex-wrap gap-3 items-center">
+                        <label class="text-sm text-gray-300">Fecha:</label>
+                        <input type="date" id="historial-fecha"
+                            class="bg-slate-700 px-4 py-2 rounded-lg border border-slate-600 text-white"
+                            onchange="cargarHistorialPedidos()">
+                        <button onclick="cargarHistorialPedidos()"
+                            class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold transition">
+                            <i class="fas fa-search mr-2"></i>Buscar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Resumen del día -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                        <p class="text-gray-400 text-sm">Total Ventas del Día</p>
+                        <h3 class="text-2xl font-bold text-green-400" id="historial-total-dia">$0</h3>
+                    </div>
+                    <div class="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                        <p class="text-gray-400 text-sm">Pedidos del Día</p>
+                        <h3 class="text-2xl font-bold text-blue-400" id="historial-pedidos-dia">0</h3>
+                    </div>
+                    <div class="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                        <p class="text-gray-400 text-sm">Sesiones Activas</p>
+                        <h3 class="text-2xl font-bold text-purple-400" id="historial-sesiones-dia">0</h3>
+                    </div>
+                </div>
+
+                <!-- Lista de pedidos agrupados por sesión -->
+                <div class="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-receipt mr-2 text-orange-400"></i>
+                        Pedidos por Sesión
+                    </h3>
+                    <div id="historial-lista-sesiones" class="space-y-4">
+                        <p class="text-center text-gray-400 py-8">Selecciona una fecha para ver el historial.</p>
+                    </div>
+                </div>
+            </div>
 
     </main>
 
@@ -2607,11 +2654,106 @@
             }
         }
 
+
         function formatPrice(price) {
             const numPrice = typeof price === 'string' ? parseFloat(price) : price;
             return Math.round(numPrice).toLocaleString('es-CO');
         }
 
+        // ==================== HISTORIAL DE SESIONES ====================
+        async function cargarHistorialPedidos() {
+            const fechaInput = document.getElementById('historial-fecha');
+            if (!fechaInput.value) {
+                // Default a hoy
+                fechaInput.value = new Date().toISOString().split('T')[0];
+            }
+
+            const fechaSeleccionada = fechaInput.value; // YYYY-MM-DD
+
+            try {
+                // Rango: desde 00:00:00 hasta 23:59:59 del día seleccionado
+                const inicioISO = new Date(fechaSeleccionada + 'T00:00:00').toISOString();
+                const finISO = new Date(fechaSeleccionada + 'T23:59:59').toISOString();
+
+                const { data: pedidos, error } = await window.supabase
+                    .from('pedidos')
+                    .select('*')
+                    .gte('fecha', inicioISO)
+                    .lte('fecha', finISO)
+                    .order('fecha', { ascending: false });
+
+                if (error) throw error;
+
+                // Calcular estadísticas del día
+                const total = pedidos.reduce((sum, p) => sum + (parseFloat(p.total_con_descuento || p.total_precio) || 0), 0);
+                const count = pedidos.length;
+
+                // Agrupar por sesión (sesion_inicio + cajero)
+                const sesiones = {};
+                pedidos.forEach(p => {
+                    const key = (p.sesion_inicio || 'sin_sesion') + '_' + (p.cajero || 'desconocido');
+                    if (!sesiones[key]) {
+                        sesiones[key] = {
+                            cajero: p.cajero || 'Desconocido',
+                            inicio: p.sesion_inicio ? new Date(p.sesion_inicio).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'N/A',
+                            pedidos: [],
+                            total: 0
+                        };
+                    }
+                    sesiones[key].pedidos.push(p);
+                    sesiones[key].total += parseFloat(p.total_con_descuento || p.total_precio) || 0;
+                });
+
+                const numSesiones = Object.keys(sesiones).length;
+
+                // Actualizar UI estadísticas
+                document.getElementById('historial-total-dia').textContent = `$${formatPrice(total)}`;
+                document.getElementById('historial-pedidos-dia').textContent = count;
+                document.getElementById('historial-sesiones-dia').textContent = numSesiones;
+
+                // Renderizar lista de sesiones
+                const lista = document.getElementById('historial-lista-sesiones');
+                if (count === 0) {
+                    lista.innerHTML = '<p class="text-center text-gray-400 py-8">No hay pedidos para esta fecha.</p>';
+                    return;
+                }
+
+                lista.innerHTML = Object.values(sesiones).map(sesion => {
+                    const pedidosHtml = sesion.pedidos.map((p, idx) => `
+                        <div class="flex justify-between items-center py-2 border-b border-slate-600 last:border-0">
+                            <div>
+                                <span class="font-medium text-white">#${idx + 1} - ${p.cliente_nombre || p.mesa || 'Pedido'}</span>
+                                <span class="text-xs text-gray-400 ml-2">${new Date(p.fecha).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                            <span class="font-bold text-green-400">$${formatPrice(p.total_con_descuento || p.total_precio)}</span>
+                        </div>
+                    `).join('');
+
+                    return `
+                        <div class="bg-slate-700 rounded-lg p-4 border-l-4 border-purple-500">
+                            <div class="flex justify-between items-center mb-3">
+                                <div>
+                                    <span class="font-bold text-white"><i class="fas fa-user mr-2"></i>${sesion.cajero}</span>
+                                    <span class="text-sm text-gray-400 ml-3">Inicio: ${sesion.inicio}</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="font-bold text-green-400 text-lg">$${formatPrice(sesion.total)}</span>
+                                    <p class="text-xs text-gray-400">${sesion.pedidos.length} pedido(s)</p>
+                                </div>
+                            </div>
+                            <div class="bg-slate-800 rounded p-3 max-h-60 overflow-y-auto">
+                                ${pedidosHtml}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (e) {
+                console.error('Error cargando historial:', e);
+                document.getElementById('historial-lista-sesiones').innerHTML =
+                    '<p class="text-center text-red-400 py-8">Error al cargar el historial.</p>';
+            }
+        }
 
         // Initialize App
 
