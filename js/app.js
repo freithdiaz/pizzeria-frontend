@@ -1845,7 +1845,7 @@ function confirmarPizzaConAdicionales() {
 }
 
 function closeAdicionalesModal() {
-    const modal = document.getElementById('modal-adicionales');
+    const modal = document.getElementById('adicionalesModal');
     if (modal) {
         modal.classList.add('hidden');
     }
