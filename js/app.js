@@ -865,6 +865,7 @@ let allOrders = [];
 let currentStatusFilter = 'all';
 let orderManagementInterval;
 let lastPendingDeliveryCount = 0;
+let lastNotifiedDeliveryId = parseInt(localStorage.getItem('lastNotifiedDeliveryId')) || 0;
 let lastCreatedOrderId = null; // Variable para guardar el ID del último pedido creado
 
 // Función para convertir estados del backend a formato legible
@@ -1232,24 +1233,27 @@ function updateDeliveryNotifications() {
             badge.textContent = count;
         }
 
-        // Reproducir sonido si el número de domicilios pendientes aumentó
-        if (count > lastPendingDeliveryCount) {
+        // Obtener el ID más alto de los domicilios pendientes actuales
+        const maxId = Math.max(...pendingDeliveries.map(o => parseInt(o.id) || 0));
+
+        // Reproducir sonido SOLO si hay un ID nuevo que nunca hemos notificado
+        if (maxId > lastNotifiedDeliveryId) {
             if (sound) {
                 sound.currentTime = 0;
                 sound.play().catch(e => console.warn('Audio play blocked by browser. User interaction needed.', e));
             }
 
-            // Notificación de escritorio (si el navegador lo permite)
-            if ("Notification" in window) {
-                if (Notification.permission === "granted") {
-                    new Notification("🚀 Nuevo Domicilio Pendiente", {
-                        body: `Tienes ${count} domicilios esperando despacho.`,
-                        icon: "./niss.ico"
-                    });
-                } else if (Notification.permission !== "denied") {
-                    Notification.requestPermission();
-                }
+            // Notificación de escritorio
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification("🚀 Nuevo Domicilio Pendiente", {
+                    body: `Tienes ${count} domicilios esperando despacho.`,
+                    icon: "./niss.ico"
+                });
             }
+
+            // Actualizar el último ID notificado y guardarlo
+            lastNotifiedDeliveryId = maxId;
+            localStorage.setItem('lastNotifiedDeliveryId', maxId);
         }
     } else {
         if (alertDiv) alertDiv.classList.add('hidden');
