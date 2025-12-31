@@ -21,8 +21,21 @@ const headerText = document.getElementById('header-text');
 // Función para formatear fecha y hora (es-CO / Bogota)
 function formatDateTime(dateInput) {
     if (!dateInput) return 'Fecha desconocida';
-    const date = new Date(dateInput);
+
+    // Normalizar entrada de fecha
+    let normalizedInput = dateInput;
+    if (typeof dateInput === 'string') {
+        // Asegurar formato ISO (reemplazar espacio por T)
+        normalizedInput = dateInput.replace(' ', 'T');
+        // Si no tiene indicador de zona horaria (+ o Z), asumimos UTC de Supabase
+        if (!normalizedInput.includes('Z') && !normalizedInput.includes('+')) {
+            normalizedInput += 'Z';
+        }
+    }
+
+    const date = new Date(normalizedInput);
     if (isNaN(date.getTime())) return 'Fecha inválida';
+
     return date.toLocaleString('es-CO', {
         timeZone: 'America/Bogota',
         year: 'numeric',
