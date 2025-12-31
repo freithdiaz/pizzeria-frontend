@@ -1232,28 +1232,43 @@ function updateDeliveryNotifications() {
             badge.classList.remove('hidden');
             badge.textContent = count;
         }
+        // Re-sincronizar con localStorage por si otra pestaña actualizó el ID
+        const storedId = parseInt(localStorage.getItem('lastNotifiedDeliveryId')) || 0;
+        if (storedId > lastNotifiedDeliveryId) {
+            lastNotifiedDeliveryId = storedId;
+        }
 
         // Obtener el ID más alto de los domicilios pendientes actuales
-        const maxId = Math.max(...pendingDeliveries.map(o => parseInt(o.id) || 0));
+        const ids = pendingDeliveries.map(o => parseInt(o.id)).filter(id => !isNaN(id) && id > 0);
+        const maxId = ids.length > 0 ? Math.max(...ids) : 0;
 
-        // Reproducir sonido SOLO si hay un ID nuevo que nunca hemos notificado
-        if (maxId > lastNotifiedDeliveryId) {
+        // Reproducir sonido SOLO si hay un ID nuevo válido que nunca hemos notificado
+        if (maxId > 0 && maxId > lastNotifiedDeliveryId) {
+            // Actualizar el estado INMEDIATAMENTE para evitar re-notificaciones en intervalos paralelos
+            const oldId = lastNotifiedDeliveryId;
+            lastNotifiedDeliveryId = maxId;
+            localStorage.setItem('lastNotifiedDeliveryId', maxId);
+
+            console.log(`Notificación: Nuevo maxId ${maxId} detectado (previo: ${oldId})`);
+
             if (sound) {
                 sound.currentTime = 0;
-                sound.play().catch(e => console.warn('Audio play blocked by browser. User interaction needed.', e));
+                sound.play().catch(e => {
+                    console.warn('Audio play bloqueado o fallido:', e);
+                });
             }
 
             // Notificación de escritorio
             if ("Notification" in window && Notification.permission === "granted") {
-                new Notification("🚀 Nuevo Domicilio Pendiente", {
-                    body: `Tienes ${count} domicilios esperando despacho.`,
-                    icon: "./niss.ico"
-                });
+                try {
+                    new Notification("🚀 Nuevo Domicilio Pendiente", {
+                        body: `Tienes ${count} domicilios esperando despacho.`,
+                        icon: "./niss.ico"
+                    });
+                } catch (e) {
+                    console.warn('Error al mostrar notificación de escritorio:', e);
+                }
             }
-
-            // Actualizar el último ID notificado y guardarlo
-            lastNotifiedDeliveryId = maxId;
-            localStorage.setItem('lastNotifiedDeliveryId', maxId);
         }
     } else {
         if (alertDiv) alertDiv.classList.add('hidden');
@@ -1389,7 +1404,9 @@ async function updateOrderStatus(orderId, newStatus) {
 }
 
 function startOrderManagementUpdates() {
+    if (orderManagementInterval) return; // Evitar duplicar intervalos
     orderManagementInterval = setInterval(loadOrderManagement, 10000); // Actualizar cada 10 segundos
+    console.log('Intervalo de actualización de pedidos iniciado');
 }
 
 function stopOrderManagementUpdates() {
