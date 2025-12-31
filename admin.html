@@ -1156,7 +1156,11 @@
                             const prod = it.producto || it.name || '';
                             const tam = it.tamano || it.size || '';
                             const price = it.precio_unitario || it.unit_price || it.price || 0;
-                            const key = `${prod}||${tam}||${price}`;
+                            // FIX: Incluir adiciones y sabores en la clave para evitar agrupar items distintos
+                            const adicKey = JSON.stringify(it.adiciones || []);
+                            const saborKey = it.segundo_sabor ? JSON.stringify(it.segundo_sabor) : (it.segundos_sabores ? JSON.stringify(it.segundos_sabores) : '');
+
+                            const key = `${prod}||${tam}||${price}||${adicKey}||${saborKey}`;
 
                             // Normalizar segundos_sabores del item actual
                             let ssList = [];
@@ -1176,11 +1180,7 @@
                                 grouped[key].segundos_sabores = ssList.slice();
                             } else {
                                 grouped[key].cantidad = Number(grouped[key].cantidad || 0) + Number(it.cantidad || it.quantity || 1);
-                                // merge segundos_sabores sin duplicados por nombre
-                                ssList.forEach(ss => {
-                                    const exists = (grouped[key].segundos_sabores || []).some(e => (e.nombre || e.name || '').toString().trim() === (ss.nombre || ss.name || '').toString().trim());
-                                    if (!exists) grouped[key].segundos_sabores.push(ss);
-                                });
+                                // No mergear segundos sabores si son items idénticos (la clave ya los iguala)
                             }
                         });
 
@@ -1247,18 +1247,21 @@
                         ${badgeHtml}
                         ${detallesStr}
                     </div>`;
-                    }).join('');
+                }).join('');
 
                 // Formatear fecha y hora para Colombia
                 const formatearFecha = (fechaStr) => {
+                    if (!fechaStr) return 'N/A';
                     // La fecha viene de SQLite sin zona horaria, tratarla como local (Colombia)
                     // Agregar 'T' si no tiene y no agregar 'Z' para que no se interprete como UTC
-                    let fechaLocal = fechaStr.replace(' ', 'T');
+                    let fechaLocal = String(fechaStr).replace(' ', 'T');
                     if (!fechaLocal.includes('T')) {
+                        // Si es solo fecha sin hora
                         fechaLocal += 'T00:00:00';
                     }
                     // Parsear sin el sufijo Z para que se trate como hora local
                     const fecha = new Date(fechaLocal);
+                    if (isNaN(fecha.getTime())) return fechaStr; // Fallback text
 
                     // Formatear manualmente
                     const dia = fecha.getDate().toString().padStart(2, '0');
@@ -1328,6 +1331,7 @@
             // Cargar datos especificos
             if (seccion === 'dashboard') {
                 if (typeof cargarVentasDia === 'function') cargarVentasDia();
+                if (typeof cargarHistorialCierres === 'function') cargarHistorialCierres();
             } else if (seccion === 'categorias') {
                 if (typeof cargarCategorias === 'function') cargarCategorias();
             } else if (seccion === 'productos') {
@@ -1585,6 +1589,61 @@
                 console.error('Error:', error);
                 mostrarNotificacion('Error al guardar categoria', 'error');
             }
+        }
+
+        async function cargarHistorialCierres() {
+            const cont = document.getElementById('dashboard-historial-caja');
+            if (!cont) return;
+            cont.innerHTML = '<p class="text-gray-400 text-sm">Cargando cierre...</p>';
+
+            try {
+                // Usamos window.supabase directo ya que la API puede no existir aun
+                if (!window.supabase) throw new Error('Supabase client no disponible');
+
+                const { data, error } = await window.supabase
+                    .from('caja_cierres')
+                    .select('*')
+                    .order('fecha_cierre', { ascending: false })
+                    .limit(20);
+
+                if (error) {
+                    console.warn('Error fetching caja_cierres, intentando API fallback...', error);
+                    // Fallback a API si existe (legacy)
+                    const resp = await fetch(`${API_BASE_URL}/api/caja/historial`);
+                    if (resp.ok) {
+                        const dataApi = await resp.json();
+                        renderHistorialCaja(dataApi, cont);
+                        return;
+                    }
+                    throw error;
+                }
+
+                renderHistorialCaja(data, cont);
+
+            } catch (e) {
+                console.error('Error cargando historial cierres:', e);
+                cont.innerHTML = '<p class="text-red-400 text-xs">No se pudo cargar el historial.</p>';
+            }
+        }
+
+        function renderHistorialCaja(data, container) {
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-sm">No hay cierres registrados.</p>';
+                return;
+            }
+
+            container.innerHTML = data.map(c => `
+                <div class="bg-slate-700 p-3 rounded mb-2 text-sm border-l-4 border-green-500">
+                   <div class="flex justify-between items-center mb-1">
+                       <span class="font-bold text-white">${new Date(c.fecha_cierre).toLocaleString('es-CO')}</span>
+                       <span class="text-green-400 font-bold">$${parseFloat(c.total_ventas || 0).toLocaleString('es-CO')}</span>
+                   </div>
+                   <div class="flex justify-between text-gray-400 text-xs">
+                       <span><i class="fas fa-user mr-1"></i>${c.usuario_cierre || 'Admin'}</span>
+                       <span>${c.total_pedidos || 0} pedidos</span>
+                   </div>
+                </div>
+            `).join('');
         }
 
         async function eliminarCategoria(id) {
