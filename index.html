@@ -237,12 +237,6 @@
                 <!-- Las categorías se cargarán dinámicamente aquí desde JavaScript -->
             </div>
 
-            <!-- Floating Cart/Checkout Button -->
-            <div id="checkout-btn" onclick="showCart()"
-                class="fixed bottom-6 right-6 px-6 py-4 bg-green-500 text-white font-semibold rounded-full shadow-lg cursor-pointer"
-                style="display: none;">
-                Ver mi pedido (<span id="current-table-display"></span>)
-            </div>
         </section>
 
 
@@ -857,6 +851,13 @@
             <span>Admin</span>
         </button>
     </nav>
+
+    <!-- Floating Cart/Checkout Button -->
+    <div id="checkout-btn" onclick="showCart()"
+        class="fixed bottom-24 right-6 px-6 py-4 bg-green-600 text-white font-bold rounded-full shadow-2xl cursor-pointer z-[60] pulse-active"
+        style="display: none;">
+        <i class="fas fa-shopping-basket mr-2"></i>Ver mi pedido (<span id="current-table-display"></span>)
+    </div>
 
     <script src="./js/notifications.js" defer></script>
     <script src="./js/dos-sabores.js" defer></script>
