@@ -1058,6 +1058,8 @@
             } else if (seccion === 'configuracion') {
                 if (typeof cargarConfiguracion === 'function') cargarConfiguracion();
                 if (typeof cargarZonasPrecios === 'function') cargarZonasPrecios();
+            } else if (seccion === 'historial') {
+                if (typeof cargarHistorialPedidos === 'function') cargarHistorialPedidos();
             }
         }
 
