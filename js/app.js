@@ -930,9 +930,25 @@ async function loadOrderManagement() {
         }
     } catch (error) {
         console.error('Error al cargar pedidos:', error);
-        const container = document.getElementById('order-management-container');
-        if (container) {
-            container.innerHTML = '<p class="text-center text-red-400">Error al cargar pedidos</p>';
+
+        // Si no hay pedidos previos (error en carga inicial), mostrar mensaje de error
+        // Si ya existen pedidos (error en actualización), no destruimos la UI existente
+        if (allOrders.length === 0) {
+            const container = document.getElementById('order-management-container');
+            if (container) {
+                container.innerHTML = `
+                    <div class="text-center py-10">
+                        <i class="fas fa-exclamation-circle text-red-500 text-4xl mb-3"></i>
+                        <p class="text-red-400">Error al conectar con el servidor.</p>
+                        <button onclick="loadOrderManagement()" class="mt-4 bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-sm transition">
+                            <i class="fas fa-sync-alt mr-2"></i>Reintentar
+                        </button>
+                    </div>
+                `;
+            }
+        } else {
+            // Error silencioso en actualización automática para no molestar al usuario
+            console.warn('Fallo en actualización automática de pedidos (Red inestable o timeout)');
         }
     }
 }

@@ -255,34 +255,49 @@ export const db = {
 
     async getPedidos(limit = 50) {
         try {
-            // 1. Obtener todos los datos necesarios por separado (Zero Join)
-            const [pedidosRes, usuariosRes, detallesRes, productosRes, preciosRes, segundosRes] = await Promise.all([
-                supabase.from('pedidos').select('*').order('id', { ascending: false }).limit(limit),
-                supabase.from('usuarios_domicilio').select('*'),
-                supabase.from('detalle_pedido').select('*'),
-                supabase.from('productos').select('*'),
-                supabase.from('producto_precios_dinamicos').select('*'),
-                supabase.from('detalle_pedido_segundo_sabor').select('*')
+            // 1. Obtener pedidos primero para filtrar lo demás
+            const { data: pedidos, error: errPedidos } = await supabase
+                .from('pedidos')
+                .select('*')
+                .order('id', { ascending: false })
+                .limit(limit);
+
+            if (errPedidos) throw errPedidos;
+            if (!pedidos || pedidos.length === 0) return [];
+
+            const pedidoIds = pedidos.map(p => p.id);
+            const usuarioIds = [...new Set(pedidos.map(p => p.usuario_domicilio_id).filter(Boolean))];
+
+            // 2. Obtener detalles y usuarios vinculados
+            const [usuariosRes, detallesRes] = await Promise.all([
+                supabase.from('usuarios_domicilio').select('*').in('id', usuarioIds),
+                supabase.from('detalle_pedido').select('*').in('pedido_id', pedidoIds)
             ]);
 
-            if (pedidosRes.error) throw pedidosRes.error;
-
-            const pedidos = pedidosRes.data || [];
             const usuarios = usuariosRes.data || [];
             const detalles = detallesRes.data || [];
+            const detalleIds = detalles.map(d => d.id);
+
+            // 3. Obtener info de productos, precios y segundos sabores
+            // Nota: Seguimos trayendo productos/precios completos porque suelen ser pocos,
+            // pero filtramos los segundos sabores que crecen con el tiempo.
+            const [productosRes, preciosRes, segundosRes] = await Promise.all([
+                supabase.from('productos').select('*'),
+                supabase.from('producto_precios_dinamicos').select('*'),
+                supabase.from('detalle_pedido_segundo_sabor').select('*').in('detalle_pedido_id', detalleIds)
+            ]);
+
             const productos = productosRes.data || [];
             const precios = preciosRes.data || [];
-            const segundos = (segundosRes && segundosRes.data) ? segundosRes.data : [];
+            const segundos = segundosRes.data || [];
 
-            // 2. Unir en JavaScript
+            // 4. Unir en JavaScript
             return pedidos.map(p => {
-                // Filtrar detalles del pedido
                 const itemsDelPedido = detalles.filter(d => d.pedido_id === p.id).map(d => {
                     const prod = productos.find(pr => pr.id === d.producto_id);
                     const precioDinamico = precios.find(pd => pd.id === d.tamano_id);
-
-                    // Encontrar segundos sabores asociados a este detalle
-                    const segundosParaDetalle = segundos.filter(s => s.detalle_pedido_id === d.id).map(s => ({ id: s.producto_id || null, nombre: s.nombre_producto || null }));
+                    const segundosParaDetalle = segundos.filter(s => s.detalle_pedido_id === d.id)
+                        .map(s => ({ id: s.producto_id || null, nombre: s.nombre_producto || null }));
 
                     return {
                         ...d,
@@ -305,7 +320,7 @@ export const db = {
                 };
             });
         } catch (error) {
-            console.error('Error in getPedidos (Zero Joins):', error);
+            console.error('Error in getPedidos (Optimized Zero Joins):', error);
             throw error;
         }
     },
