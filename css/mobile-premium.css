@@ -156,24 +156,21 @@
         content: attr(data-label);
     }
 
-    /* Espaciado EXTRA para no tapar nada con la barra de navegación */
+    /* Espaciado BALANCEADO para no tapar nada con la barra de navegación */
     #main-content,
     .view-section,
     body {
-        padding-bottom: 220px !important;
-        /* Aumentado significativamente */
+        padding-bottom: 110px !important;
     }
 
-    /* Ajuste fino del carrito para que NO estorbe los botones de productos */
+    /* Ajuste equilibrado del carrito */
     #checkout-btn {
-        bottom: 140px !important;
-        /* Más arriba aún */
+        bottom: 85px !important;
         width: calc(100% - 4rem) !important;
         margin: 0 2rem;
         left: 0 !important;
         transform: none !important;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), 0 0 0 1000px rgba(0, 0, 0, 0.01);
-        /* Truco visual para Click-through si fuera necesario, pero aquí solo sombra */
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     }
 }
 
