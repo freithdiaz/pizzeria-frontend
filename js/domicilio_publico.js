@@ -1232,9 +1232,9 @@ async function obtenerUbicacionGPS() {
     try {
         const position = await new Promise((resolve, reject) => {
             navigator.geolocation.getCurrentPosition(resolve, reject, {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 60000
+                enableHighAccuracy: false, // Más rápido y fiable en dispositivos sin GPS real
+                timeout: 15000,           // Aumentar a 15 segundos
+                maximumAge: 30000          // Usar caché de máximo 30 segundos
             });
         });
 
@@ -1257,7 +1257,17 @@ async function obtenerUbicacionGPS() {
         }
     } catch (error) {
         console.error('Error obteniendo ubicación GPS:', error);
-        mostrarNotificacionRapida('Error obteniendo ubicación', 'warning');
+        let mensaje = 'Error obteniendo ubicación';
+
+        if (error.code === 1) {
+            mensaje = 'Permiso de ubicación denegado';
+        } else if (error.code === 2) {
+            mensaje = 'Ubicación no disponible (señal débil)';
+        } else if (error.code === 3) {
+            mensaje = 'Tiempo de espera agotado. Intenta de nuevo.';
+        }
+
+        mostrarNotificacionRapida(mensaje, 'warning');
     }
 }
 
