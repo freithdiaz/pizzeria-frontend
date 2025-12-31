@@ -2687,9 +2687,12 @@
 
                 if (error) throw error;
 
-                // Calcular estadísticas del día
-                const total = pedidos.reduce((sum, p) => sum + (parseFloat(p.total_con_descuento || p.total_precio) || 0), 0);
-                const count = pedidos.length;
+                // Separar pedidos activos de cancelados para estadísticas
+                const pedidosActivos = pedidos.filter(p => p.estado !== 'cancelado');
+
+                // Calcular estadísticas del día basadas SOLO en pedidos activos
+                const total = pedidosActivos.reduce((sum, p) => sum + (parseFloat(p.total_con_descuento || p.total_precio) || 0), 0);
+                const count = pedidosActivos.length;
 
                 // Agrupar por sesión (sesion_inicio + cajero)
                 const sesiones = {};
@@ -2700,11 +2703,15 @@
                             cajero: p.cajero || 'Desconocido',
                             inicio: p.sesion_inicio ? new Date(p.sesion_inicio).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'N/A',
                             pedidos: [],
-                            total: 0
+                            total: 0,
+                            countActivos: 0
                         };
                     }
                     sesiones[key].pedidos.push(p);
-                    sesiones[key].total += parseFloat(p.total_con_descuento || p.total_precio) || 0;
+                    if (p.estado !== 'cancelado') {
+                        sesiones[key].total += parseFloat(p.total_con_descuento || p.total_precio) || 0;
+                        sesiones[key].countActivos++;
+                    }
                 });
 
                 const numSesiones = Object.keys(sesiones).length;
@@ -2716,21 +2723,27 @@
 
                 // Renderizar lista de sesiones
                 const lista = document.getElementById('historial-lista-sesiones');
-                if (count === 0) {
+                if (pedidos.length === 0) {
                     lista.innerHTML = '<p class="text-center text-gray-400 py-8">No hay pedidos para esta fecha.</p>';
                     return;
                 }
 
                 lista.innerHTML = Object.values(sesiones).map(sesion => {
-                    const pedidosHtml = sesion.pedidos.map((p, idx) => `
-                        <div class="flex justify-between items-center py-2 border-b border-slate-600 last:border-0">
+                    const pedidosHtml = sesion.pedidos.map((p, idx) => {
+                        const isCancelado = p.estado === 'cancelado';
+                        const statusClass = isCancelado ? 'text-red-500 font-bold' : 'text-green-400 font-bold';
+                        const statusText = isCancelado ? 'CANCELADO' : `$${formatPrice(p.total_con_descuento || p.total_precio)}`;
+
+                        return `
+                        <div class="flex justify-between items-center py-2 border-b border-slate-600 last:border-0 ${isCancelado ? 'opacity-60' : ''}">
                             <div>
-                                <span class="font-medium text-white">#${idx + 1} - ${p.cliente_nombre || p.mesa || 'Pedido'}</span>
+                                <span class="font-medium text-white">${p.cliente_nombre || p.mesa || 'Pedido'}</span>
                                 <span class="text-xs text-gray-400 ml-2">${new Date(p.fecha).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</span>
                             </div>
-                            <span class="font-bold text-green-400">$${formatPrice(p.total_con_descuento || p.total_precio)}</span>
+                            <span class="${statusClass}">${statusText}</span>
                         </div>
-                    `).join('');
+                        `;
+                    }).join('');
 
                     return `
                         <div class="bg-slate-700 rounded-lg p-4 border-l-4 border-purple-500">
@@ -2741,7 +2754,7 @@
                                 </div>
                                 <div class="text-right">
                                     <span class="font-bold text-green-400 text-lg">$${formatPrice(sesion.total)}</span>
-                                    <p class="text-xs text-gray-400">${sesion.pedidos.length} pedido(s)</p>
+                                    <p class="text-xs text-gray-400">${sesion.countActivos} pedido(s) válido(s)</p>
                                 </div>
                             </div>
                             <div class="bg-slate-800 rounded p-3 max-h-60 overflow-y-auto">
