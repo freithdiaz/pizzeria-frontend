@@ -215,34 +215,7 @@ label.cursor-pointer:hover {
         font-size: 0.875rem;
     }
 
-    /* Carrito flotante: Ajustar para que esté sobre la barra de navegación */
-    #checkout-btn {
-        bottom: 120px !important;
-        /* Subir más para no tapar botones de productos */
-        right: 1.5rem !important;
-        padding: 1rem 2rem !important;
-        font-size: 1rem !important;
-        z-index: 60 !important;
-        width: calc(100% - 3rem) !important;
-        /* Casi ancho completo para mejor toque */
-        text-align: center;
-        max-width: 400px;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-    }
-
-    /* Asegurar que el contenido final no quede oculto tras la barra nav */
-    #main-content {
-        padding-bottom: 160px !important;
-    }
-
-    /* Cards de productos más compactas */
-    .pizza-card,
-    .beverage-card {
-        padding: 1rem;
-    }
-
-    /* Reducir espaciado en contenedores */
+    /* Estilos móviles heredados eliminados para priorizar mobile-premium.css */
     .container,
     .mx-auto {
         padding-left: 0.5rem;
