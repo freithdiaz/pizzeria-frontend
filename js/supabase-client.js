@@ -162,86 +162,79 @@ export const db = {
             const pedido = pedidoArr[0];
             const pedidoId = pedido.id;
 
-            // 2. Insertar los items del detalle y procesar inventario
+            // 2. Insertar los items del detalle por lotes (batch insert)
+            // Esto evita que el bot de WhatsApp tome el pedido a medias
             if (items && items.length > 0) {
-                for (const item of items) {
-                    const detalleItem = {
-                        pedido_id: pedidoId,
-                        producto_id: item.product_id || item.producto_id,
-                        tamano_id: item.size_id || item.tamano_id,
-                        cantidad: item.quantity || item.cantidad,
-                        precio_unitario: item.unit_price || item.precio_unitario,
-                        adiciones: item.additions || item.adicionales || []
-                    };
+                const itemsToInsert = items.map(item => ({
+                    pedido_id: pedidoId,
+                    producto_id: item.product_id || item.producto_id,
+                    tamano_id: item.size_id || item.tamano_id,
+                    cantidad: item.quantity || item.cantidad,
+                    precio_unitario: item.unit_price || item.precio_unitario,
+                    adiciones: item.additions || item.adicionales || []
+                }));
 
-                    const { data: detalleArr, error: errDetalle } = await supabase
-                        .from('detalle_pedido')
-                        .insert([detalleItem])
-                        .select();
+                const { data: detalleArr, error: errDetalle } = await supabase
+                    .from('detalle_pedido')
+                    .insert(itemsToInsert)
+                    .select();
 
-                    if (errDetalle) {
-                        console.error('Error al insertar detalle:', errDetalle);
-                        // No retornamos error aquí para permitir que los demás items se inserten
-                    }
+                if (errDetalle) {
+                    console.error('Error al insertar detalles:', errDetalle);
+                }
 
-                    // 3. Descontar inventario
-                    try {
-                        // Primero intentar descontar por receta (materias primas)
+                // 3. Post-procesamiento (Inventario y Sabores)
+                // Iteramos sobre los items originales pero usamos los IDs generados
+                if (Array.isArray(detalleArr)) {
+                    for (let i = 0; i < items.length; i++) {
+                        const originalItem = items[i];
+                        const detalleInserted = detalleArr[i];
+                        if (!detalleInserted) continue;
+
+                        const detalleId = detalleInserted.id;
+
+                        // Descontar inventario
                         try {
-                            const invRes = await this.descontarIngredientesPorVenta(detalleItem.producto_id, detalleItem.tamano_id, detalleItem.cantidad);
+                            const invRes = await this.descontarIngredientesPorVenta(detalleInserted.producto_id, detalleInserted.tamano_id, detalleInserted.cantidad);
                             if (!invRes || !invRes.success) {
-                                // Si falla (no hay receta o error), fallback a descontar stock del producto
-                                await this.updateStock(detalleItem.producto_id, -detalleItem.cantidad);
+                                await this.updateStock(detalleInserted.producto_id, -detalleInserted.cantidad);
                             }
-                        } catch (innerInvErr) {
-                            // Fallback: descontar stock en tabla productos
-                            console.warn('descontarIngredientesPorVenta fallo, aplicando updateStock fallback', innerInvErr);
-                            await this.updateStock(detalleItem.producto_id, -detalleItem.cantidad);
+                        } catch (invErr) {
+                            console.warn('Error al descontar inventario:', invErr);
                         }
-                    } catch (invErr) {
-                        console.warn('Error al descontar inventario:', invErr);
-                    }
 
-                    // 4. Si el item incluye segundo_sabor, guardarlo en la tabla detalle_pedido_segundo_sabor
-                    try {
-                        const detalleInserted = Array.isArray(detalleArr) && detalleArr.length > 0 ? detalleArr[0] : null;
-                        const detalleId = detalleInserted ? detalleInserted.id : null;
-                        const segundo = item.segundo_sabor || item.segundos_sabores || null;
-                        if (segundo && detalleId) {
-                            // Normalizar a lista de objetos {producto_id, nombre_producto}
-                            let listToInsert = [];
+                        // Segundos sabores
+                        try {
+                            const segundo = originalItem.segundo_sabor || originalItem.segundos_sabores || null;
+                            if (segundo && detalleId) {
+                                let listToInsert = [];
+                                if (Array.isArray(segundo)) {
+                                    listToInsert = segundo.map(ss => {
+                                        if (!ss) return null;
+                                        if (typeof ss === 'object') return { producto_id: ss.id || ss.producto_id || null, nombre_producto: ss.nombre || ss.name || null };
+                                        return { producto_id: ss, nombre_producto: null };
+                                    }).filter(Boolean);
+                                } else if (typeof segundo === 'object') {
+                                    listToInsert = [{ producto_id: segundo.id || segundo.producto_id || null, nombre_producto: segundo.nombre || segundo.name || null }];
+                                } else {
+                                    listToInsert = [{ producto_id: segundo, nombre_producto: null }];
+                                }
 
-                            if (Array.isArray(segundo)) {
-                                // puede ser [{id,nombre}, ...] o ids simples
-                                listToInsert = segundo.map(ss => {
-                                    if (!ss) return null;
-                                    if (typeof ss === 'object') return { producto_id: ss.id || ss.producto_id || null, nombre_producto: ss.nombre || ss.name || null };
-                                    return { producto_id: ss, nombre_producto: null };
-                                }).filter(Boolean);
-                            } else if (typeof segundo === 'object') {
-                                // objeto simple
-                                listToInsert = [{ producto_id: segundo.id || segundo.producto_id || null, nombre_producto: segundo.nombre || segundo.name || null }];
-                            } else {
-                                // id simple (string/number)
-                                listToInsert = [{ producto_id: segundo, nombre_producto: null }];
-                            }
-
-                            // Insertar cada registro vinculándolo al detalle_pedido
-                            for (const ss of listToInsert) {
-                                try {
-                                    const insertObj = {
-                                        detalle_pedido_id: detalleId,
-                                        producto_id: ss.producto_id,
-                                        nombre_producto: ss.nombre_producto
-                                    };
-                                    await supabase.from('detalle_pedido_segundo_sabor').insert([insertObj]);
-                                } catch (innerErr) {
-                                    console.warn('Error insertando segundo sabor en Supabase:', innerErr);
+                                for (const ss of listToInsert) {
+                                    try {
+                                        await supabase.from('detalle_pedido_segundo_sabor').insert([{
+                                            detalle_pedido_id: detalleId,
+                                            producto_id: ss.producto_id,
+                                            nombre_producto: ss.nombre_producto
+                                        }]);
+                                    } catch (innerErr) {
+                                        console.warn('Error insertando segundo sabor:', innerErr);
+                                    }
                                 }
                             }
+                        } catch (e) {
+                            console.warn('Error procesando segundo_sabor:', e);
                         }
-                    } catch (e) {
-                        console.warn('Error procesando segundo_sabor para detalle:', e);
                     }
                 }
             }
